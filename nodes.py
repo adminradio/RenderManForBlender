@@ -377,21 +377,24 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                     if prop_meta['renderman_type'] == 'page':
                         ui_prop = prop_name + "_ui_open"
                         ui_open = getattr(self, ui_prop)
-                        icon = 'DISCLOSURE_TRI_DOWN' if ui_open \
-                            else 'DISCLOSURE_TRI_RIGHT'
+                        icon = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
 
-                        split = layout.split(NODE_LAYOUT_SPLIT)
-                        row = split.row()
-                        row.prop(self, ui_prop, icon=icon, text='',
-                                 icon_only=True, emboss=False, slider=True)
-                        row.label(prop_name.split('.')[-1] + ':')
-
+                        # named sublayout because we pass it later on to
+                        # 'draw_nonconnectable_props()' recursivly/nested
+                        # and 'box' may be unclear.
+                        #
+                        sublayout = layout.box()
+                        sublayout.prop(self, ui_prop, icon=icon,
+                                       text=prop_name.split('.')[-1],
+                                       emboss=False)
                         if ui_open:
                             prop = getattr(self, prop_name)
                             self.draw_nonconnectable_props(
-                                context, layout, prop)
+                                context, sublayout, prop)
+
                     elif "Subset" in prop_name and prop_meta['type'] == 'string':
-                        layout.prop_search(self, prop_name, bpy.data.scenes[0].renderman,
+                        layout.prop_search(self, prop_name,
+                                           bpy.data.scenes[0].renderman,
                                            "object_groups")
                     else:
                         layout.prop(self, prop_name, slider=True)
@@ -651,7 +654,7 @@ def generate_node_type(prefs, name, args):
             node_group.use_fake_user = True
             self.node_group = node_group.name
         update_conditional_visops(self)
-        
+
 
     def free(self):
         if name == "PxrRamp":
@@ -868,7 +871,7 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                                     row.prop(node, pn, text='')
                                     sub_prop_names.remove(pn)
                                     break
-                        
+
                         row.label(prop_name.split('.')[-1] + ':')
 
                         if ui_open:
@@ -1428,7 +1431,7 @@ def gen_params(ri, node, mat_name=None):
                         in_sock = group_output.inputs[from_socket.name]
                         if len(in_sock.links):
                             from_socket = in_sock.links[0].from_socket
-                            temp_mat_name = mat_name + '.' + from_socket.node.name    
+                            temp_mat_name = mat_name + '.' + from_socket.node.name
 
                     vstruct_from_param = "%s_%s" % (
                         from_socket.identifier, vstruct_member)
@@ -2326,6 +2329,6 @@ def register():
 def unregister():
     nodeitems_utils.unregister_node_categories("RENDERMANSHADERNODES")
     # bpy.utils.unregister_module(__name__)
-    
+
     for cls in classes:
         bpy.utils.unregister_class(cls)

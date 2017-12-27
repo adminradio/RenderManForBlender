@@ -183,7 +183,7 @@ class RENDER_PT_renderman_render(PRManButtonsPanel, Panel):
         layout = self.layout
         rd = context.scene.render
         rm = context.scene.renderman
-        
+
         # Render
         row = layout.row(align=True)
         rman_render = icons.get("render")
@@ -308,7 +308,7 @@ class RENDER_PT_renderman_spooling(PRManButtonsPanel, Panel):
         # render steps
         layout.separator()
         col = layout.column()
-        icon_export = 'DISCLOSURE_TRI_DOWN' if rm.export_options else 'DISCLOSURE_TRI_RIGHT'
+        icon_export = 'TRIA_DOWN' if rm.export_options else 'TRIA_RIGHT'
         col.prop(rm, "export_options", icon=icon_export,
                  text="Export Options:", emboss=False)
         if rm.export_options:
@@ -327,7 +327,7 @@ class RENDER_PT_renderman_spooling(PRManButtonsPanel, Panel):
         # options
         layout.separator()
         if rm.generate_alf:
-            icon_alf = 'DISCLOSURE_TRI_DOWN' if rm.alf_options else 'DISCLOSURE_TRI_RIGHT'
+            icon_alf = 'TRIA_DOWN' if rm.alf_options else 'TRIA_RIGHT'
             col = layout.column()
             col.prop(rm, "alf_options", icon=icon_alf, text="ALF Options:",
                      emboss=False)
@@ -383,8 +383,8 @@ def draw_props(node, prop_names, layout):
         if prop_meta['renderman_type'] == 'page':
             ui_prop = prop_name + "_ui_open"
             ui_open = getattr(node, ui_prop)
-            icon = 'DISCLOSURE_TRI_DOWN' if ui_open \
-                else 'DISCLOSURE_TRI_RIGHT'
+            icon = 'TRIA_DOWN' if ui_open \
+                else 'TRIA_RIGHT'
 
             split = layout.split(NODE_LAYOUT_SPLIT)
             row = split.row()
@@ -452,8 +452,8 @@ class RENDER_PT_renderman_sampling(PRManButtonsPanel, Panel):
         # find args for integrators here!
         integrator_settings = getattr(rm, "%s_settings" % rm.integrator)
 
-        icon = 'DISCLOSURE_TRI_DOWN' if rm.show_integrator_settings \
-            else 'DISCLOSURE_TRI_RIGHT'
+        icon = 'TRIA_DOWN' if rm.show_integrator_settings \
+            else 'TRIA_RIGHT'
         text = rm.integrator + " Settings:"
 
         row = col.row()
@@ -1393,8 +1393,8 @@ class RENDER_PT_layer_custom_aovs(CollectionPanel, Panel):
             col.prop(item, "custom_lpe_string")
 
         col = layout.column()
-        icon = 'DISCLOSURE_TRI_DOWN' if item.show_advanced \
-            else 'DISCLOSURE_TRI_RIGHT'
+        icon = 'TRIA_DOWN' if item.show_advanced \
+            else 'TRIA_RIGHT'
 
         row = col.row()
         row.prop(item, "show_advanced", icon=icon, text="Advanced",
@@ -1793,9 +1793,9 @@ class RENDERMAN_LL_OBJECT_list(bpy.types.UIList):
             if ll.illuminate == 'DEFAULT':
                 icon = 'TRIA_RIGHT'
             elif ll.illuminate == 'ON':
-                icon = 'DISCLOSURE_TRI_RIGHT'
+                icon = 'TRIA_RIGHT'
             else:
-                icon = 'DISCLOSURE_TRI_DOWN'
+                icon = 'TRIA_DOWN'
 
         layout.alignment = 'CENTER'
         layout.label(label, icon=icon)
@@ -1955,7 +1955,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                      icon_value=rman_render.icon_id)
 
         row.prop(context.scene, "rm_render", text="",
-                 icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_render else 'DISCLOSURE_TRI_RIGHT')
+                 icon='TRIA_DOWN' if context.scene.rm_render else 'TRIA_RIGHT')
 
         if context.scene.rm_render:
             scene = context.scene
@@ -2020,7 +2020,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             row.operator('lighting.start_interactive',
                          text="Stop IPR", icon_value=rman_batch_cancel.icon_id)
             row.prop(context.scene, "rm_ipr", text="",
-                     icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_ipr else 'DISCLOSURE_TRI_RIGHT')
+                     icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
             if context.scene.rm_ipr:
 
                 scene = context.scene
@@ -2048,7 +2048,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                          icon_value=rman_rerender_controls.icon_id)
 
             row.prop(context.scene, "rm_ipr", text="",
-                     icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_ipr else 'DISCLOSURE_TRI_RIGHT')
+                     icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
 
             if context.scene.rm_ipr:
 
@@ -2083,7 +2083,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                          text="External Render", icon_value=rman_batch.icon_id)
 
             row.prop(context.scene, "rm_render_external", text="",
-                     icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_render_external else 'DISCLOSURE_TRI_RIGHT')
+                     icon='TRIA_DOWN' if context.scene.rm_render_external else 'TRIA_RIGHT')
             if context.scene.rm_render_external:
                 scene = context.scene
                 rd = scene.render
@@ -2134,7 +2134,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                      text="Add Camera", icon='CAMERA_DATA')
 
         row.prop(context.scene, "prm_cam", text="",
-                 icon='DISCLOSURE_TRI_DOWN' if context.scene.prm_cam else 'DISCLOSURE_TRI_RIGHT')
+                 icon='TRIA_DOWN' if context.scene.prm_cam else 'TRIA_RIGHT')
 
         if context.scene.prm_cam:
             ob = bpy.context.object
@@ -2224,7 +2224,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         if lamp_hemi:
 
             row.prop(context.scene, "rm_env", text="",
-                     icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_env else 'DISCLOSURE_TRI_RIGHT')
+                     icon='TRIA_DOWN' if context.scene.rm_env else 'TRIA_RIGHT')
 
             if context.scene.rm_env:
                 ob = bpy.context.object
@@ -2284,7 +2284,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         if lamp_area:
 
             row.prop(context.scene, "rm_area", text="",
-                     icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_area else 'DISCLOSURE_TRI_RIGHT')
+                     icon='TRIA_DOWN' if context.scene.rm_area else 'TRIA_RIGHT')
 
             if context.scene.rm_area:
                 ob = bpy.context.object
@@ -2342,7 +2342,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         if lamp_sun:
 
             row.prop(context.scene, "rm_daylight", text="",
-                     icon='DISCLOSURE_TRI_DOWN' if context.scene.rm_daylight else 'DISCLOSURE_TRI_RIGHT')
+                     icon='TRIA_DOWN' if context.scene.rm_daylight else 'TRIA_RIGHT')
 
             if context.scene.rm_daylight:
                 ob = bpy.context.object
