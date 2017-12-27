@@ -702,11 +702,11 @@ class txmake_options():
              "resize", "pattern", "sblur", "tblur"]
     smode = {'name': "smode", 'type': "enum", "default": "periodic",
              "items": [("periodic", "Periodic", ""), ("clamp", "Clamp", "")],
-             "dispName": "Smode", "help": "The X dimension tiling",
+             "dispName": "S-Mode", "help": "The X dimension tiling",
              "exportType": "name"}
     tmode = {'name': "tmode", 'type': "enum", "default": "periodic",
              "items": [("periodic", "Periodic", ""), ("clamp", "Clamp", "")],
-             "dispName": "Tmode", "help": "The Y dimension tiling",
+             "dispName": "T-Mode", "help": "The Y dimension tiling",
              "exportType": "name"}
     format = {'name': "format", 'type': "enum", "default": "tiff",
               "items": [("pixar", "Pixar", ""), ("openexr", "OpenEXR", ""),
@@ -729,10 +729,10 @@ class txmake_options():
               "help": "The type of resizing flag to pass to txmake",
               "exportType": "name"}
 
-    sblur = {'name': "sblur", 'type': "float", 'default': 1.0, 'dispName': "Sblur",
+    sblur = {'name': "sblur", 'type': "float", 'default': 1.0, 'dispName': "S-Blur",
              'help': "Amount of X blur applied to texture",
              'exportType': "name"}
-    tblur = {'name': "tblur", 'type': "float", 'default': 1.0, 'dispName': "Tblur",
+    tblur = {'name': "tblur", 'type': "float", 'default': 1.0, 'dispName': "T-Blur",
              'help': "Amount of Y blur applied to texture",
              'exportType': "name"}
     pattern = {'name': "pattern", 'type': "enum", 'default': "diagonal",

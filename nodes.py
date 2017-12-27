@@ -1319,7 +1319,7 @@ def gen_params(ri, node, mat_name=None):
             prefs = bpy.context.user_preferences.addons[__package__].preferences
             osl_path = user_path(getattr(node, 'shadercode'))
             FileName = os.path.basename(osl_path)
-            FileNameNoEXT,ext = os.path.splitext(FileName)
+            FileNameNoEXT, ext = os.path.splitext(FileName)
             out_file = os.path.join(
                 user_path(prefs.env_vars.out), "shaders", FileName)
             if ext == ".oso":
