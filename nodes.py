@@ -370,27 +370,46 @@ class RendermanShadingNode(bpy.types.ShaderNode):
 
             for prop_name in prop_names:
                 prop_meta = self.prop_meta[prop_name]
-                if 'widget' in prop_meta and prop_meta['widget'] == 'null' or \
-                        'hidden' in prop_meta and prop_meta['hidden']:
+
+                # Skip any drawing of props if widget is NULL or HIDDEN.
+                # Also the page 'Pattern' in node PxrBump is empty while
+                # drawing "NonConnectableProps"
+                #
+                if 'widget' in prop_meta \
+                        and prop_meta['widget'] == 'null' \
+                        or 'hidden' in prop_meta \
+                        and prop_meta['hidden'] \
+                        or self.bl_idname == "PxrBumpPatternNode" \
+                        and prop_name.lower() == 'pattern':
                     continue
+
                 if prop_name not in self.inputs:
                     if prop_meta['renderman_type'] == 'page':
-                        ui_prop = prop_name + "_ui_open"
-                        ui_open = getattr(self, ui_prop)
-                        icon = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
 
-                        # named sublayout because we pass it later on to
-                        # 'draw_nonconnectable_props()' recursivly/nested
-                        # and 'box' may be unclear.
-                        #
-                        sublayout = layout.box()
-                        sublayout.prop(self, ui_prop, icon=icon,
-                                       text=prop_name.split('.')[-1],
-                                       emboss=False)
-                        if ui_open:
+                        # Page 'Advanced' in PxrBump contains a single
+                        # property only while drawing NonConnectableProps,
+                        # so draw a single (non boxed) property
+                        if self.bl_idname == "PxrBumpPatternNode" \
+                                and prop_name.lower() == 'advanced':
+                            row = layout.row()
                             prop = getattr(self, prop_name)
                             self.draw_nonconnectable_props(
-                                context, sublayout, prop)
+                                context, row, prop)
+                        # Draw boxed (maybe nested) multiple roperties
+                        # instead
+                        else:
+                            ui_prop = prop_name + "_ui_open"
+                            ui_open = getattr(self, ui_prop)
+                            icon = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+
+                            sublayout = layout.box()
+                            sublayout.prop(self, ui_prop, icon=icon,
+                                           text=prop_name.split('.')[-1],
+                                           emboss=False)
+                            if ui_open:
+                                prop = getattr(self, prop_name)
+                                self.draw_nonconnectable_props(
+                                    context, sublayout, prop)
 
                     elif "Subset" in prop_name and prop_meta['type'] == 'string':
                         layout.prop_search(self, prop_name,
@@ -857,8 +876,8 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                         icon = 'DISCLOSURE_TRI_DOWN' if ui_open \
                             else 'DISCLOSURE_TRI_RIGHT'
 
-                        split = layout.split(NODE_LAYOUT_SPLIT)
-                        row = split.row()
+                        # split = layout.split(NODE_LAYOUT_SPLIT)
+                        # row = split.row()
                         for i in range(level):
                             row.label('', icon='BLANK1')
 
