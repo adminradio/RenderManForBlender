@@ -71,6 +71,7 @@ class PRManRender(bpy.types.RenderEngine):
         if self.render_pass is not None:
             engine.render(self)
 
+
 # these handlers are for marking files as dirty for ribgen
 def add_handlers(scene):
     if engine.update_timestamp not in bpy.app.handlers.scene_update_post:
@@ -120,7 +121,6 @@ def register():
     from . import presets
     presets.register()
     bpy.utils.register_module(__name__)
-
 
 
 def unregister():
