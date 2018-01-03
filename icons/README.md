@@ -7,5 +7,6 @@
 
 ## Usage
 
+    from .icons.icons import get_iconid
     iid = get_iconid("render")
     row.operator(operator, text="Render", icon_value=iid)

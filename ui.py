@@ -2058,9 +2058,9 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         if engine.ipr:
             # Stop IPR
             row = layout.row(align=True)
-            rman_batch_cancel = icons.get("stop_ipr")
+            iid = get_iconid("stop_ipr")
             row.operator('lighting.start_interactive',
-                         text="Stop IPR", icon_value=rman_batch_cancel.icon_id)
+                         text="Stop IPR", icon_value=iid)
             row.prop(context.scene, "rm_ipr", text="",
                      icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
             if context.scene.rm_ipr:
