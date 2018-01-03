@@ -141,7 +141,7 @@ def readOSO(filePath):
                     default = listLine[3]
 
                 prop_names.append(name)
-                prop_meta = {"type": type, "default":  default, "IO": "in"}
+                prop_meta = {"type": type, "default": default, "IO": "in"}
                 for tup in listLine:
                     if tup == '%meta{int,lockgeom,0}':
                         prop_meta['lockgeom'] = 0
@@ -172,7 +172,7 @@ def readOSO(filePath):
                 else:
                     default = listLine[3]
                 prop_names.append(name)
-                prop_meta = {"type": type, "default":  default, "IO": "out"}
+                prop_meta = {"type": type, "default": default, "IO": "out"}
                 prop_meta.update(get_osl_line_meta(line))
                 shader_meta[name] = prop_meta
             else:

@@ -54,6 +54,9 @@ from .util import readOSO
 from .util import rib
 from .util import user_path
 
+from . icons.icons import get_iconid
+from . icons.icons import load_icons
+
 from .nodes_utils import RfB_LUTs as LUTS
 
 NODE_LAYOUT_SPLIT = 0.5
@@ -435,25 +438,24 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                 if prop_name not in self.inputs:
                     if prop_meta['renderman_type'] == 'page':
 
-                        # row layout for single prop with label
+                        # boxed row layout for single prop with label
                         if LUTS.is_single_prop(prop_id):
-                        # if prop_id in LUTS.single_props:
                             # draw label
                             row_label = prop_name.split('.')[-1] + ':'
-                            row = layout.row()
+                            cl = layout.box()
+                            row = cl.row()
                             row.label(row_label)
-
-                            # draw prop
                             prop = getattr(self, prop_name)
                             self.draw_nonconnectable_props(
                                 context, row, prop)
 
-                        # row layout for single prop without labels
+                        # boxed row layout for single prop without labels
                         # mostly because this prop draws its own label, but can
                         # also be used if the property name is self-explanatory
                         elif (LUTS.is_single_prop_with_label(prop_id) or
                               LUTS.is_single_prop_no_label(prop_id)):
-                            row = layout.row()
+                            cl = layout.box()
+                            row = cl.row()
                             prop = getattr(self, prop_name)
                             self.draw_nonconnectable_props(
                                 context, row, prop)
@@ -462,13 +464,14 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         else:
                             ui_prop = prop_name + "_ui_open"
                             ui_open = getattr(self, ui_prop)
-                            icon = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
-
-                            box_label = prop_name.split('.')[-1]  # beautify
+                            #icon = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+                            icn = 'panel_open' if ui_open else 'panel_closed'
+                            iid = get_iconid(icn)
                             sub = layout.box()
                             sub.prop(self, ui_prop,
-                                     icon=icon,
-                                     text=box_label,
+                                     #icon=icon,
+                                     icon_value=iid,
+                                     text=prop_name.split('.')[-1],
                                      emboss=False)
                             if ui_open:
                                 prop = getattr(self, prop_name)
@@ -493,7 +496,7 @@ class RendermanShadingNode(bpy.types.ShaderNode):
 
     def RefreshNodes(self, context, nodeOR=None, materialOverride=None):
 
-        # Compile shader.        If the call was from socket draw get the node
+        # Compile shader. If the call was from socket draw get the node
         # information anther way.
         if hasattr(context, "node"):
             node = context.node
@@ -905,8 +908,7 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
 
                 if socket and socket.is_linked:
                     input_node = socket_node_input(nt, socket)
-                    icon = 'DISCLOSURE_TRI_DOWN' if socket.ui_open \
-                        else 'DISCLOSURE_TRI_RIGHT'
+                    icon = 'TRIA_DOWN' if socket.ui_open else 'TRIA_RIGHT'
 
                     split = layout.split(NODE_LAYOUT_SPLIT)
                     row = split.row()
@@ -937,16 +939,16 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                     if prop_meta['renderman_type'] == 'page':
                         ui_prop = prop_name + "_ui_open"
                         ui_open = getattr(node, ui_prop)
-                        icon = 'DISCLOSURE_TRI_DOWN' if ui_open \
-                            else 'DISCLOSURE_TRI_RIGHT'
 
-                        # split = layout.split(NODE_LAYOUT_SPLIT)
-                        # row = split.row()
-                        for i in range(level):
-                            row.label('', icon='BLANK1')
-
-                        row.prop(node, ui_prop, icon=icon, text='',
+                        cl = row.box()
+                        row = cl.row()
+                        icon = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+                        icn = 'propconfig_open' if ui_open else 'propconfig'
+                        iid = get_iconid(icn)
+                        row.prop(node, ui_prop,
+                                 icon_value=iid, text='',
                                  icon_only=True, emboss=False)
+
                         sub_prop_names = list(prop)
                         if node.bl_idname in {"PxrSurfaceBxdfNode", "PxrLayerPatternNode"}:
                             for pn in sub_prop_names:
@@ -958,10 +960,10 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                         row.label(prop_name.split('.')[-1] + ':')
 
                         if ui_open:
-                            draw_props(sub_prop_names, layout, level + 1)
+                            draw_props(sub_prop_names, cl, level + 1)
 
                     else:
-                        indented_label(row, None, level)
+                        # indented_label(row, None, level)
                         # indented_label(row, socket.name+':')
                         # don't draw prop for struct type
                         if "Subset" in prop_name and prop_meta['type'] == 'string':

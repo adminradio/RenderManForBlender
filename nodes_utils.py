@@ -44,6 +44,7 @@ class RfB_LUTs:
         "PxrDispScalarLayerPatternNodeBase Layer",
         "PxrLayerSurfaceBxdfNodeFuzz",
         "PxrLayerSurfaceBxdfNodeScattering Globals",
+        #"PxrLayerSurfaceBxdfNodeDiffuse",
         "aaOceanPrmanShaderPatternNodeCustom UV Parameters",
         "PxrVolumeBxdfNodeDensity",
         "PxrLayeredTexturePatternNodeColor Correct",
