@@ -40,8 +40,7 @@ from .nodes import draw_nodes_properties_ui
 from .nodes import draw_node_properties_recursive
 
 import os
-# from . icons.icons import load_icons  # TODO: refactor out (TW: UI_2018)
-from . icons.icons import get_iconid  #       <- use this instead
+from . icons.icons import get_iconid
 from . util import get_addon_prefs
 
 from bpy.props import PointerProperty
@@ -119,7 +118,7 @@ def get_panels():
 class _RManPanelHeader():
     def draw_header(self, context):
         if get_addon_prefs().draw_panel_icon:
-            iid = get_iconid('rfb_panel')
+            iid = get_iconid('renderman')
             self.layout.label(text="", icon_value=iid)
         else:
             pass
@@ -183,7 +182,6 @@ class RENDER_PT_renderman_render(PRManButtonsPanel, Panel):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
 
-        # icons = load_icons()
         layout = self.layout
         rd = context.scene.render
         rm = context.scene.renderman
@@ -1981,7 +1979,6 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         return rd.engine == 'PRMAN_RENDER'
 
     def draw(self, context):
-        # icons = load_icons()
         layout = self.layout
         scene = context.scene
         rm = scene.renderman

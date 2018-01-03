@@ -55,7 +55,6 @@ from .util import rib
 from .util import user_path
 
 from . icons.icons import get_iconid
-from . icons.icons import load_icons
 
 from .nodes_utils import RfB_LUTs as LUTS
 

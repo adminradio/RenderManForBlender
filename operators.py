@@ -30,7 +30,7 @@ import bgl
 import blf
 import webbrowser
 import addon_utils
-from .icons.icons import load_icons
+from .icons.icons import get_iconid
 from operator import attrgetter, itemgetter
 from bl_operators.presets import AddPresetBase
 
@@ -280,20 +280,20 @@ class refresh_osl_shader(bpy.types.Operator):
     def invoke(self, context, event):
         context.node.RefreshNodes(context)
         return {'FINISHED'}
-        
+
 class RendermanBake(bpy.types.Operator):
     bl_idname = "renderman.bake"
     bl_label = "Baking"
     bl_description = "Bake pattern nodes to texture"
     rpass = None
     is_running = False
-    
+
     def gen_rib_frame(self, rpass):
         try:
             rpass.gen_rib(convert_textures=False)
         except Exception as err:
             self.report({'ERROR'}, 'Rib gen error: ' + traceback.format_exc())
-            
+
     def execute(self, context):
         if engine.ipr:
             self.report(
@@ -769,9 +769,9 @@ class LoadSceneMenu(bpy.types.Menu):
 def menu_draw(self, context):
     if context.scene.render.engine != "PRMAN_RENDER":
         return
-    icons = load_icons()
-    examples_menu = icons.get("help")
-    self.layout.menu("examples", icon_value=examples_menu.icon_id)
+
+    iid = get_iconid("help")
+    self.layout.menu("examples", icon_value=iid)
 
 # Yuck, this should be built in to blender... Yes it should
 

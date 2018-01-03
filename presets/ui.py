@@ -26,10 +26,11 @@
 from .. import util
 
 # for panel icon
-from .. icons import icons as ui_icons
+from ..icons.icons import get_iconid
 
 import bpy
-from .properties import RendermanPresetGroup, RendermanPreset
+from .properties import RendermanPresetGroup
+from .properties import RendermanPreset
 
 # for previews of assets
 from . import icons
@@ -52,9 +53,8 @@ class Renderman_Presets_UI_Panel(bpy.types.Panel):
 
     def draw_header(self, context):
         if util.get_addon_prefs().draw_panel_icon:
-            rfb_icons = ui_icons.load_icons()
-            rfb_icon = rfb_icons.get("rfb_panel")
-            self.layout.label(text="", icon_value=rfb_icon.icon_id)
+            iid = get_iconid("renderman")
+            self.layout.label(text="", icon_value=iid)
         else:
             pass
 
@@ -110,6 +110,7 @@ class Renderman_Presets_UI_Panel(bpy.types.Panel):
                 layout.separator()
                 layout.operator("renderman.save_asset_to_library", text="Save Material to Library").lib_path = active.path
 
+
 class Renderman_Presets_Menu(bpy.types.Menu):
     bl_idname = "renderman_presets_menu"
     bl_label = "RenderMan Presets Menu"
@@ -119,7 +120,7 @@ class Renderman_Presets_Menu(bpy.types.Menu):
     def draw(self, context):
         lib = context.renderman_preset
         prefix = "* " if lib.is_active() else ''
-        self.layout.operator('renderman.set_active_preset_library',text=prefix + lib.name).lib_path = lib.path
+        self.layout.operator('renderman.set_active_preset_library', text=prefix + lib.name).lib_path = lib.path
         if len(lib.sub_groups) > 0:
             for key in sorted(lib.sub_groups.keys(), key=lambda k: k.lower()):
                 sub = lib.sub_groups[key]
@@ -129,7 +130,7 @@ class Renderman_Presets_Menu(bpy.types.Menu):
                     self.layout.menu('renderman_presets_menu', text=prefix + sub.name)
                 else:
                     prefix = "* " if sub.is_active() else ''
-                    self.layout.operator('renderman.set_active_preset_library',text=prefix + sub.name).lib_path = sub.path
+                    self.layout.operator('renderman.set_active_preset_library', text=prefix + sub.name).lib_path = sub.path
 
 
 def register():
@@ -137,7 +138,8 @@ def register():
         bpy.utils.register_class(Renderman_Presets_Menu)
         bpy.utils.register_class(Renderman_Presets_UI_Panel)
     except:
-        pass #allready registered
+        pass  # allready registered
+
 
 def unregister():
     bpy.utils.unregister_class(Renderman_Presets_Menu)

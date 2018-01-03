@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# see ./README.md
+
 import os
 import re
 import bpy
@@ -36,6 +38,7 @@ renderman_icons_loaded = False
 
 
 def get_iconid(ident):
+    """Return an 'icon_id' which can be used as 'icon_value'"""
     icn = load_icons().get(ident)
     iid = None
     if icn:
