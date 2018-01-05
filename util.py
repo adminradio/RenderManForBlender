@@ -34,7 +34,7 @@ import subprocess
 from subprocess import Popen, PIPE
 from extensions_framework import util as efutil
 from mathutils import Matrix, Vector
-EnableDebugging = False
+EnableDebugging = True
 
 
 class BlenderVersionError(Exception):
@@ -66,9 +66,10 @@ def getattr_recursive(ptr, attrstring):
 
     return ptr
 
+
+#
 # return a list of meta tuples
-
-
+#
 def get_osl_line_meta(line):
     if "%%meta" not in line:
         return {}
@@ -217,15 +218,13 @@ def get_Files_in_Directory(path):
 
 
 # -------------------- Path Handling -----------------------------
-
+#
 # convert multiple path delimiters from : to ;
 # converts both windows style paths (x:C:\blah -> x;C:\blah)
 # and unix style (x:/home/blah -> x;/home/blah)
-
-
+#
 def path_delimit_to_semicolons(winpath):
     return re.sub(r'(:)(?=[A-Za-z]|\/)', r';', winpath)
-
 
 def args_files_in_path(prefs, idblock, shader_type='', threaded=True):
     init_env(prefs)
@@ -270,8 +269,9 @@ def get_path_list(rm, type):
 def get_real_path(path):
     return os.path.realpath(efutil.filesystem_path(path))
 
-
+#
 # Convert env variables to full paths.
+#
 def path_list_convert(path_list, to_unix=False):
     paths = []
 
@@ -300,7 +300,6 @@ def path_list_convert(path_list, to_unix=False):
 def get_path_list_converted(rm, type, to_unix=False):
     return path_list_convert(get_path_list(rm, type), to_unix)
 
-
 def path_win_to_unixy(winpath, escape_slashes=False):
     # if escape_slashes:
     #    p = winpath.replace('\\', '\\\\')
@@ -312,7 +311,9 @@ def path_win_to_unixy(winpath, escape_slashes=False):
     return winpath
 
 
+#
 # convert ### to frame number
+#
 def make_frame_path(path, frame):
     def repl(matchobj):
         hashes = len(matchobj.group(1))
@@ -396,9 +397,10 @@ def user_path(path, scene=None, ob=None, display_driver=None, layer_name=None, p
 
     return path
 
+
+#
 # ------------- RIB formatting Helpers -------------
-
-
+#
 def rib(v, type_hint=None):
 
     # float, int
@@ -435,7 +437,9 @@ def rib_path(path, escape_slashes=False):
                              escape_slashes=escape_slashes)
 
 
+#
 # return a list of properties set on this group
+#
 def get_properties(prop_group):
     props = []
     for (key, prop) in prop_group.bl_rna.properties.items():
@@ -455,9 +459,11 @@ def get_local_worldspace(vec, ob):
     lmatx = ob.matrix_local.to_4x4().inverted()
     vec = vec * lmatx
     return vec
+
+
+#
 # ------------- Environment Variables -------------
-
-
+#
 def rmantree_from_env():
     RMANTREE = ''
 
@@ -489,9 +495,10 @@ def check_valid_rmantree(rmantree):
         return True
     return False
 
+
+#
 # return the major, minor rman version
-
-
+#
 def get_rman_version(rmantree):
     try:
         prman = 'prman.exe' if platform.system() == 'Windows' else 'prman'
@@ -515,7 +522,6 @@ def get_rman_version(rmantree):
 def get_addon_prefs():
     addon = bpy.context.user_preferences.addons[__name__.split('.')[0]]
     return addon.preferences
-
 
 def guess_rmantree():
     prefs = get_addon_prefs()
@@ -560,7 +566,6 @@ def guess_rmantree():
 
     return rmantree
 
-
 def get_installed_rendermans():
     base = ""
     if platform.system() == 'Windows':
@@ -588,15 +593,15 @@ def get_installed_rendermans():
 
     return rendermans
 
-
+#
 # return true if an archive is older than the timestamp
+#
 def check_if_archive_dirty(update_time, archive_filename):
     if update_time > 0 and os.path.exists(archive_filename) \
             and os.path.getmtime(archive_filename) >= update_time:
         return False
     else:
         return True
-
 
 def find_it_path():
     rmantree = guess_rmantree()
@@ -617,7 +622,6 @@ def find_it_path():
         else:
             return None
 
-
 def find_local_queue():
     rmantree = guess_rmantree()
 
@@ -636,7 +640,6 @@ def find_local_queue():
             return lq
         else:
             return None
-
 
 def find_tractor_spool():
     base = ""
@@ -670,8 +673,9 @@ def find_tractor_spool():
         else:
             return None
 
-
+#
 # Default exporter specific env vars
+#
 def init_exporter_env(prefs):
     if 'OUT' not in os.environ.keys():
         os.environ['OUT'] = prefs.env_vars.out
@@ -682,7 +686,6 @@ def init_exporter_env(prefs):
     #     os.environ['PTC'] = rm.env_vars.ptc
     if 'ARC' not in os.environ.keys():
         os.environ['ARC'] = prefs.env_vars.arc
-
 
 def init_env(rm):
     # init_exporter_env(scene.renderman)

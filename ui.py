@@ -52,6 +52,8 @@ from bpy.props import FloatProperty
 from bpy.props import FloatVectorProperty
 from bpy.props import CollectionProperty
 
+from .ui_util import split_lr
+
 def get_panels():
     exclude_panels = {
         'DATA_PT_area',
@@ -135,24 +137,29 @@ class CollectionPanel(_RManPanelHeader):
 
     def _draw_collection(self, context, layout, ptr, name, operator,
                          opcontext, prop_coll, collection_index, default_name=''):
-        layout.label(name)
-        row = layout.row()
-        row.template_list("UI_UL_list", "PRMAN", ptr, prop_coll, ptr,
-                          collection_index, rows=1)
-        col = row.column(align=True)
 
-        op = col.operator(operator, icon="ZOOMIN", text="")
+        ll, rl = split_lr(layout)
+        # TODO: name is empty on light groups and object groups ???
+        # ll.label(name)
+        # FIXME: Removing a group can't be undone!
+        ll.label("ATTENTION: Removing a group can't be undone!")
+
+        op = rl.operator(operator, icon="ZOOMOUT", text="")
+        op.context = opcontext
+        op.collection = prop_coll
+        op.collection_index = collection_index
+        op.action = 'REMOVE'
+
+        op = rl.operator(operator, icon="ZOOMIN", text="")
         op.context = opcontext
         op.collection = prop_coll
         op.collection_index = collection_index
         op.defaultname = default_name
         op.action = 'ADD'
 
-        op = col.operator(operator, icon="ZOOMOUT", text="")
-        op.context = opcontext
-        op.collection = prop_coll
-        op.collection_index = collection_index
-        op.action = 'REMOVE'
+        row = layout.row()
+        row.template_list("UI_UL_list", "PRMAN", ptr, prop_coll, ptr,
+                          collection_index, rows=1)
 
         if hasattr(ptr, prop_coll) and len(getattr(ptr, prop_coll)) > 0 and \
                 getattr(ptr, collection_index) >= 0:
@@ -496,7 +503,7 @@ class RENDER_PT_renderman_motion_blur(PRManButtonsPanel, Panel):
         layout = self.layout
 
         cl = layout.box()
-        icon='CHECKBOX_HLT' if rm.motion_blur else 'CHECKBOX_DEHLT'
+        icon = 'CHECKBOX_HLT' if rm.motion_blur else 'CHECKBOX_DEHLT'
         cl.prop(rm, "motion_blur", icon=icon, emboss=False)
 
         if rm.motion_blur:
@@ -1761,16 +1768,9 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
 
         if len(light_names) > 0:
             box = layout.box()
-            row = box.row()
-            columns = box.column_flow(columns=8)
-            columns.label('Name')
-            columns.label('Solo')
-            columns.label('Mute')
-            columns.label('Intensity')
-            columns.label('Exposure')
-            columns.label('Color')
-            columns.label('Temperature')
-
+            lc, rc = split_lr(box)
+            lc = lc.column()
+            cl = rc.column()
             for light_name in light_names:
                 if light_name not in scene.objects:
                     continue
@@ -1778,31 +1778,61 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
                 lamp_rm = lamp.renderman
                 if lamp_rm.renderman_type == 'FILTER':
                     continue
-                row = box.row()
-                columns = box.column_flow(columns=8)
-                columns.label(light_name)
-                columns.prop(lamp_rm, 'solo', text='')
-                columns.prop(lamp_rm, 'mute', text='')
-                light_shader = lamp.renderman.get_light_node()
-                if light_shader:
 
-                    columns.prop(light_shader, 'intensity', text='')
-                    columns.prop(light_shader, 'exposure', text='')
+                lc.label(light_name)
+
+                row = cl.row(align=True)
+                iid = get_iconid("solo_on")  if lamp_rm.solo else get_iconid("solo_off")
+                row.prop(lamp_rm, 'solo', text='', icon_value=iid, emboss=True)
+
+                iid = get_iconid("mute_on")  if lamp_rm.mute else get_iconid("mute_off")
+                row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
+
+                light_shader = lamp.renderman.get_light_node()
+
+                sub = row.row(align=True)
+
+                if light_shader:
+                    sub = row.row(align=True)
+                    sub.prop(light_shader, 'intensity', text='')
+                    sub.prop(light_shader, 'exposure', text='')
                     if light_shader.bl_label == 'PxrEnvDayLight':
-                        # columns.label('sun tint')
-                        columns.prop(light_shader, 'skyTint', text='')
-                        columns.label('')
+                        row.prop(light_shader, 'skyTint', text='')
+                        lc.separator()
+                        cl.separator()
                     else:
-                        columns.prop(light_shader, 'lightColor', text='')
-                        row = columns.row()
-                        row.prop(light_shader, 'enableTemperature', text='')
-                        row.prop(light_shader, 'temperature', text='')
+                        row.prop(light_shader, 'lightColor', text='')
+
+                        # color temperatur
+                        lc.label('')
+                        lc.separator()
+                        sub = cl.row(align=True)
+                        sub.label(icon='BLANK1', text='')
+
+                        kelvin_enabled = (
+                            lamp_rm.PxrDomeLight_settings.enableTemperature
+                            if lamp_rm.renderman_type == 'ENV'
+                            else lamp_rm.PxrRectLight_settings.enableTemperature
+                        )
+                        iid = (
+                            get_iconid('kelvin_on')
+                            if kelvin_enabled
+                            else get_iconid('kelvin_off')
+                        )
+
+                        sub.prop(light_shader, 'enableTemperature',
+                                 text='',
+                                 icon_value=iid)
+                        sub.prop(light_shader, 'temperature', text='')
+                        cl.separator()
+
                 else:
-                    columns.label('')
-                    columns.label('')
-                    columns.prop(lamp, 'energy', text='')
-                    columns.prop(lamp, 'color', text='')
-                    columns.label('')
+                    # TODO: when would this be drawn?
+                    row.label('')
+                    row.label('')
+                    row.prop(lamp, 'energy', text='')
+                    row.prop(lamp, 'color', text='')
+                    row.label('')
 
 
 class RENDERMAN_LL_LIGHT_list(bpy.types.UIList):
@@ -1992,7 +2022,8 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             return
 
         # Render
-        row = layout.row(align=True)
+        cl=layout.box()
+        row = cl.row(align=True)
         iid = get_iconid("render")
         row.operator("render.render", text="Render", icon_value=iid)
 
@@ -2003,14 +2034,14 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             scene = context.scene
             rd = scene.render
 
-            box = layout.box()
-            row = box.row(align=True)
+            # box = layout.box()
+            row = cl.row(align=True)
 
             # Display Driver
             row.prop(rm, "render_into")
 
             # presets
-            row = box.row(align=True)
+            row = cl.row(align=True)
             row.label("Sampling Preset:")
             row.menu("presets", text=bpy.types.presets.bl_label)
             row.operator("render.renderman_preset_add", text="", icon='ZOOMIN')
@@ -2018,16 +2049,17 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                          icon='ZOOMOUT').remove_active = True
 
             # denoise and selected row
-            row = box.row(align=True)
+            row = cl.row(align=True)
             row.prop(rm, "do_denoise", text="Denoise")
             row.prop(rm, "render_selected_objects_only",
                      text="Render Selected")
 
             # animation
-            row = box.row(align=True)
+            row = cl.row(align=True)
             iid = get_iconid("batch_render")
             row.operator("render.render", text="Render Animation",
                          icon_value=iid).animation = True
+            # layout.separator()
             # row = box.row(align=True)
             # rman_batch = icons.get("batch_render")
             # row.operator("render.render",text="Batch Render",icon_value=rman_batch.icon_id).animation=True
@@ -2057,7 +2089,8 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         # IPR
         if engine.ipr:
             # Stop IPR
-            row = layout.row(align=True)
+            cl = layout.box()
+            row = cl.row(align=True)
             iid = get_iconid("stop_ipr")
             row.operator('lighting.start_interactive',
                          text="Stop IPR", icon_value=iid)
@@ -2068,7 +2101,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 scene = context.scene
                 rm = scene.renderman
 
-                box = layout.box()
+                box = cl.box()
                 row = box.row(align=True)
 
                 col = row.column()
@@ -2084,7 +2117,8 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
 
         else:
             # Start IPR
-            row = layout.row(align=True)
+            cl = layout.box()
+            row = cl.row(align=True)
             iid = get_iconid("start_ipr")
             row.operator('lighting.start_interactive', text="Start IPR",
                          icon_value=iid)
@@ -2097,14 +2131,8 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 scene = context.scene
                 rm = scene.renderman
 
-                # STart IT
-                iid = get_iconid("start_it")
-                layout.operator("rman.start_it",
-                                text="Start IT",
-                                icon_value=iid)
-
                 # Interactive and Preview Sampling
-                box = layout.box()
+                box = cl.box()
                 row = box.row(align=True)
 
                 col = row.column()
@@ -2117,6 +2145,12 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                          text="Specular Depth")
                 row.prop(rm, "preview_max_diffuse_depth", text="Diffuse Depth")
                 row = col.row(align=True)
+
+                # Start IT
+                iid = get_iconid("start_it")
+                cl.operator("rman.start_it",
+                                text="Start IT",
+                                icon_value=iid)
 
         row = layout.row(align=True)
         iid= get_iconid("batch_render")
@@ -2171,27 +2205,27 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 col.enabled = rm.external_action == 'spool'
                 col.prop(rm, "queuing_system", text='')
 
-        layout.separator()
-
         # Create Camera
-        row = layout.row(align=True)
+        cl=layout.box()
+        row = cl.row(align=True)
+        iid = get_iconid("camera")
         row.operator("object.add_prm_camera",
-                     text="Add Camera", icon='CAMERA_DATA')
+                     text="Add Camera", icon_value=iid)
 
         row.prop(context.scene, "prm_cam", text="",
                  icon='TRIA_DOWN' if context.scene.prm_cam else 'TRIA_RIGHT')
 
         if context.scene.prm_cam:
             ob = bpy.context.object
-            box = layout.box()
+            box = cl.box()
             row = box.row(align=True)
             row.menu("object.camera_list_menu",
-                     text="Camera List", icon='CAMERA_DATA')
+                     text="Camera List", icon_value=iid)
 
             if ob.type == 'CAMERA':
 
                 row = box.row(align=True)
-                row.prop(ob, "name", text="", icon='LAMP_HEMI')
+                row.prop(ob, "name", text="", icon_value=iid)
                 row.prop(ob, "hide", text="")
                 row.prop(ob, "hide_render",
                          icon='RESTRICT_RENDER_OFF', text="")
@@ -2230,13 +2264,11 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 row.prop(context.object.data, "dof_distance", text="Distance")
 
             else:
-                row = layout.row(align=True)
-                row.label("No Camera Selected")
-
-        layout.separator()
+                box.label("No Camera Selected")
 
         # Create Env Light
-        row = layout.row(align=True)
+        cl = layout.box()
+        row = cl.row(align=True)
         iid = get_iconid("envlight")
         row.operator("object.mr_add_hemi",
                      text="Add EnvLight",
@@ -2271,18 +2303,18 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
 
             row.prop(context.scene, "rm_env", text="",
                      icon='TRIA_DOWN' if context.scene.rm_env else 'TRIA_RIGHT')
-
+            iid = get_iconid('envlight')
             if context.scene.rm_env:
                 ob = bpy.context.object
-                box = layout.box()
+                box = cl.box()
                 row = box.row(align=True)
                 row.menu("object.hemi_list_menu",
-                         text="EnvLight List", icon='LAMP_HEMI')
+                         text="EnvLight List", icon_value=iid)
 
                 if ob.type == 'LAMP' and ob.data.type == 'HEMI':
 
                     row = box.row(align=True)
-                    row.prop(ob, "name", text="", icon='LAMP_HEMI')
+                    row.prop(ob, "name", text="", icon_value=iid)
                     row.prop(ob, "hide", text="")
                     row.prop(ob, "hide_render",
                              icon='RESTRICT_RENDER_OFF', text="")
@@ -2297,7 +2329,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
 
         # Create Area Light
 
-        row = layout.row(align=True)
+        row = cl.row(align=True)
         iid = get_iconid("arealight")
         row.operator("object.mr_add_area", text="Add AreaLight",
                      icon_value=iid)
@@ -2355,7 +2387,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
 
         # Daylight
 
-        row = layout.row(align=True)
+        row = cl.row(align=True)
         iid = get_iconid("daylight")
         row.operator("object.mr_add_sky",
                      text="Add Daylight",
@@ -2458,40 +2490,49 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         # Update Archive !! Not needed with current system.
 
         # FIXME: Open Last RIB (or not needed? TW: 2018-01-03)
-#        rman_open_last_rib = icons.get("open_last_rib")
-#        layout.prop(rm, "path_rib_output",icon_value=rman_open_last_rib.icon_id)
+        # rman_open_last_rib = icons.get("open_last_rib")
+        # layout.prop(rm, "path_rib_output",icon_value=rman_open_last_rib.icon_id)
 
         # TODO: Inspect RIB Selection (TW: 2018-01-03)
         # TODO: Shared Geometry Attribute (TW: 2018-01-03)
         # TODO: Add/Atach Coordsys (TW: 2018-01-03)
         # TODO: Open Tmake Window  ?? Run Tmake on everything.
+        # TODO: Create OpenVDB Visualizer
 
-        # Create OpenVDB Visualizer
-        layout.separator()
+
         # RenderMan Doc
-        iid = get_iconid("help")  # used twice!
+        cl = layout.box()
+        iid = get_iconid("web")
 
         href = "https://github.com/prman-pixar/RenderManForBlender/wiki/Documentation-Home"
-        layout.operator("wm.url_open",
+        cl.operator("wm.url_open",
                         text="RenderMan Docs",
                         icon_value=iid).url = href
 
         href = "https://renderman.pixar.com/whats-new"
-        layout.operator("wm.url_open",
+        cl.operator("wm.url_open",
                         text="About RenderMan",
                         icon_value=iid).url = href
 
         # # TODO: doesn't work!
-        # # Error: fake_module: addon missing 'bl_info' gives bad performance!
         # #
         # # Reload the addon
-        # iid = get_iconid("reload_plugin")
-        # layout.operator("renderman.restartaddon", icon_value=iid)
-
-        # Enable the menu item to display the examples menu in the RenderMan
-        # Panel.
-        layout.separator()
-        layout.menu("examples", text="RenderMan Examples (local)", icon_value=iid)
+        # #
+        # # iid = get_iconid("reload_plugin")
+        # # cl.operator("renderman.restartaddon", icon_value=iid)
+        #
+        # Maybe this could work??
+        #
+        # row.operator(
+        #         "wm.addon_disable" if is_enabled else "wm.addon_enable",
+        #         icon='CHECKBOX_HLT' if is_enabled else 'CHECKBOX_DEHLT', text="",
+        #         emboss=False,
+        #         ).module = 'RMAN'
+        #
+        # Enable menu to display examples in RenderMan panel
+        #
+        iid = get_iconid("prman")
+        cl.menu("examples", text="RenderMan Examples (local)", icon_value=iid)
 
 
 def register():

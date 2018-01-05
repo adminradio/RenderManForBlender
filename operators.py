@@ -62,6 +62,9 @@ from .spool import spool_render
 
 from bpy_extras.io_utils import ExportHelper
 
+# to load renderman ressource icon
+from . icons.icons import get_iconid
+
 
 class Renderman_open_stats(bpy.types.Operator):
     bl_idname = 'rman.open_stats'
@@ -752,6 +755,7 @@ for name in names:
 class LoadSceneMenu(bpy.types.Menu):
     bl_label = "RenderMan Examples"
     bl_idname = "examples"
+    iid = get_iconid('prman')
 
     def get_operator_failsafe(self, idname):
         op = bpy.ops
@@ -763,7 +767,7 @@ class LoadSceneMenu(bpy.types.Menu):
 
     def draw(self, context):
         for operator in rendermanExampleFilesList:
-            self.layout.operator(operator.bl_idname)
+            self.layout.operator(operator.bl_idname, icon_value=self.iid)
 
 
 def menu_draw(self, context):
@@ -1228,6 +1232,8 @@ class Hemi_List_Menu(bpy.types.Menu):
     bl_idname = "object.hemi_list_menu"
     bl_label = "EnvLight list"
 
+    icn = get_iconid('envlight')
+
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
@@ -1239,7 +1245,7 @@ class Hemi_List_Menu(bpy.types.Menu):
                 if lamp.data.type == 'HEMI':
                     name = lamp.name
                     op = layout.operator(
-                        "object.selectlights", text=name, icon='LAMP_HEMI')
+                        "object.selectlights", text=name, icon_value=self.icn)
                     op.Light_Name = name
 
         else:

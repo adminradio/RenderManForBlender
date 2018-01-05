@@ -7,6 +7,37 @@
 
 ## Usage
 
+```
+from .icons.icons import get_iconid
+iid = get_iconid("render")
+row.operator(operator, text="Render", icon_value=iid)
+```
+
+## Advanced Usage (Toggle)
+
+- create an icon for status ON, like `./icons/kelvin_on.png`
+- create an icon for status OFF, like `./icons/kelvin_off.png`
+- if not done before, import the utility function near the beginning of the file, like so:
+
+    ```
     from .icons.icons import get_iconid
-    iid = get_iconid("render")
-    row.operator(operator, text="Render", icon_value=iid)
+    ```
+
+- in your code check a boolean condition and store in local var, i.e. `condition`
+- get icon based on that condition
+
+
+    ```
+    condition = lamp_rm.PxrDomeLight_settings.temperature_enabled()
+    iid = get_iconid("kelvin_on") if condition else ("kelvin_off")
+    currentlayout.operator(operator, text='', icon_value=iid)
+    ````
+
+### Best Practice For **Toggles**
+
+If you want a LED style icon, then you have to do this:
+
+1. create a positive symbol (maybe color filled) but always with white border like this: ![Kelvin OFF](./kelvin_off.png)
+2. create a negative symbol with a (meaningful) fillcolor, WITHOUT white borderlike: ![Kelvin OFF](./kelvin_on.png)
+
+**Note:** The first symbol looks smaller because you can't see the white border on white background.
