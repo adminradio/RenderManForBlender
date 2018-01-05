@@ -52,7 +52,8 @@ from bpy.props import FloatProperty
 from bpy.props import FloatVectorProperty
 from bpy.props import CollectionProperty
 
-from .ui_util import split_lr
+from .ui_util import split_lr  # |:-------|--------:|
+from .ui_util import split_ll  # |:-------|:--------|
 
 def get_panels():
     exclude_panels = {
@@ -242,7 +243,7 @@ class RENDER_PT_renderman_baking(PRManButtonsPanel, Panel):
         row = layout.row()
         iid = get_iconid("batch_render")
         row.operator("renderman.bake",
-                     text="Bake", icon_value=iid)
+                     text="Bake Pattern Nodes to Textures", icon_value=iid)
 
 
 class RENDER_PT_renderman_spooling(PRManButtonsPanel, Panel):
@@ -407,8 +408,6 @@ def draw_props(node, prop_names, layout):
                 continue
 
             cl = layout.row()
-            cl.label('', icon='BLANK1')  # indention
-            # indented_label(row, socket.name+':')
             if "Subset" in prop_name and prop_meta['type'] == 'string':
                 cl.prop_search(
                     node,
@@ -1839,40 +1838,54 @@ class RENDERMAN_LL_LIGHT_list(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         rm = context.scene.renderman
-        icon = 'NONE'
+        iid = get_iconid('ll_unlinked')
+        icn_linked_id = get_iconid('ll_linked')
         ll_prefix = "lg_%s>%s" % (rm.ll_light_type, item.name)
+
         label = item.name
         for ll in rm.ll.keys():
             if ll_prefix in ll:
-                icon = 'TRIA_RIGHT'
+                iid = icn_linked_id
                 break
 
-        layout.alignment = 'CENTER'
-        layout.label(label, icon=icon)
+        layout.alignment = 'LEFT'
+        layout.label(label, icon_value=iid)
 
 
 class RENDERMAN_LL_OBJECT_list(bpy.types.UIList):
+    iid_on = get_iconid('ll_on')
+    iid_off = get_iconid('ll_off')
+    iid_default = get_iconid('ll_default')
+    iid_unlinked = get_iconid('ll_unlinked')
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         rm = context.scene.renderman
-        icon = 'NONE'
+
         light_type = rm.ll_light_type
         lg = bpy.data.lamps if light_type == "light" else rm.light_groups
         ll_prefix = "lg_%s>%s>obj_%s>%s" % (
             light_type, lg[rm.ll_light_index].name, rm.ll_object_type, item.name)
 
-        label = item.name
+        # default to symbol: 'unlinked'
+        iid = self.iid_unlinked
+
         if ll_prefix in rm.ll.keys():
             ll = rm.ll[ll_prefix]
-            if ll.illuminate == 'DEFAULT':
-                icon = 'TRIA_RIGHT'
-            elif ll.illuminate == 'ON':
-                icon = 'TRIA_RIGHT'
-            else:
-                icon = 'TRIA_DOWN'
 
-        layout.alignment = 'CENTER'
-        layout.label(label, icon=icon)
+            # override 'unlinked' with 'default'
+            if ll.illuminate == 'DEFAULT':
+                iid  = self.iid_default
+
+            # or override 'unlinked' with 'on'
+            elif ll.illuminate == 'ON':
+                iid = self.iid_on
+
+            # guess what? override with 'off'
+            else:
+                iid = self.iid_off
+
+        layout.alignment = 'LEFT'
+        layout.label(item.name, icon_value=iid)
 
 
 class Renderman_Light_Link_Panel(CollectionPanel, Panel):
@@ -1880,7 +1893,8 @@ class Renderman_Light_Link_Panel(CollectionPanel, Panel):
     bl_label = "RenderMan Light Linking"
     bl_context = "scene"
     bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'  # bl_category = "Renderman"
+    bl_region_type = 'WINDOW'
+    # bl_category = "Renderman"
 
     @classmethod
     def poll(cls, context):
@@ -1891,50 +1905,72 @@ class Renderman_Light_Link_Panel(CollectionPanel, Panel):
         layout = self.layout
         scene = context.scene
         rm = scene.renderman
-        row = layout.row()
 
-        flow = row.column_flow(columns=3)
-        # first colomn select Light
-        flow.prop(rm, 'll_light_type')
-        flow.prop(rm, 'll_object_type')
-        flow.label('')
+        # ###
+        # ### Left and Right Column
+        # ###
+        left, right = split_ll(layout)
+        left = left.column()  # vbox: vertical arrangement
+        right = right.column()  # vbox: vertical alignment
 
-        # second row the selectors
-        row = layout.row()
-        flow = row.column_flow(columns=3)
+        #
+        # first (left) col: select light type (lights or light groups)
+        #
+        left.prop(rm, 'll_light_type', text='')
         if rm.ll_light_type == 'light':
-            flow.template_list("RENDERMAN_LL_LIGHT_list", "Renderman_light_link_list",
+            left.template_list("RENDERMAN_LL_LIGHT_list", "Renderman_light_link_list",
                                bpy.data, "lamps", rm, 'll_light_index')
         else:
-            flow.template_list("RENDERMAN_LL_LIGHT_list", "Renderman_light_link_list",
+            left.template_list("RENDERMAN_LL_LIGHT_list", "Renderman_light_link_list",
                                rm, "light_groups", rm, 'll_light_index')
-
+        #
+        # second (right) col: select obeject type (objects or object groups)
+        #
+        right.prop(rm, 'll_object_type', text='')
         if rm.ll_object_type == 'object':
-            flow.template_list("RENDERMAN_LL_OBJECT_list", "Renderman_light_link_list",
+            right.template_list("RENDERMAN_LL_OBJECT_list", "Renderman_light_link_list",
                                bpy.data, "objects", rm, 'll_object_index')
         else:
-            flow.template_list("RENDERMAN_LL_OBJECT_list", "Renderman_light_link_list",
+            right.template_list("RENDERMAN_LL_OBJECT_list", "Renderman_light_link_list",
                                rm, "object_groups", rm, 'll_object_index')
 
+        # ###
+        # ### go out of split_ll() aka |left|right|
+        # ###
+        #
+        # Add / Remove Light Linking Button Bar
+        #
+        row = layout.row(align=True)
         if rm.ll_light_index == -1 or rm.ll_object_index == -1:
-            flow.label("Select light and object")
+            # nothing selected in lists, show simple info text.
+            row.label("Select light and object")
         else:
-            from_name = bpy.data.lamps[rm.ll_light_index] if rm.ll_light_type == 'light' \
-                else rm.light_groups[rm.ll_light_index]
-            to_name = bpy.data.objects[rm.ll_object_index] if rm.ll_object_type == 'object' \
-                else rm.object_groups[rm.ll_object_index]
+            # something in lists is selected.
+            from_name = (bpy.data.lamps[rm.ll_light_index]
+                         if rm.ll_light_type == 'light'
+                         else rm.light_groups[rm.ll_light_index])
+
+            to_name = (bpy.data.objects[rm.ll_object_index]
+                       if rm.ll_object_type == 'object'
+                       else rm.object_groups[rm.ll_object_index])
+
             ll_name = "lg_%s>%s>obj_%s>%s" % (rm.ll_light_type, from_name.name,
                                               rm.ll_object_type, to_name.name)
 
-            col = flow.column()
             if ll_name in rm.ll:
-                col.prop(rm.ll[ll_name], 'illuminate')
-                rem = col.operator(
+                #
+                # selected (left|right) items are linked, show edit ops
+                #
+                rem = row.operator(
                     'renderman.add_rem_light_link', 'Remove Light Link')
                 rem.ll_name = ll_name
                 rem.add_remove = "remove"
+                row.prop(rm.ll[ll_name], 'illuminate', text='')
             else:
-                add = col.operator(
+                #
+                # selected (left|right) items are not linked, show single add op
+                #
+                add = row.operator(
                     'renderman.add_rem_light_link', 'Add Light Link')
                 add.ll_name = ll_name
                 add.add_remove = 'add'
@@ -1947,7 +1983,7 @@ class RENDERMAN_GROUP_UL_List(bpy.types.UIList):
         # We could write some code to decide which icon to use here...
         custom_icon = 'OBJECT_DATAMODE'
         # Make sure your code supports all 3 layout types
-        layout.alignment = 'CENTER'
+        layout.alignment = 'LEFT'
         layout.label(item.name, icon=custom_icon)
 
 
