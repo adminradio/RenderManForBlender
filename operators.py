@@ -1212,7 +1212,7 @@ class add_GeoLight(bpy.types.Operator):
                 obj.material_slots[-1].material = mat
         return {"FINISHED"}
 
-
+# ##REFACTOR##
 class Select_Lights(bpy.types.Operator):
     bl_idname = "object.selectlights"
     bl_label = "Select Lights"

@@ -41,6 +41,7 @@ from .nodes import draw_node_properties_recursive
 
 import os
 from . icons.icons import get_iconid
+from . import icon
 from . util import get_addon_prefs
 
 from bpy.props import PointerProperty
@@ -121,7 +122,7 @@ def get_panels():
 class _RManPanelHeader():
     def draw_header(self, context):
         if get_addon_prefs().draw_panel_icon:
-            iid = get_iconid('renderman')
+            iid = icon.id('renderman')
             self.layout.label(text="", icon_value=iid)
         else:
             pass
@@ -1768,8 +1769,8 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
         if len(light_names) > 0:
             box = layout.box()
             lc, rc = split_lr(box)
-            lc = lc.column()
-            cl = rc.column()
+            lc = lc.column(align=True)
+            cl = rc.column(align=True)
             for light_name in light_names:
                 if light_name not in scene.objects:
                     continue
@@ -1797,14 +1798,20 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
                     sub.prop(light_shader, 'exposure', text='')
                     if light_shader.bl_label == 'PxrEnvDayLight':
                         row.prop(light_shader, 'skyTint', text='')
-                        lc.separator()
-                        cl.separator()
+
+                        # pick light
+                        row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
+                        # lc.separator()
+                        # cl.separator()
                     else:
                         row.prop(light_shader, 'lightColor', text='')
+                        # pick light
+                        row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
 
                         # color temperatur
                         lc.label('')
-                        lc.separator()
+                        # lc.separator()
+
                         sub = cl.row(align=True)
                         sub.label(icon='BLANK1', text='')
 
@@ -1823,16 +1830,22 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
                                  text='',
                                  icon_value=iid)
                         sub.prop(light_shader, 'temperature', text='')
-                        cl.separator()
 
+                        # preset menu
+                        sub.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
                 else:
                     # TODO: when would this be drawn?
-                    row.label('')
-                    row.label('')
-                    row.prop(lamp, 'energy', text='')
-                    row.prop(lamp, 'color', text='')
-                    row.label('')
-
+                    # row.label('')
+                    # row.label('')
+                    lc.prop(lamp, 'energy', text='')
+                    cl.prop(lamp, 'color', text='')
+                    # TODO: add picker
+                    # row.label('')
+                # finished item, add some space
+                lc.separator()
+                cl.separator()
+                lc.separator()
+                cl.separator()
 
 class RENDERMAN_LL_LIGHT_list(bpy.types.UIList):
 
@@ -2402,15 +2415,15 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
 
             if context.scene.rm_area:
                 ob = bpy.context.object
-                box = layout.box()
+                box = cl.box()
                 row = box.row(align=True)
                 row.menu("object.area_list_menu",
-                         text="AreaLight List", icon='LAMP_AREA')
+                         text="AreaLight List", icon_value=iid)
 
                 if ob.type == 'LAMP' and ob.data.type == 'AREA':
 
                     row = box.row(align=True)
-                    row.prop(ob, "name", text="", icon='LAMP_AREA')
+                    row.prop(ob, "name", text="", icon_value=iid)
                     row.prop(ob, "hide", text="")
                     row.prop(ob, "hide_render",
                              icon='RESTRICT_RENDER_OFF', text="")
