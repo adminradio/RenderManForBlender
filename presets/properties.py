@@ -27,33 +27,35 @@ from bpy.props import *
 from bpy.types import PropertyGroup
 import bpy.utils
 from .. import util
-from . import icons
+from . import assets
 import os
 
-# This file holds the properties for the preset browser.  
+# This file holds the properties for the preset browser.
 # They will be parsed from the json file
 
 # get the enum items
 
 # an actual preset
+
+
 class RendermanPreset(PropertyGroup):
     bl_label = "RenderMan Preset Group"
     bl_idname = 'RendermanPreset'
 
-    #def get_enum_items(self, context):
-    #    return icons.enum_items
+    # def get_enum_items(self, context):
+    #    return assets.enum_items
 
     @classmethod
     def get_from_path(cls, lib_path):
         if not lib_path:
             return
-        group_path,preset = os.path.split(lib_path)
+        group_path, preset = os.path.split(lib_path)
 
         group = RendermanPresetGroup.get_from_path(group_path)
         return group.presets[preset] if preset in group.presets.keys() else None
-    
+
     name = StringProperty(default='')
-    label= StringProperty(default='')
+    label = StringProperty(default='')
     #thumbnail = EnumProperty(items=get_enum_items)
     thumb_path = StringProperty(subtype='FILE_PATH')
     path = StringProperty(subtype='FILE_PATH')
@@ -67,6 +69,8 @@ class RendermanPresetGroup(PropertyGroup):
     pass
 
 # A property group holds presets and sub groups
+
+
 class RendermanPresetGroup(PropertyGroup):
     bl_label = "RenderMan Preset Group"
     bl_idname = 'RendermanPresetGroup'
@@ -95,8 +99,8 @@ class RendermanPresetGroup(PropertyGroup):
     ui_open = BoolProperty(default=True)
 
     def generate_previews(self, context):
-        return icons.load_previews(self)
-    
+        return assets.load_previews(self)
+
     path = StringProperty(default='')
     presets = CollectionProperty(type=RendermanPreset)
     current_preset = EnumProperty(items=generate_previews, name='Current Preset')
@@ -106,7 +110,7 @@ class RendermanPresetGroup(PropertyGroup):
         all_presets = self.presets[:]
         for group in self.sub_groups:
             all_presets += group.get_presets()
-        return all_presets 
+        return all_presets
 
     def is_active(self):
         return self.path == util.get_addon_prefs().active_presets_path
@@ -120,11 +124,11 @@ def register():
         # set sub groups type we have to do this after registered
         sub_groups = CollectionProperty(type=RendermanPresetGroup)
         setattr(RendermanPresetGroup, 'sub_groups', sub_groups)
-    
+
     except:
-        pass #allready registered
+        pass  # allready registered
+
 
 def unregister():
     bpy.utils.unregister_class(RendermanPresetGroup)
     bpy.utils.unregister_class(RendermanPreset)
-

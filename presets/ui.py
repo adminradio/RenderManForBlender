@@ -25,15 +25,12 @@
 
 from .. import util
 
-# for panel icon
-from ..icons.icons import get_iconid
-
 import bpy
 from .properties import RendermanPresetGroup
 from .properties import RendermanPreset
 
-# for previews of assets
-from . import icons
+from . import assets
+from .. import icons
 
 from bpy.props import StringProperty
 
@@ -53,7 +50,7 @@ class Renderman_Presets_UI_Panel(bpy.types.Panel):
 
     def draw_header(self, context):
         if util.get_addon_prefs().draw_panel_icon:
-            iid = get_iconid("renderman")
+            iid = icons.iconid("renderman")
             self.layout.label(text="", icon_value=iid)
         else:
             pass

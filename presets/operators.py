@@ -29,7 +29,7 @@ import shutil
 import bpy
 from bpy.props import StringProperty, EnumProperty, BoolProperty
 from .properties import RendermanPresetGroup, RendermanPreset
-from . import icons
+from . import assets
 import json
 from bpy.types import NodeTree
 
@@ -41,7 +41,7 @@ def refresh_presets_libraries(disk_lib, preset_library):
         # skip if not a dir
         if not os.path.isdir(cdir):
             continue
-        
+
         is_asset = '.rma' in dir
         path = os.path.join(disk_lib, dir)
 
@@ -49,7 +49,7 @@ def refresh_presets_libraries(disk_lib, preset_library):
             preset = preset_library.presets.get(dir, None)
             if not preset:
                 preset = preset_library.presets.add()
-            
+
 
             preset.name = dir
             json_path = os.path.join(path, 'asset.json')
@@ -84,11 +84,11 @@ class init_preset_library(bpy.types.Operator):
     def invoke(self, context, event):
         presets_library = util.get_addon_prefs().presets_library
         presets_path = util.get_addon_prefs().presets_path
-        
+
         if not os.path.exists(presets_path):
             rmantree_lib_path = os.path.join(util.guess_rmantree(), 'lib', 'RenderManAssetLibrary')
             shutil.copytree(rmantree_lib_path, presets_path)
-            
+
         presets_library.name = 'Library'
         presets_library.path = presets_path
         refresh_presets_libraries(presets_path, presets_library)
@@ -133,7 +133,7 @@ class save_asset_to_lib(bpy.types.Operator):
         if nt:
             from . import rmanAssetsBlender
             os.environ['RMAN_ASSET_LIBRARY'] = presets_path
-            rmanAssetsBlender.exportAsset(nt, 'nodeGraph', 
+            rmanAssetsBlender.exportAsset(nt, 'nodeGraph',
                                           {'label':mat.name,
                                            'author': '',
                                            'version': ''},
@@ -165,7 +165,7 @@ class add_preset_library(bpy.types.Operator):
     bl_description = "Adds a new library"
 
     new_name = StringProperty(default="")
-    
+
     def execute(self, context):
         active = RendermanPresetGroup.get_active_library()
         lib_path = active.path
@@ -200,11 +200,11 @@ class remove_preset_library(bpy.types.Operator):
             parent_path = os.path.split(active.path)[0]
             parent = RendermanPresetGroup.get_from_path(parent_path)
             util.get_addon_prefs().active_presets_path = parent_path
-            
+
             shutil.rmtree(active.path)
 
             refresh_presets_libraries(parent.path, parent)
-        bpy.ops.wm.save_userpref()  
+        bpy.ops.wm.save_userpref()
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -223,11 +223,11 @@ class remove_preset(bpy.types.Operator):
         if active:
             parent_path = os.path.split(preset_path)[0]
             parent = RendermanPresetGroup.get_from_path(parent_path)
-            
+
             shutil.rmtree(active.path)
 
             refresh_presets_libraries(parent.path, parent)
-        bpy.ops.wm.save_userpref()   
+        bpy.ops.wm.save_userpref()
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -258,7 +258,7 @@ class move_preset(bpy.types.Operator):
             new_parent = RendermanPresetGroup.get_from_path(new_parent_path)
 
             shutil.move(active.path, new_parent_path)
-            
+
             refresh_presets_libraries(old_parent.path, old_parent)
             refresh_presets_libraries(new_parent.path, new_parent)
         bpy.ops.wm.save_userpref()
@@ -297,7 +297,7 @@ class move_preset_library(bpy.types.Operator):
             new_parent = RendermanPresetGroup.get_from_path(new_parent_path)
 
             shutil.move(active.path, new_parent_path)
-            
+
             refresh_presets_libraries(old_parent.path, old_parent)
             refresh_presets_libraries(new_parent.path, new_parent)
         bpy.ops.wm.save_userpref()
@@ -309,7 +309,7 @@ class move_preset_library(bpy.types.Operator):
     def draw(self, context):
         row = self.layout
         row.prop(self, "new_library", text="New Parent")
-        
+
 def register():
     try:
         bpy.utils.register_class(init_preset_library)

@@ -22,12 +22,13 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-#
-# Refactoring 2018 by:
-#   Timm Wimmers
-#   timm.wimmers@gmail.com
 
 __all__ = [
-    "RfB_MT_AreaLights",
-    "RFB_OT_SelectLight"
+    "RFB_OT_SelectLight",
+    "RfB_OT_ViewStatsXML",
+    "RfB_OT_StartImageTool",
+    "RfB_OT_ExportObjectRIB",
+    "RfB_OT_StartInteractive",
+    "RfB_OT_BakePatternNodes",
+    "Rfb_OT_RefreshShaderOSL"
 ]

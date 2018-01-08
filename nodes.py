@@ -54,7 +54,9 @@ from .util import readOSO
 from .util import rib
 from .util import user_path
 
-from . icons.icons import get_iconid
+
+from . import icons
+from . ops import RfB_OT_RefreshShaderOSL
 
 from .nodes_utils import RfB_LUTs as LUTS
 
@@ -375,7 +377,7 @@ class RendermanShadingNode(bpy.types.ShaderNode):
     def draw_buttons(self, context, layout):
         self.draw_nonconnectable_props(context, layout, self.prop_names)
         if self.bl_idname == "PxrOSLPatternNode":
-            layout.operator("node.refresh_osl_shader")
+            layout.operator("node.refresh_shader_osl")
 
     def draw_buttons_ext(self, context, layout):
         self.draw_nonconnectable_props(context, layout, self.prop_names)
@@ -464,7 +466,7 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                             ui_prop = prop_name + "_ui_open"
                             ui_open = getattr(self, ui_prop)
                             icn = 'panel_open' if ui_open else 'panel_closed'
-                            iid = get_iconid(icn)
+                            iid = icons.iconid(icn)
                             sub = layout.box()
                             sub = sub.column()
                             sub.prop(self, ui_prop,
@@ -941,7 +943,7 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                         row = cl.row()
 
                         icn = 'propconfig_open' if ui_open else 'propconfig'
-                        iid = get_iconid(icn)
+                        iid = icons.iconid(icn)
                         row.prop(node, ui_prop,
                                  icon_value=iid, text='',
                                  icon_only=True, emboss=False)

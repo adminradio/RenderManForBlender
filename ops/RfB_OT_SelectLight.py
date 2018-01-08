@@ -22,10 +22,6 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-#
-# Refactoring 2018 by:
-#   Timm Wimmers
-#   timm.wimmers@gmail.com
 
 import bpy
 

@@ -30,13 +30,19 @@ import bgl
 import blf
 import webbrowser
 import addon_utils
-from .icons.icons import get_iconid
 from operator import attrgetter, itemgetter
 from bl_operators.presets import AddPresetBase
 
-from bpy.props import PointerProperty, StringProperty, BoolProperty, \
-    EnumProperty, IntProperty, FloatProperty, FloatVectorProperty, \
-    CollectionProperty
+from bpy.props import (
+    IntProperty,
+    BoolProperty,
+    EnumProperty,
+    FloatProperty,
+    StringProperty,
+    PointerProperty,
+    CollectionProperty,
+    FloatVectorProperty
+)
 
 from .util import init_env
 from .util import getattr_recursive
@@ -62,41 +68,8 @@ from .spool import spool_render
 
 from bpy_extras.io_utils import ExportHelper
 
-# to load renderman ressource icon
-from . icons.icons import get_iconid
-
-
-class Renderman_open_stats(bpy.types.Operator):
-    bl_idname = 'rman.open_stats'
-    bl_label = "Open Frame Stats"
-    bl_description = "Open Current Frame stats file"
-
-    def execute(self, context):
-        scene = context.scene
-        rm = scene.renderman
-        output_dir = os.path.dirname(
-            user_path(rm.path_rib_output, scene=scene))
-        bpy.ops.wm.url_open(
-            url="file://" + os.path.join(output_dir, 'stats.%04d.xml' % scene.frame_current))
-        return {'FINISHED'}
-
-
-class Renderman_start_it(bpy.types.Operator):
-    bl_idname = 'rman.start_it'
-    bl_label = "Start IT"
-    bl_description = "Start RenderMan's IT"
-
-    def execute(self, context):
-        scene = context.scene
-        rm = scene.renderman
-        it_path = find_it_path()
-        if not it_path:
-            self.report({"ERROR"},
-                        "Could not find 'it'. Install RenderMan Studio.")
-        else:
-            environ = os.environ.copy()
-            subprocess.Popen([it_path], env=environ, shell=True)
-        return {'FINISHED'}
+# used by icons.icons('ident')
+from . import icons
 
 
 class Renderman_open_last_RIB(bpy.types.Operator):
@@ -270,66 +243,53 @@ class SHADING_OT_add_renderman_nodetree(bpy.types.Operator):
 
         return {'FINISHED'}
 
-######################
-# OSL Operators
-######################
 
+# class RendermanBake(bpy.types.Operator):
+#     bl_idname = "renderman.bake"
+#     bl_label = "Baking"
+#     bl_description = "Bake pattern nodes to texture"
+#     rpass = None
+#     is_running = False
 
-class refresh_osl_shader(bpy.types.Operator):
-    bl_idname = "node.refresh_osl_shader"
-    bl_label = "Refresh OSL Node"
-    bl_description = "Refreshes the OSL node This takes a second!!"
+#     def gen_rib_frame(self, rpass):
+#         try:
+#             rpass.gen_rib(convert_textures=False)
+#         except Exception as err:
+#             self.report({'ERROR'}, 'Rib gen error: ' + traceback.format_exc())
 
-    def invoke(self, context, event):
-        context.node.RefreshNodes(context)
-        return {'FINISHED'}
+#     def execute(self, context):
+#         if engine.ipr:
+#             self.report(
+#                 {"ERROR"}, 'Please stop IPR before baking')
+#             return {'FINISHED'}
+#         scene = context.scene
+#         rpass = RPass(scene, external_render=True, bake=True)
+#         rm = scene.renderman
+#         rpass.display_driver = scene.renderman.display_driver
+#         if not os.path.exists(rpass.paths['texture_output']):
+#             os.mkdir(rpass.paths['texture_output'])
+#         self.report(
+#                     {'INFO'}, 'RenderMan External Rendering generating rib for frame %d' % scene.frame_current)
+#         self.gen_rib_frame(rpass)
+#         rib_names = rpass.paths['rib_output']
+#         frame_tex_cmds = {scene.frame_current: get_texture_list(scene)}
+#         rm_version = rm.path_rmantree.split('-')[-1]
+#         rm_version = rm_version.strip('/\\')
+#         frame_begin = scene.frame_current
+#         frame_end = scene.frame_current
+#         to_render=True
+#         denoise_files = []
+#         denoise_aov_files = []
+#         job_tex_cmds = []
+#         denoise = False
+#         alf_file = spool_render(str(rm_version), to_render, [rib_names], denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass, bake=True)
+#         exe = find_tractor_spool() if rm.queuing_system == 'tractor' else find_local_queue()
+#         self.report(
+#                     {'INFO'}, 'RenderMan Baking spooling to %s.' % rm.queuing_system)
+#         subprocess.Popen([exe, alf_file])
 
-class RendermanBake(bpy.types.Operator):
-    bl_idname = "renderman.bake"
-    bl_label = "Baking"
-    bl_description = "Bake pattern nodes to texture"
-    rpass = None
-    is_running = False
-
-    def gen_rib_frame(self, rpass):
-        try:
-            rpass.gen_rib(convert_textures=False)
-        except Exception as err:
-            self.report({'ERROR'}, 'Rib gen error: ' + traceback.format_exc())
-
-    def execute(self, context):
-        if engine.ipr:
-            self.report(
-                {"ERROR"}, 'Please stop IPR before baking')
-            return {'FINISHED'}
-        scene = context.scene
-        rpass = RPass(scene, external_render=True, bake=True)
-        rm = scene.renderman
-        rpass.display_driver = scene.renderman.display_driver
-        if not os.path.exists(rpass.paths['texture_output']):
-            os.mkdir(rpass.paths['texture_output'])
-        self.report(
-                    {'INFO'}, 'RenderMan External Rendering generating rib for frame %d' % scene.frame_current)
-        self.gen_rib_frame(rpass)
-        rib_names = rpass.paths['rib_output']
-        frame_tex_cmds = {scene.frame_current: get_texture_list(scene)}
-        rm_version = rm.path_rmantree.split('-')[-1]
-        rm_version = rm_version.strip('/\\')
-        frame_begin = scene.frame_current
-        frame_end = scene.frame_current
-        to_render=True
-        denoise_files = []
-        denoise_aov_files = []
-        job_tex_cmds = []
-        denoise = False
-        alf_file = spool_render(str(rm_version), to_render, [rib_names], denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass, bake=True)
-        exe = find_tractor_spool() if rm.queuing_system == 'tractor' else find_local_queue()
-        self.report(
-                    {'INFO'}, 'RenderMan Baking spooling to %s.' % rm.queuing_system)
-        subprocess.Popen([exe, alf_file])
-
-        rpass = None
-        return {'FINISHED'}
+#         rpass = None
+#         return {'FINISHED'}
 
 class ExternalRender(bpy.types.Operator):
 
@@ -464,128 +424,71 @@ class ExternalRender(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class StartInteractive(bpy.types.Operator):
+# class ExportRIBObject(bpy.types.Operator):
+#     bl_idname = "export.export_rib_archive"
+#     bl_label = "Export Object as RIB Archive."
+#     bl_description = "Export single object as a RIB archive for use in other blend files or for other uses"
 
-    ''''''
-    bl_idname = "lighting.start_interactive"
-    bl_label = "Start/Stop Interactive Rendering"
-    bl_description = "Start/Stop Interactive Rendering, must have 'it' installed"
-    rpass = None
-    is_running = False
+#     export_mat = BoolProperty(
+#         name="Export Material",
+#         description="Do you want to export the material?",
+#         default=True)
 
-    def draw(self, context):
-        w = context.region.width
-        h = context.region.height
+#     export_all_frames = BoolProperty(
+#         name="Export All Frames",
+#         description="Export entire animation time frame",
+#         default=False)
 
-        # Draw text area that RenderMan is running.
-        pos_x = w / 2 - 100
-        pos_y = 20
-        blf.enable(0, blf.SHADOW)
-        blf.shadow_offset(0, 1, -1)
-        blf.shadow(0, 5, 0.0, 0.0, 0.0, 0.8)
-        blf.size(0, 32, 36)
-        blf.position(0, pos_x, pos_y, 0)
-        bgl.glColor4f(1.0, 0.0, 0.0, 1.0)
-        blf.draw(0, "%s" % ('RenderMan Interactive Mode Running'))
-        blf.disable(0, blf.SHADOW)
+#     filepath = bpy.props.StringProperty(
+#         subtype="FILE_PATH")
 
-    def invoke(self, context, event=None):
-        addon_prefs = get_addon_prefs()
-        if engine.ipr is None:
-            engine.ipr = RPass(context.scene, interactive=True)
-            engine.ipr.start_interactive()
-            if addon_prefs.draw_ipr_text:
-                engine.ipr_handle = bpy.types.SpaceView3D.draw_handler_add(
-                    self.draw, (context,), 'WINDOW', 'POST_PIXEL')
-            bpy.app.handlers.scene_update_post.append(
-                engine.ipr.issue_transform_edits)
-            bpy.app.handlers.load_pre.append(self.invoke)
-        else:
-            bpy.app.handlers.scene_update_post.remove(
-                engine.ipr.issue_transform_edits)
-            # The user should not turn this on and off during IPR rendering.
-            if addon_prefs.draw_ipr_text:
-                bpy.types.SpaceView3D.draw_handler_remove(
-                    engine.ipr_handle, 'WINDOW')
+#     filename = bpy.props.StringProperty(
+#         subtype="FILE_NAME",
+#         default="")
 
-            engine.ipr.end_interactive()
-            engine.ipr = None
-            if context:
-                for area in context.screen.areas:
-                    if area.type == 'VIEW_3D':
-                        area.tag_redraw()
+#     @classmethod
+#     def poll(cls, context):
+#         return context.object is not None
 
-        return {'FINISHED'}
-######################
-# Export RIB Operators
-######################
+#     def execute(self, context):
+#         export_path = self.filepath
+#         export_range = self.export_all_frames
+#         export_mats = self.export_mat
+#         rpass = RPass(context.scene, interactive=False)
+#         object = context.active_object
 
+#         # rpass.convert_textures(get_texture_list(context.scene))
+#         rpass.ri.Option("rib", {"string asciistyle": "indented,wide"})
 
-class ExportRIBObject(bpy.types.Operator):
-    bl_idname = "export.export_rib_archive"
-    bl_label = "Export Object as RIB Archive."
-    bl_description = "Export single object as a RIB archive for use in other blend files or for other uses"
+#         #export_filename = write_single_RIB(rpass, context.scene, rpass.ri, object)
+#         export_sucess = write_archive_RIB(rpass, context.scene, rpass.ri, object,
+#                                           export_path, export_mats, export_range)
 
-    export_mat = BoolProperty(
-        name="Export Material",
-        description="Do you want to export the material?",
-        default=True)
+#         if(export_sucess[0] == True):
+#             self.report({'INFO'}, "Archive Exported Successfully!")
+#             object.renderman.geometry_source = 'ARCHIVE'
+#             object.renderman.path_archive = export_sucess[1]
+#             object.renderman.object_name = object.name
+#             if(export_mats):
+#                 object.renderman.material_in_archive = True
+#             else:
+#                 object.renderman.material_in_archive = False
+#             object.show_bounds = True
+#             if(export_range == True):
+#                 object.renderman.archive_anim_settings.animated_sequence = True
+#                 object.renderman.archive_anim_settings.sequence_in = context.scene.frame_start
+#                 object.renderman.archive_anim_settings.sequence_out = context.scene.frame_end
+#                 object.renderman.archive_anim_settings.blender_start = context.scene.frame_current
+#             else:
+#                 object.renderman.archive_anim_settings.animated_sequence = False
+#         else:
+#             self.report({'ERROR'}, "Archive Not Exported.")
+#         return {'FINISHED'}
 
-    export_all_frames = BoolProperty(
-        name="Export All Frames",
-        description="Export entire animation time frame",
-        default=False)
+#     def invoke(self, context, event=None):
 
-    filepath = bpy.props.StringProperty(
-        subtype="FILE_PATH")
-
-    filename = bpy.props.StringProperty(
-        subtype="FILE_NAME",
-        default="")
-
-    @classmethod
-    def poll(cls, context):
-        return context.object is not None
-
-    def execute(self, context):
-        export_path = self.filepath
-        export_range = self.export_all_frames
-        export_mats = self.export_mat
-        rpass = RPass(context.scene, interactive=False)
-        object = context.active_object
-
-        # rpass.convert_textures(get_texture_list(context.scene))
-        rpass.ri.Option("rib", {"string asciistyle": "indented,wide"})
-
-        #export_filename = write_single_RIB(rpass, context.scene, rpass.ri, object)
-        export_sucess = write_archive_RIB(rpass, context.scene, rpass.ri, object,
-                                          export_path, export_mats, export_range)
-
-        if(export_sucess[0] == True):
-            self.report({'INFO'}, "Archive Exported Successfully!")
-            object.renderman.geometry_source = 'ARCHIVE'
-            object.renderman.path_archive = export_sucess[1]
-            object.renderman.object_name = object.name
-            if(export_mats):
-                object.renderman.material_in_archive = True
-            else:
-                object.renderman.material_in_archive = False
-            object.show_bounds = True
-            if(export_range == True):
-                object.renderman.archive_anim_settings.animated_sequence = True
-                object.renderman.archive_anim_settings.sequence_in = context.scene.frame_start
-                object.renderman.archive_anim_settings.sequence_out = context.scene.frame_end
-                object.renderman.archive_anim_settings.blender_start = context.scene.frame_current
-            else:
-                object.renderman.archive_anim_settings.animated_sequence = False
-        else:
-            self.report({'ERROR'}, "Archive Not Exported.")
-        return {'FINISHED'}
-
-    def invoke(self, context, event=None):
-
-        context.window_manager.fileselect_add(self)
-        return{'RUNNING_MODAL'}
+#         context.window_manager.fileselect_add(self)
+#         return{'RUNNING_MODAL'}
 
 
 ###########################
@@ -755,7 +658,7 @@ for name in names:
 class LoadSceneMenu(bpy.types.Menu):
     bl_label = "RenderMan Examples"
     bl_idname = "examples"
-    iid = get_iconid('prman')
+    iid = icons.iconid('prman')
 
     def get_operator_failsafe(self, idname):
         op = bpy.ops
@@ -774,7 +677,7 @@ def menu_draw(self, context):
     if context.scene.render.engine != "PRMAN_RENDER":
         return
 
-    iid = get_iconid("help")
+    iid = icons.iconid("help")
     self.layout.menu("examples", icon_value=iid)
 
 # Yuck, this should be built in to blender... Yes it should
@@ -1232,7 +1135,7 @@ class Hemi_List_Menu(bpy.types.Menu):
     bl_idname = "object.hemi_list_menu"
     bl_label = "EnvLight list"
 
-    icn = get_iconid('envlight')
+    icn = icons.iconid('envlight')
 
     def draw(self, context):
         layout = self.layout

@@ -1,0 +1,106 @@
+site_name:          RenderMan for Blender
+site_url:           http://localhost:8000
+site_author:        Timm Wimmers
+site_description:  'RenderMan for Blender - User and Developer Documentation'
+repo_name: GitHub::Repository
+repo_url: https://github.com/prman-pixar/RenderManForBlender
+edit_uri: ""
+
+pages:
+    - Introduction: index.md
+    - Contribution:
+      - Documentation: contribution/documentation.md
+      - Development: contribution/development.md
+      - Tutorials: contribution/tutorials.md
+    - License: license.md
+
+theme:
+  logo: images/renderman.svg
+  name: material
+  favicon: images/favicon.png
+  palette:
+    primary: black
+    accent: orange
+  feature:
+    tabs: true
+
+extra:
+  version: 2018.01
+  social:
+    - type: globe
+      link: https://rmanwiki.pixar.com/display/REN/RenderMan
+    - type: github
+      link: https://github.com/prman-pixar
+    - type: facebook
+      link: https://www.facebook.com/Pixars-RenderMan-114826081870108/
+    - type: twitter
+      link: https://twitter.com/pixarsrenderman
+
+extra_css:
+  - styles/progressbar.css
+  - styles/typeset.css
+  - styles/color.css
+  - script/katex/katex.min.css
+
+extra_javascript:
+  - script/katex/katex.min.js
+  - script/katex/contrib/auto-render.min.js
+  - script/autorender_math.js
+  - https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/js-sequence-diagrams/1.0.6/sequence-diagram-min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js
+  - script/autorender_diagrams.js
+
+markdown_extensions:
+  - meta
+  - toc:
+      permalink: »
+  - pymdownx.arithmatex:
+      generic: true
+  - markdown.extensions.admonition
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown.extensions.def_list
+  - markdown.extensions.footnotes
+  - markdown.extensions.meta
+  - pymdownx.extra
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.superfences
+  - pymdownx.tilde
+
+  - pymdownx.magiclink:
+      repo_url_shortener: true
+      repo_url_shorthand: true
+      social_url_shorthand: true
+      provider: github
+      user: prman-pixar
+      repo: RenderManForBlender
+
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.inlinehilite
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+
+  # Progressbar needs extra css
+  - pymdownx.progressbar
+  - pymdownx.snippets:
+      base_path: docs/snippets
+  - smarty:
+      'substitutions': {
+          'left-single-quote':  '&sbquo;',
+          'right-single-quote': '&lsquo;',
+          'left-double-quote':  '&bdquo;',
+          'right-double-quote': '&ldquo;'
+      }
+  - pymdownx.keys:
+      camel_case: true
+      class: hkey
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+
+copyright: Copyright &copy; 2018 &mdash; Pixar & Contributers
