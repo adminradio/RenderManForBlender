@@ -5,7 +5,7 @@ from .. util import user_path
 
 
 class RfB_OT_ViewStatsXML(bpy.types.Operator):
-    bl_idname = 'renderman.view_stats_xml'
+    bl_idname = 'rfb.view_stats_xml'
     bl_label = "View Frame Statistics"
     bl_description = "View current frame statistics in Browser (extern)."
 

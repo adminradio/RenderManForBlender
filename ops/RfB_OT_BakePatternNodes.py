@@ -40,7 +40,7 @@ from .. export import get_texture_list
 
 
 class RfB_OT_BakePatternNodes(bpy.types.Operator):
-    bl_idname = "renderman.bake_pattern_nodes"
+    bl_idname = "rfb.bake_pattern_nodes"
     bl_label = "Bake Pattern Nodes"
     bl_description = "Bake pattern nodes to texture."
     rpass = None

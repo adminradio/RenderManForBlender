@@ -43,7 +43,7 @@ from .. export import write_archive_RIB
 
 
 class RfB_OT_ExportObjectRIB(bpy.types.Operator):
-    bl_idname = "export.export_rib_archive"
+    bl_idname = "rfb.export_rib_archive"
     bl_label = "Export Object as RIB Archive."
     bl_description = "Export single object as a RIB archive for use in other blend files or for other uses"
 

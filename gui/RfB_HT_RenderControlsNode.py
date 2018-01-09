@@ -31,6 +31,7 @@ from .. nodes import is_renderman_nodetree
 
 
 class RfB_HT_RenderControlsNode(bpy.types.Header):
+    bl_idnam = 'rfb.header_render_controls_node'
     bl_space_type = "NODE_EDITOR"
 
     def draw(self, context):
@@ -41,11 +42,11 @@ class RfB_HT_RenderControlsNode(bpy.types.Header):
         row = layout.row(align=True)
 
         if (hasattr(context.space_data, 'id')
-            and type(context.space_data.id) == bpy.types.Material
+                and type(context.space_data.id) == bpy.types.Material
                 and not is_renderman_nodetree(context.space_data.id)):
             row.operator(
-                'shading.add_renderman_nodetree',
+                'rfb.add_renderman_nodetree',
                 text="Convert to RenderMan"
             ).idtype = "node_editor"
 
-        row.operator('nodes.new_bxdf')
+        row.operator('rfb.new_bxdf')

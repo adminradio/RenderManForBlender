@@ -25,8 +25,8 @@
 
 
 __ALL__ = [
-    "RfB_HT_RendermanControlsInfo",
-    "RfB_HT_RendermanControlsNode",
-    "RfB_HT_RendermanControlsImage",
+    "RfB_HT_RenderControlsInfo",
+    "RfB_HT_RenderControlsNode",
+    "RfB_HT_RenderControlsImage",
     "RfB_MT_AreaLights"
 ]

@@ -62,10 +62,13 @@ from . ops import RfB_OT_StartImageTool
 from . ops import RfB_OT_StartInteractive
 from . ops import RfB_OT_BakePatternNodes
 from . ops import RfB_OT_ExportObjectRIB
+from . ops import RfB_OT_OpenLastRIB
 
-from . gui import RfB_HT_RendermanControlsInfo
-from . gui import RfB_HT_RendermanControlsNode
-from . gui import RfB_HT_RendermanControlsImage
+from . gui import RfB_HT_RenderControlsInfo
+from . gui import RfB_HT_RenderControlsNode
+from . gui import RfB_HT_RenderControlsImage
+
+from . gui import RfB_MT_AreaLights
 
 from . util import get_addon_prefs
 
@@ -258,7 +261,7 @@ class RENDER_PT_renderman_baking(PRManButtonsPanel, Panel):
         layout = self.layout
         row = layout.row()
         iid = icons.iconid("batch_render")
-        row.operator("renderman.bake_pattern_nodes",
+        row.operator("rfb.bake_pattern_nodes",
                      text="Bake Pattern Nodes to Textures", icon_value=iid)
 
 
@@ -283,8 +286,8 @@ class RENDER_PT_renderman_spooling(PRManButtonsPanel, Panel):
             return
 
         cll = cl.row()
-        iid = icons.iconid("batch_render")
-        cll.operator("renderman.external_render",
+        iid = icons.iconid("render_spool")
+        cll.operator("rfb.spool_external_render",
                      text="Export", icon_value=iid)
 
         cll = cl.column()
@@ -616,10 +619,9 @@ class RENDER_PT_renderman_advanced_settings(PRManButtonsPanel, Panel):
         col = layout.column()
         row = col.row()
         row.prop(rm, "use_statistics", text="Output stats")
-        # row.operator('rman.open_stats')
-        row.operator('renderman.view_stats_xml')
+        row.operator('rfb.view_stats_xml')
         row = col.row()
-        row.operator('rman.open_rib')
+        row.operator('rfb.open_last_rib')
         row.prop(rm, "editor_override")
         row = layout.row()
         row.label(text="RIB Format:")
@@ -666,7 +668,7 @@ class MESH_PT_renderman_prim_vars(CollectionPanel, Panel):
         rm = mesh.renderman
 
         self._draw_collection(context, layout, rm, "Primitive Variables:",
-                              "collection.add_remove", "mesh", "prim_vars",
+                              "rfb.toggle_collection", "mesh", "prim_vars",
                               "prim_vars_index")
 
         layout.prop(rm, "export_default_uv")
@@ -793,8 +795,8 @@ class MATERIAL_PT_renderman_shader_surface(ShaderPanel, Panel):
             layout.separator()
         if mat and not is_renderman_nodetree(mat):
             layout.operator(
-                'shading.add_renderman_nodetree').idtype = "material"
-            layout.operator('shading.convert_cycles_stuff')
+                'rfb.add_renderman_nodetree').idtype = "material"
+            layout.operator('rfb.convert_all_cycles_nodes')
         # self._draw_shader_menu_params(layout, context, rm)
 
 
@@ -931,7 +933,7 @@ class DATA_PT_renderman_world(ShaderPanel, Panel):
 
         if not world.renderman.use_renderman_node:
             layout.prop(world, "horizon_color")
-            layout.operator('shading.add_renderman_nodetree').idtype = 'world'
+            layout.operator('rfb.add_renderman_nodetree').idtype = 'world'
             return
         else:
             layout.prop(world.renderman, "renderman_type", expand=True)
@@ -955,8 +957,8 @@ class DATA_PT_renderman_lamp(ShaderPanel, Panel):
         ipr_running = engine.ipr != None
         if not lamp.renderman.use_renderman_node:
             layout.prop(lamp, "type", expand=True)
-            layout.operator('shading.add_renderman_nodetree').idtype = 'lamp'
-            layout.operator('shading.convert_cycles_stuff')
+            layout.operator('rfb.add_renderman_nodetree').idtype = 'lamp'
+            layout.operator('rfb.convert_all_cycles_nodes')
             return
         else:
             if ipr_running:
@@ -1023,7 +1025,7 @@ class DATA_PT_renderman_display_filters(CollectionPanel, Panel):
         rm = scene.renderman
 
         self._draw_collection(context, layout, rm, "Display Filters:",
-                              "collection.add_remove", "scene", "display_filters",
+                              "rfb.toggle_collection", "scene", "display_filters",
                               "display_filters_index")
 
 
@@ -1048,7 +1050,7 @@ class DATA_PT_renderman_Sample_filters(CollectionPanel, Panel):
         rm = scene.renderman
 
         self._draw_collection(context, layout, rm, "Sample Filters:",
-                              "collection.add_remove", "scene", "sample_filters",
+                              "rfb.toggle_collection", "scene", "sample_filters",
                               "sample_filters_index")
 
 
@@ -1071,7 +1073,7 @@ class DATA_PT_renderman_node_filters_lamp(CollectionPanel, Panel):
         lamp = context.lamp
 
         self._draw_collection(context, layout, lamp.renderman, "",
-                              "collection.add_remove", "lamp", "light_filters",
+                              "rfb.toggle_collection", "lamp", "light_filters",
                               "light_filters_index")
 
 
@@ -1119,7 +1121,7 @@ class OBJECT_PT_renderman_object_geometry(Panel, CollectionPanel):
         elif rm.geometry_source == 'OPENVDB':
             col.prop(rm, 'path_archive', text='OpenVDB file')
             self._draw_collection(context, layout, rm, "",
-                                  "collection.add_remove", "object.renderman",
+                                  "rfb.toggle_collection", "object.renderman",
                                   "openvdb_channels", "openvdb_channel_index")
 
         if rm.geometry_source in ('DELAYED_LOAD_ARCHIVE',
@@ -1161,7 +1163,7 @@ class OBJECT_PT_renderman_object_geometry(Panel, CollectionPanel):
 
         iid = icons.iconid("archive_rib")
         col = layout.column()
-        col.operator("export.export_rib_archive",
+        col.operator("rfb.export_rib_archive",
                      text="Export Object as RIB Archive.", icon_value=iid)
 
         col = layout.column()
@@ -1456,7 +1458,7 @@ class RENDER_PT_layer_custom_aovs(CollectionPanel, Panel):
                 rm_rl = l
                 break
         if rm_rl is None:
-            layout.operator('renderman.add_renderman_aovs')
+            layout.operator('rfb.add_aovs')
             split = layout.split()
             col = split.column()
             rl = active_layer
@@ -1500,7 +1502,7 @@ class RENDER_PT_layer_custom_aovs(CollectionPanel, Panel):
         else:
             layout.context_pointer_set("pass_list", rm_rl)
             self._draw_collection(context, layout, rm_rl, "",
-                                  "collection.add_remove", "pass_list",
+                                  "rfb.toggle_collection", "pass_list",
                                   "custom_aovs", "custom_aov_index")
 
 
@@ -1582,7 +1584,7 @@ class PARTICLE_PT_renderman_prim_vars(CollectionPanel, Panel):
         rm = psys.settings.renderman
 
         self._draw_collection(context, layout, rm, "Primitive Variables:",
-                              "collection.add_remove",
+                              "rfb.toggle_collection",
                               "particle_system.settings",
                               "prim_vars", "prim_vars_index")
 
@@ -1621,7 +1623,7 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
         #    light_group = rm.object_groups.add()
         #    light_group.name = 'All'
         self._draw_collection(context, layout, rm, "",
-                              "collection.add_remove",
+                              "rfb.toggle_collection",
                               "scene.renderman",
                               "light_groups", "light_groups_index", default_name=str(len(rm.light_groups)))
 
@@ -1634,12 +1636,12 @@ class Renderman_Light_Panel(CollectionPanel, Panel):
         #                    rows=9, maxrows=100, type='GRID', columns=9)
 
         row = layout.row()
-        add = row.operator('renderman.add_to_group', 'Add Selected to Group')
+        add = row.operator('rfb.move_item_to_group', 'Add Selected to Group')
         add.item_type = 'light'
         add.group_index = rm.light_groups_index
 
         # row = layout.row()
-        remove = row.operator('renderman.remove_from_group',
+        remove = row.operator('rfb.remove_item_from_group',
                               'Remove Selected from Group')
         remove.item_type = 'light'
         remove.group_index = rm.light_groups_index
@@ -1858,7 +1860,7 @@ class Renderman_Light_Link_Panel(CollectionPanel, Panel):
                 # selected (left|right) items are linked, show edit ops
                 #
                 rem = row.operator(
-                    'renderman.add_rem_light_link', 'Remove Light Link')
+                    'rfb.toggle_lightlink', 'Remove Light Link')
                 rem.ll_name = ll_name
                 rem.add_remove = "remove"
                 row.prop(rm.ll[ll_name], 'illuminate', text='')
@@ -1867,7 +1869,7 @@ class Renderman_Light_Link_Panel(CollectionPanel, Panel):
                 # selected (left|right) items are not linked, show single add op
                 #
                 add = row.operator(
-                    'renderman.add_rem_light_link', 'Add Light Link')
+                    'rfb.toggle_lightlink', 'Add Light Link')
                 add.ll_name = ll_name
                 add.add_remove = 'add'
 
@@ -1904,7 +1906,7 @@ class Renderman_Object_Panel(CollectionPanel, Panel):
         #    collector_group.name = 'collector'
 
         self._draw_collection(context, layout, rm, "",
-                              "collection.add_remove",
+                              "rfb.toggle_collection",
                               "scene.renderman",
                               "object_groups", "object_groups_index",
                               default_name=str(len(rm.object_groups)))
@@ -1916,9 +1918,9 @@ class Renderman_Object_Panel(CollectionPanel, Panel):
         group = rm.object_groups[rm.object_groups_index]
 
         row = layout.row()
-        row.operator('renderman.add_to_group',
+        row.operator('rfb.move_item_to_group',
                      'Add Selected to Group').group_index = rm.object_groups_index
-        row.operator('renderman.remove_from_group',
+        row.operator('rfb.remove_item_from_group',
                      'Remove Selected from Group').group_index = rm.object_groups_index
 
         row = layout.row()
@@ -1945,57 +1947,81 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         scene = context.scene
         rm = scene.renderman
 
-        # save Scene
-        # layout.operator("wm.save_mainfile", text="Save Scene", icon='FILE_TICK')
+        #
+        # [Save Scene] Button
+        #
+        layout.operator("wm.save_mainfile", text="Save Scene", icon='FILE_TICK')
 
-        # layout.separator()
+        layout.separator()
+        layout.separator()
 
-        if context.scene.render.engine != "PRMAN_RENDER":
+        if scene.render.engine != "PRMAN_RENDER":
             return
 
-        # Render
-        cl=layout.box()
+        # ######################################################################
+        # RENDER LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
+
+        #
+        # [Render] Button with TRIA
+        #
         row = cl.row(align=True)
+
         iid = icons.iconid("render")
         row.operator("render.render", text="Render", icon_value=iid)
 
         icon = 'TRIA_DOWN' if context.scene.rm_render else 'TRIA_RIGHT'
         row.prop(context.scene, "rm_render", text="", icon=icon)
 
-        if context.scene.rm_render:
-            scene = context.scene
-            rd = scene.render
-
-            # box = layout.box()
-            row = cl.row(align=True)
-
-            # Display Driver
-            row.prop(rm, "render_into")
-
-            # presets
-            row = cl.row(align=True)
-            row.label("Sampling Preset:")
-            row.menu("presets", text=bpy.types.presets.bl_label)
-            row.operator("render.renderman_preset_add", text="", icon='ZOOMIN')
-            row.operator("render.renderman_preset_add", text="",
-                         icon='ZOOMOUT').remove_active = True
-
-            # denoise and selected row
-            row = cl.row(align=True)
-            row.prop(rm, "do_denoise", text="Denoise")
-            row.prop(rm, "render_selected_objects_only",
-                     text="Render Selected")
-
-            # animation
-            row = cl.row(align=True)
+        if scene.rm_render:
+            #
+            # [Render] - Sublayout is open.
+            #
+            box = cl.box()
+            # box.separator()  # slightly more space
+            #
+            # [Render Animation]
+            #
             iid = icons.iconid("batch_render")
+            row = box.row(align=True)
             row.operator("render.render", text="Render Animation",
                          icon_value=iid).animation = True
-            # layout.separator()
-            # row = box.row(align=True)
-            # rman_batch = icons.get("batch_render")
-            # row.operator("render.render",text="Batch Render",icon_value=rman_batch.icon_id).animation=True
 
+            #
+            # [Display Driver] [Denoise] [Selected]
+            #
+            row = box.row(align=True)
+            row.prop(rm, "render_into", text="")
+
+            iid = (icons.iconid("dnoise_on")
+                   if rm.do_denoise
+                   else icons.iconid("dnoise_off"))
+            row.prop(rm, "do_denoise",
+                     text="",
+                     icon_value=iid)
+
+            iid = (icons.iconid("selected_on")
+                   if rm.render_selected_objects_only
+                   else icons.iconid("selected_off"))
+            row.prop(rm, "render_selected_objects_only",
+                     text="",
+                     icon_value=iid)
+
+            #
+            # [RenderMan Presets]
+            #
+            row = box.row(align=True)
+            row.menu("presets", text=bpy.types.presets.bl_label)
+
+            row.operator("render.renderman_preset_add", text="",
+                         icon='ZOOMIN')
+
+            row.operator("render.renderman_preset_add", text="",
+                         icon='ZOOMOUT').remove_active = True
+            # ### Renderman Presets ####
+
+            # rd = scene.render ### ???? ####
             # #Resolution
             # row = box.row(align=True)
             # sub = row.column(align=True)
@@ -2017,21 +2043,140 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             # row = col.row(align=True)
             # row.prop(rm, "max_specular_depth", text="Specular Depth")
             # row.prop(rm, "max_diffuse_depth", text="Diffuse Depth")
+            #
+            # If Sublayout open, create more space behind
+            #
+            layout.separator()
+            layout.separator()
+        # ----------------------------------------------------------------------
+        # END RENDER LAYOUT
+        # ######################################################################
 
-        # IPR
+        # ######################################################################
+        # EXTERNAL RENDER LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
+        row = cl.row(align=True)
+
+
+        #if scene.renderman.enable_external_rendering:
+        iid = icons.iconid("render_spool")
+        row.operator("rfb.spool_external_render",
+                     text="External Render",
+                     icon_value=iid)
+
+        icon='TRIA_DOWN' if scene.rm_render_external else 'TRIA_RIGHT'
+        row.prop(context.scene,
+                 "rm_render_external", text="",
+                 icon=icon)
+
+        if scene.rm_render_external:
+            #
+            # Layout is open
+            #
+            box = cl.box()
+            # box.separator()  # slightly more space
+
+            row = box.row(align=True)
+
+            #
+            # [Display Driver] [Denoise] [Crossframe] [Selected only]
+            #
+
+            row.prop(rm, "display_driver", text="")
+
+            #
+            # Denoise (simple)
+            #
+            iid = (icons.iconid("dnoise_on")
+                   if rm.external_denoise
+                   else icons.iconid("dnoise_off"))
+            row.prop(rm, "external_denoise",
+                     text="",
+                     icon_value=iid)
+            #
+            # Cross Denoise
+            #
+            sub = row.row(align=True)
+            sub.enabled = rm.external_denoise and rm.external_animation
+            iid = (icons.iconid("crossdn_on")
+                   if rm.crossframe_denoise
+                   else icons.iconid("crossdn_off"))
+            sub.prop(rm, "crossframe_denoise",
+                     text="",
+                     icon_value=iid)
+            #
+            # Selected Objects only
+            #
+            iid = (icons.iconid("selected_on")
+                   if rm.render_selected_objects_only
+                   else icons.iconid("selected_off"))
+            row.prop(rm, "render_selected_objects_only",
+                     text="",
+                     icon_value=iid)
+            #
+            # Animation
+            #
+            iid = (icons.iconid("animation_on")
+                   if rm.external_animation
+                   else icons.iconid("animation_on"))
+
+            row = box.row(align=True)
+
+            sub = row.row(align=True)
+            sub.enabled = rm.external_animation
+            sub.prop(scene, "frame_start", text="Start")
+            sub.prop(scene, "frame_end", text="End")
+
+            row.prop(rm, "external_animation",
+                     text="",
+                     icon_value=iid)
+
+            #
+            # Presets Menu
+            #
+            row = box.row(align=True)
+            row.menu("presets")
+
+            #
+            # spool render
+            #
+            # FIXME: property not found
+            # row = box.row(align=True)
+            # row.prop(rm, "external_action", text='')
+            # col = row.column()
+            # col.enabled = rm.external_action == 'spool'
+            # col.prop(rm, "queuing_system", text='')
+
+            #
+            # If Sublayout open, create more space behind
+            #
+            layout.separator()
+            layout.separator()
+        # ----------------------------------------------------------------------
+        # EXTERNAL RENDER LAYOUT END
+        # ######################################################################
+
+        # ######################################################################
+        # IPR LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
+
         if engine.ipr:
-            # Stop IPR
-            cl = layout.box()
+            #
+            # [Stop IPR} it's running
+            #
             row = cl.row(align=True)
             iid = icons.iconid("stop_ipr")
             row.operator('lighting.start_interactive',
                          text="Stop IPR", icon_value=iid)
             row.prop(context.scene, "rm_ipr", text="",
                      icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
-            if context.scene.rm_ipr:
 
-                scene = context.scene
-                rm = scene.renderman
+            if scene.rm_ipr:
+
+                # scene = context.scene
+                # rm = scene.renderman
 
                 box = cl.box()
                 row = box.row(align=True)
@@ -2048,8 +2193,9 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 row = col.row(align=True)
 
         else:
-            # Start IPR
-            cl = layout.box()
+            #
+            # [Start IPR] it's not running
+            #
             row = cl.row(align=True)
             iid = icons.iconid("start_ipr")
             row.operator('lighting.start_interactive', text="Start IPR",
@@ -2058,90 +2204,50 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             row.prop(context.scene, "rm_ipr", text="",
                      icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
 
-            if context.scene.rm_ipr:
-
-                scene = context.scene
-                rm = scene.renderman
-
-                # Interactive and Preview Sampling
+            if scene.rm_ipr:
+                #
+                # [Start IT] (in sublayout)
+                #
                 box = cl.box()
-                row = box.row(align=True)
+                iid = icons.iconid("start_it")
+                # box.separator()  # slightly more space
 
+                box.operator("renderman.start_image_tool",
+                                text="Start · Focus IT",
+                                icon_value=iid)
+                #
+                # Interactive and Preview Sampling
+                #
+                row = box.row(align=True)
                 col = row.column()
                 col.prop(rm, "preview_pixel_variance")
+
                 row = col.row(align=True)
-                row.prop(rm, "preview_min_samples", text="Min Samples")
-                row.prop(rm, "preview_max_samples", text="Max Samples")
+                row.prop(rm, "preview_min_samples", text="Min. Samples")
+                row.prop(rm, "preview_max_samples", text="Max. Samples")
+
                 row = col.row(align=True)
                 row.prop(rm, "preview_max_specular_depth",
                          text="Specular Depth")
+
                 row.prop(rm, "preview_max_diffuse_depth", text="Diffuse Depth")
-                row = col.row(align=True)
-
-                # Start IT
-                iid = icons.iconid("start_it")
-                cl.operator("renderman.start_image_tool",
-                                text="Start/Focus IT",
-                                icon_value=iid)
-
-        row = layout.row(align=True)
-        iid= icons.iconid("batch_render")
-        if context.scene.renderman.enable_external_rendering:
-            row.operator("renderman.external_render",
-                         text="External Render",
-                         icon_value=iid)
-
-            icon='TRIA_DOWN' if context.scene.rm_render_external else 'TRIA_RIGHT'
-            row.prop(context.scene,
-                     "rm_render_external", text="",
-                     icon=icon)
-            if context.scene.rm_render_external:
-                scene = context.scene
-                rd = scene.render
-
-                box = layout.box()
-                row = box.row(align=True)
-
-                # Display Driver
-                row.prop(rm, "display_driver", text='Render into')
-
-                # animation
-                row = box.row(align=True)
-                row.prop(rm, "external_animation")
-
-                row = box.row(align=True)
-                row.enabled = rm.external_animation
-                row.prop(scene, "frame_start", text="Start")
-                row.prop(scene, "frame_end", text="End")
-
-                # presets
-                row = box.row(align=True)
-                row.label("Sampling Preset:")
-                row.menu("presets")
-
-                # denoise and selected row
-                row = box.row(align=True)
-                row.prop(rm, "external_denoise", text="Denoise")
-                col = row.column()
-                col.enabled = rm.external_denoise and rm.external_animation
-                col.prop(rm, "crossframe_denoise", text="Crossframe Denoise")
-
-                row = box.row(align=True)
-                row.prop(rm, "render_selected_objects_only",
-                         text="Render Selected")
-
-                # spool render
-                row = box.row(align=True)
-                row.prop(rm, "external_action", text='')
-                col = row.column()
-                col.enabled = rm.external_action == 'spool'
-                col.prop(rm, "queuing_system", text='')
-
-        # Create Camera
-        cl=layout.box()
+                #
+                # If sublayout open create more space
+                #
+                layout.separator()
+                layout.separator()
+        # ----------------------------------------------------------------------
+        # END IPR LAYOUT
+        # ######################################################################
+        layout.separator()
+        layout.separator()
+        # ######################################################################
+        # CREATE CAMERA LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
         row = cl.row(align=True)
         iid = icons.iconid("camera")
-        row.operator("object.add_prm_camera",
+        row.operator("rfb.add_camera",
                      text="Add Camera", icon_value=iid)
 
         row.prop(context.scene, "prm_cam", text="",
@@ -2151,7 +2257,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             ob = bpy.context.object
             box = cl.box()
             row = box.row(align=True)
-            row.menu("object.camera_list_menu",
+            row.menu("rfb_mt.cameralist",
                      text="Camera List", icon_value=iid)
 
             if ob.type == 'CAMERA':
@@ -2161,7 +2267,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 row.prop(ob, "hide", text="")
                 row.prop(ob, "hide_render",
                          icon='RESTRICT_RENDER_OFF', text="")
-                row.operator("object.delete_cameras",
+                row.operator("rfb.delete_camera",
                              text="", icon='PANEL_CLOSE')
 
                 row = box.row(align=True)
@@ -2198,8 +2304,18 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
             else:
                 box.label("No Camera Selected")
 
-        # Create Env Light
-        cl = layout.box()
+            # if layout is open add more space on parent layout
+            layout.separator()
+            layout.separator()
+        # ----------------------------------------------------------------------
+        # CREATE CAMERA LAYOUT END
+        # ######################################################################
+        layout.separator()
+        layout.separator()
+        # ######################################################################
+        # CREATE ENVIRONMENT LIGHT LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
         row = cl.row(align=True)
         iid = icons.iconid("envlight")
         row.operator("object.mr_add_hemi",
@@ -2240,7 +2356,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 ob = bpy.context.object
                 box = cl.box()
                 row = box.row(align=True)
-                row.menu("object.hemi_list_menu",
+                row.menu("rfb_mt.hemilights",
                          text="EnvLight List", icon_value=iid)
 
                 if ob.type == 'LAMP' and ob.data.type == 'HEMI':
@@ -2250,17 +2366,26 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                     row.prop(ob, "hide", text="")
                     row.prop(ob, "hide_render",
                              icon='RESTRICT_RENDER_OFF', text="")
-                    row.operator("object.delete_lights",
+                    row.operator("rfb.delete_light",
                                  text="", icon='PANEL_CLOSE')
                     row = box.row(align=True)
                     row.prop(ob, "rotation_euler", index=2, text="Rotation")
 
                 else:
-                    row = layout.row(align=True)
+                    row = box.row()
                     row.label("No EnvLight Selected")
 
-        # Create Area Light
+                # if layout is open create more space on parent
+                layout.separator()
+                layout.separator()
+        # ----------------------------------------------------------------------
+        # CREATE ENVIRONMENT LIGHT LAYOUT END
+        # ######################################################################
 
+        # ######################################################################
+        # CREATE AREA LIGHT LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
         row = cl.row(align=True)
         iid = icons.iconid("arealight")
         row.operator("object.mr_add_area", text="Add AreaLight",
@@ -2300,7 +2425,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 ob = bpy.context.object
                 box = cl.box()
                 row = box.row(align=True)
-                row.menu("object.area_list_menu",
+                row.menu("rfb.area_lights_menu",
                          text="AreaLight List", icon_value=iid)
 
                 if ob.type == 'LAMP' and ob.data.type == 'AREA':
@@ -2310,15 +2435,23 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                     row.prop(ob, "hide", text="")
                     row.prop(ob, "hide_render",
                              icon='RESTRICT_RENDER_OFF', text="")
-                    row.operator("object.delete_lights",
+                    row.operator("rfb.delete_light",
                                  text="", icon='PANEL_CLOSE')
 
                 else:
-                    row = layout.row(align=True)
+                    row = box.row(align=True)
                     row.label("No AreaLight Selected")
+                # if layout is open, create more space
+                layout.separator()
+                layout.separator()
+        # ----------------------------------------------------------------------
+        # CREATE AREA LIGHT LAYOUT END
+        # ######################################################################
 
-        # Daylight
-
+        # ######################################################################
+        # CREATE DAYLIGHT LIGHT LAYOUT
+        # ----------------------------------------------------------------------
+        cl = layout.column(align=True)
         row = cl.row(align=True)
         iid = icons.iconid("daylight")
         row.operator("object.mr_add_sky",
@@ -2359,7 +2492,7 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                 ob = bpy.context.object
                 box = layout.box()
                 row = box.row(align=True)
-                row.menu("object.daylight_list_menu",
+                row.menu("rfb_mt.daylights",
                          text="DayLight List", icon='LAMP_SUN')
 
                 if ob.type == 'LAMP' and ob.data.type == 'SUN':
@@ -2369,21 +2502,40 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                     row.prop(ob, "hide", text="")
                     row.prop(ob, "hide_render",
                              icon='RESTRICT_RENDER_OFF', text="")
-                    row.operator("object.delete_lights",
+                    row.operator("rfb.delete_light",
                                  text="", icon='PANEL_CLOSE')
 
                 else:
                     row = layout.row(align=True)
                     row.label("No DayLight Selected")
 
-        # Dynamic Binding Editor
+            # if layout is open creat more space
+            layout.separator()
+            layout.separator()
+        # ----------------------------------------------------------------------
+        # CREATE AREA LIGHT LAYOUT END
+        # ######################################################################
 
-        # Create Holdout
+        # ######################################################################
+        # TODO: Dynamic Binding Editor
+        # ######################################################################
+
+        # ######################################################################
+        # TODO: Create Holdout
+        # ######################################################################
+
 
         # Open Linking Panel
         # row = layout.row(align=True)
         # row.operator("renderman.lighting_panel")
 
+        # ######################################################################
+        # SELECTED OBJECT LAYOUT
+        # ----------------------------------------------------------------------
+        #
+        # Let's see if there are obejcts selected which this layout may
+        # be usable for.
+        #
         selected_objects = []
         if context.selected_objects:
             for obj in context.selected_objects:
@@ -2391,67 +2543,93 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
                     selected_objects.append(obj)
 
         if selected_objects:
-            layout.separator()
-            layout.label("Seleced Objects:")
-            box = layout.box()
-
+            #
+            # Create a new 'current layout'
+            #
+            cl = layout.column(align=True)
+            cl.label("Seleced Objects:")
+            #
             # Create PxrLM Material
-            # iid = icons.iconid("pxrdisney")
-            box.operator_menu_enum("object.add_bxdf", 'bxdf_name',
-                                   text="Add New Material",
-                                   icon='MATERIAL')
-
+            #
+            iid = icons.iconid("pxrdisney")
+            cl.operator_menu_enum("rfb.add_bxdf",
+                                   'bxdf_name',
+                                   text="Add New Material")
+            #
             # Make Selected Geo Emissive
+            #
             iid = icons.iconid("make_emissive")
-            box.operator("object.addgeoarealight",
+            cl.operator("rfb.make_emissive",
                          text="Make Emissive",
                          icon_value=iid)
-
+            #
             # Add Subdiv Sheme
+            #
             iid = icons.iconid("add_subdiv_sheme")
-            box.operator("object.add_subdiv_sheme",
+            cl.operator("rfb.make_subdiv",
                          text="Make Subdiv",
                          icon_value=iid)
-
+            #
             # Add/Create RIB Box. Create Archive node
+            #
             iid = icons.iconid("archive_rib")
-            box.operator("export.export_rib_archive",
+            cl.operator("rfb.export_rib_archive",
                          icon_value=iid)
 
-        # TODO: Create Geo LightBlocker (TW: 2018-01-03)
-        # Update Archive !! Not needed with current system.
-
-        # FIXME: Open Last RIB (or not needed? TW: 2018-01-03)
-        # rman_open_last_rib = icons.get("open_last_rib")
-        # layout.prop(rm, "path_rib_output",icon_value=rman_open_last_rib.icon_id)
-
-        # TODO: Inspect RIB Selection (TW: 2018-01-03)
-        # TODO: Shared Geometry Attribute (TW: 2018-01-03)
-        # TODO: Add/Atach Coordsys (TW: 2018-01-03)
+        # ----------------------------------------------------------------------
+        # SELECTED OBJECT LAYOUT END
+        # ######################################################################
+        layout.separator()
+        layout.separator()
+        # ######################################################################
+        #
+        # TODO: Create Geo LightBlocker
+        # TODO: Inspect RIB Selection
+        # TODO: Shared Geometry Attribute
+        # TODO: Add/Atach Coordsys
         # TODO: Open Tmake Window  ?? Run Tmake on everything.
         # TODO: Create OpenVDB Visualizer
-
-
-        # RenderMan Doc
-        cl = layout.box()
-        iid = icons.iconid("web")
+        #
+        # ######################################################################
+        # layout.separator()
+        # layout.separator()
+        # ######################################################################
+        # SELECTED OBJECT LAYOUT
+        # ----------------------------------------------------------------------
+        #
+        # RenderMan Doc (online)
+        #
+        iid = icons.iconid("web")  # used twice!
 
         href = "https://github.com/prman-pixar/RenderManForBlender/wiki/Documentation-Home"
-        cl.operator("wm.url_open",
+        layout.operator("wm.url_open",
                         text="RenderMan Docs",
                         icon_value=iid).url = href
-
+        #
+        # RenderMan What's new (online)
+        #
         href = "https://renderman.pixar.com/whats-new"
-        cl.operator("wm.url_open",
+        layout.operator("wm.url_open",
                         text="About RenderMan",
                         icon_value=iid).url = href
-
+        #
+        # Examples Menu
+        #
+        iid = icons.iconid("prman")
+        layout.menu("examples", text="RenderMan Examples (local)", icon_value=iid)
+        # ----------------------------------------------------------------------
+        # SUPPORT LAYOUT END
+        # ######################################################################
+        layout.separator()
+        layout.separator()
+        # ######################################################################
+        #
         # # TODO: doesn't work!
         # #
         # # Reload the addon
         # #
         # # iid = icons.iconid("reload_plugin")
-        # # cl.operator("renderman.restartaddon", icon_value=iid)
+        # # cl.operator("rfb.restartaddon", icon_value=iid)
         #
         # Maybe this could work??
         #
@@ -2460,12 +2638,19 @@ class Renderman_UI_Panel(bpy.types.Panel, _RManPanelHeader):
         #         icon='CHECKBOX_HLT' if is_enabled else 'CHECKBOX_DEHLT', text="",
         #         emboss=False,
         #         ).module = 'RMAN'
-        #
-        # Enable menu to display examples in RenderMan panel
-        #
-        iid = icons.iconid("prman")
-        cl.menu("examples", text="RenderMan Examples (local)", icon_value=iid)
-
+        # ######################################################################
+        # layout.separator()
+        # layout.separator()
+        # ######################################################################
+        # OPEN LAST RIB LAYOUT
+        # ----------------------------------------------------------------------
+        iid = icons.iconid("open_last_rib")
+        layout.operator("rfb.open_last_rib",
+                text="Open Last RIB",
+                icon_value=iid)
+        # ----------------------------------------------------------------------
+        # OPEN LAST RIB END
+        # ######################################################################
 
 def register():
     bpy.utils.register_class(RENDERMAN_GROUP_UL_List)

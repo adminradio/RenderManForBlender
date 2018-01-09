@@ -1357,7 +1357,7 @@ def createNodes(Asset):
 
             light.name = nodeId
             light.data.name = nodeId
-            bpy.ops.shading.add_renderman_nodetree(
+            bpy.ops.rfb.add_renderman_nodetree(
                 {'material': None, 'lamp': bpy.context.active_object.data}, idtype='lamp')
             light.matrix_world[0] = vals[0:4]
             light.matrix_world[1] = vals[4:8]

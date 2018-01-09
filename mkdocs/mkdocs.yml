@@ -2,7 +2,7 @@ site_name:          RenderMan for Blender
 site_url:           http://localhost:8000
 site_author:        Timm Wimmers
 site_description:  'RenderMan for Blender - User and Developer Documentation'
-repo_name: GitHub::Repository
+repo_name: GitHub Repository
 repo_url: https://github.com/prman-pixar/RenderManForBlender
 edit_uri: ""
 

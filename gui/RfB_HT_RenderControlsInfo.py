@@ -27,12 +27,13 @@
 import bpy
 
 # RfB imports
-from .. import engine
 from .. import icons
+from .. import engine
 
 
-class RfB_HT_RendermanControlsImage(bpy.types.Header):
-    bl_space_type = "IMAGE_EDITOR"
+class RfB_HT_RenderControlsInfo(bpy.types.Header):
+    bl_idname = 'rfb.header_render_controls_info'
+    bl_space_type = "INFO"
 
     def draw(self, context):
         if context.scene.render.engine != "PRMAN_RENDER":
@@ -41,10 +42,13 @@ class RfB_HT_RendermanControlsImage(bpy.types.Header):
 
         row = layout.row(align=True)
         iid = icons.iconid("render")
-        row.operator("render.render",
-                     text="Render",
-                     icon_value=iid)
+        row.operator("render.render", text="Render", icon_value=iid)
 
+        iid = icons.iconid("render_spool")
+        if context.scene.renderman.enable_external_rendering:
+            row.operator("rfb.spool_external_render",
+                         text="External Render",
+                         icon_value=iid)
         if engine.ipr:
             iid = icons.iconid("stop_ipr")
             row.operator('lighting.start_interactive',

@@ -25,16 +25,18 @@
 
 import bpy
 from .. import icons
+# from .. import ops
+from .. ops import RfB_OT_SelectLight
 
 
 class RfB_MT_AreaLights(bpy.types.Menu):
     """Create a menu of all area lights found in current scene."""
-    bl_idname = "object.area_lights_menu"
+    bl_idname = "rfb.area_lights_menu"
     bl_label = "Area Light List"
 
     def draw(self, context):
         layout = self.layout
-        icon_id = icons.getid('arealight')
+        iid = icons.iconid('arealight')
 
         lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
         if lamps:
@@ -42,7 +44,7 @@ class RfB_MT_AreaLights(bpy.types.Menu):
                 if lamp.data.type == 'AREA':
                     name = lamp.name
                     op = layout.operator(
-                        "object.selectlights", text=name, icon_value=icon_id)
-                    op.Light_Name = name
+                        "object.selectlight", text=name, icon_value=iid)
+                    op.light_name = name
         else:
             layout.label("No AreaLight in the Scene.")

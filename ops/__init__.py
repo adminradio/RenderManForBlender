@@ -30,5 +30,6 @@ __all__ = [
     "RfB_OT_ExportObjectRIB",
     "RfB_OT_StartInteractive",
     "RfB_OT_BakePatternNodes",
-    "Rfb_OT_RefreshShaderOSL"
+    "Rfb_OT_RefreshShaderOSL",
+    "RfB_OT_OpenLastRIB"
 ]

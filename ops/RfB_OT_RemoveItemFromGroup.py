@@ -1,6 +1,6 @@
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
-# Copyright (c) 2015 - 2017 Pixar
+# Copyright (c) 2015 - 2018 Pixar
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,62 +23,34 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-__all__ = ["iconid"]
-
-#
-# Python Imports
-#
-import os
-
 
 #
 # Blender Imports
 #
 import bpy
-import bpy.utils.previews
+from bpy.props import IntProperty
+from bpy.props import StringProperty
 
 
-#
-# RenderMan for Blender Imports
-#
-from ..utils import (
-    stdout,
-    stdadd
-)
+class RfB_OT_RemoveItemFromGroup(bpy.types.Operator):
+    bl_idname = 'rfb.remove_item_from_group'
+    bl_label = 'Remove Item from Object Group'
 
+    group_index = IntProperty(default=0)
+    item_type = StringProperty(default='object')
 
-def iconid(ident):
-    """Return an 'icon_id' which can be used as 'icon_value'"""
-    icon = __collections["main"].get(ident)
-    iid = None
+    def execute(self, context):
+        scene = context.scene
+        group_index = self.properties.group_index
+        item_type = self.properties.item_type
 
-    if icon:
-        iid = icon.icon_id
-    else:
-        stdadd("Ressource Icons >> ERROR - loading ID '" + ident + "' >> using 'dev_error'!")
-        iid = __collections["main"].get("dev_error").icon_id
+        object_group = scene.renderman.object_groups if item_type == 'object' \
+            else scene.renderman.light_groups
+        object_group = object_group[group_index].members
+        if hasattr(context, 'selected_objects'):
+            for ob in context.selected_objects:
+                if ob.name in object_group.keys():
+                    index = object_group.keys().index(ob.name)
+                    object_group.remove(index)
 
-    return iid
-
-
-#
-# 'theme' is a preperation for theme support.
-#
-def __load(theme='default'):
-    stdadd("Ressource icons >> Loading collection ...")
-
-    prvcoll = bpy.utils.previews.new()
-    basedir = os.path.join(os.path.dirname(__file__), "themes", theme)
-
-    for file in os.listdir(basedir):
-        if file.endswith(".png"):
-            ident = os.path.splitext(file)[0].lower()
-            prvcoll.load(ident, os.path.join(basedir, file), 'IMAGE')
-
-    stdadd("Ressource icons >> DONE!")
-    return prvcoll
-
-
-stdout("Ressource Icons >> Init loading ...")
-__collections = {}
-__collections["main"] = __load()
+        return {'FINISHED'}
