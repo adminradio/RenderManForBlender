@@ -30,14 +30,14 @@ import re
 import sys
 from collections import OrderedDict
 
-from .util import init_env
-from .util import get_path_list
-from .util import path_list_convert
-from .util import path_win_to_unixy
-from .util import user_path
-from .util import get_sequence_path
+from . utils import init_env
+from . utils import get_path_list
+from . utils import path_list_convert
+from . utils import path_win_to_unixy
+from . utils import user_path
+from . utils import get_sequence_path
+from . utils import args_files_in_path
 
-from .util import args_files_in_path
 from bpy.props import *
 
 

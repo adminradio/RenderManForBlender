@@ -30,14 +30,19 @@ import xml.etree.ElementTree as ET
 import time
 from mathutils import Vector
 
-from .util import guess_rmantree
-
-from .util import args_files_in_path
+from . utils import guess_rmantree
+from . utils import args_files_in_path
 from .shader_parameters import class_generate_properties
 
-from bpy.props import PointerProperty, StringProperty, BoolProperty, \
-    EnumProperty, IntProperty, FloatProperty, FloatVectorProperty, \
-    CollectionProperty, BoolVectorProperty
+from bpy.props import BoolProperty
+from bpy.props import BoolVectorProperty
+from bpy.props import CollectionProperty
+from bpy.props import EnumProperty
+from bpy.props import FloatProperty
+from bpy.props import FloatVectorProperty
+from bpy.props import IntProperty
+from bpy.props import PointerProperty
+from bpy.props import StringProperty
 
 from . import engine
 from bpy.app.handlers import persistent
@@ -1375,8 +1380,9 @@ class RendermanLightSettings(bpy.types.PropertyGroup):
         lamp_ob = bpy.context.scene.objects.active
         # here we add some geo
         plugin_dir = os.path.dirname(os.path.realpath(__file__))
-        filter_file = os.path.join(plugin_dir, 'filters',
-                                   name + ".blend")
+        filter_file = os.path.join(
+            plugin_dir, 'data', 'light_filters', name + ".blend"
+            )
         directory = '/Object/'
         obj_name = name
         bpy.ops.wm.append(filepath=filter_file + directory + obj_name,

@@ -35,20 +35,25 @@ from mathutils import Matrix, Vector, Quaternion, Euler
 
 from . import bl_info
 
-from .util import rib, rib_path, rib_ob_bounds
-from .util import make_frame_path
-from .util import init_env
-from .util import get_sequence_path
-from .util import user_path
-from .util import path_list_convert, get_real_path
-from .util import get_properties, check_if_archive_dirty
-from .util import locate_openVDB_cache
-from .util import debug, get_addon_prefs
+from . utils import rib, rib_path, rib_ob_bounds
+from . utils import make_frame_path
+from . utils import init_env
+from . utils import get_sequence_path
+from . utils import user_path
+from . utils import path_list_convert, get_real_path
+from . utils import get_properties, check_if_archive_dirty
+from . utils import locate_openVDB_cache
+from . utils import debug
+from . utils import find_it_path
 
-from .util import find_it_path
-from .nodes import export_shader_nodetree, get_textures, get_textures_for_node, get_tex_file_name
-from .nodes import shader_node_rib, get_mat_name
-from .nodes import replace_frame_num
+from . nodes import export_shader_nodetree
+from . nodes import get_textures
+from . nodes import get_textures_for_node
+from . nodes import get_tex_file_name
+from . nodes import shader_node_rib, get_mat_name
+from . nodes import replace_frame_num
+
+from . import rt
 
 addon_version = bl_info['version']
 
@@ -3016,7 +3021,7 @@ def export_samplefilters(ri, rpass, scene):
     rm = scene.renderman
     filter_names = []
     display_driver = rpass.display_driver
-    addon_prefs = get_addon_prefs()
+    addon_prefs = rt.reg.prefs()
     for sf in rm.sample_filters:
         params = property_group_to_params(sf.get_filter_node())
         ri.SampleFilter(sf.get_filter_name(), sf.name, params)
@@ -3147,7 +3152,7 @@ def export_display(ri, rpass, scene):
 
     display_driver = rpass.display_driver
     rpass.output_files = []
-    addon_prefs = get_addon_prefs()
+    addon_prefs = rt.reg.prefs()
     main_display = user_path(
         addon_prefs.path_display_driver_image, scene=scene, display_driver=rpass.display_driver)
     debug("info", "Main_display: " + main_display)
@@ -3481,9 +3486,15 @@ def write_rib(rpass, scene, ri, visible_objects=None, engine=None, do_objects=Tr
 
 
 def write_preview_rib(rpass, scene, ri):
-    preview_rib_data_path = \
-        rib_path(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                              'preview', "preview_scene.rib"))
+    preview_rib_data_path = (
+        rib_path(
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)),
+                'data',
+                'preview',
+                "preview_scene.rib")
+            )
+    )
 
     export_header(ri)
     export_searchpaths(ri, rpass.paths)

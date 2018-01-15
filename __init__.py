@@ -75,22 +75,33 @@ class PRManRender(bpy.types.RenderEngine):
 
 # these handlers are for marking files as dirty for ribgen
 def add_handlers(scene):
-    if engine.update_timestamp not in bpy.app.handlers.scene_update_post:
+    if (engine.update_timestamp
+            not in bpy.app.handlers.scene_update_post):
+
         bpy.app.handlers.scene_update_post.append(engine.update_timestamp)
-    if properties.initial_groups not in bpy.app.handlers.scene_update_post:
+
+    if (properties.initial_groups
+            not in bpy.app.handlers.scene_update_post):
+
         bpy.app.handlers.load_post.append(properties.initial_groups)
 
 
 def remove_handlers():
-    if properties.initial_groups in bpy.app.handlers.scene_update_post:
+    if (properties.initial_groups
+            in bpy.app.handlers.scene_update_post):
+
         bpy.app.handlers.scene_update_post.remove(properties.initial_groups)
-    if engine.update_timestamp in bpy.app.handlers.scene_update_post:
+
+    if (engine.update_timestamp
+            in bpy.app.handlers.scene_update_post):
+
         bpy.app.handlers.scene_update_post.remove(engine.update_timestamp)
 
 
 def load_addon():
     # if rmantree is ok load the stuff
-    from .util import guess_rmantree, throw_error
+    from . utils import guess_rmantree
+    from . utils import throw_error
     from . import preferences
 
     if guess_rmantree():
@@ -98,13 +109,39 @@ def load_addon():
         # and don't load anything else
         from . import ui
         from . import properties
-        from . import operators
+        from . import ops
+        from . ops import RfB_OT_AOVsAddRenderman
+        from . ops import RfB_OT_CollectionTogglePath
+        from . ops import RfB_OT_FileOpenLastRIB
+        from . ops import RfB_OT_FileSpoolRender
+        from . ops import RfB_OT_ItemMovetoGroup
+        from . ops import RfB_OT_ItemRemoveGroup
+        from . ops import RfB_OT_ListAddMultilayer
+        from . ops import RfB_OT_MaterialAddBXDF
+        from . ops import RfB_OT_MaterialNewBXDF
+        from . ops import RfB_OT_NodeAddNodetree
+        from . ops import RfB_OT_NodeCyclesConvertall
+        from . ops import RfB_OT_NodeRefreshOSL
+        from . ops import RfB_OT_ObjectAddArealight
+        from . ops import RfB_OT_ObjectAddCamera
+        from . ops import RfB_OT_ObjectAddDaylight
+        from . ops import RfB_OT_ObjectAddHemilight
+        from . ops import RfB_OT_ObjectDeleteCamera
+        from . ops import RfB_OT_ObjectDeleteLight
+        from . ops import RfB_OT_ObjectEnableSubdiv
+        from . ops import RfB_OT_ObjectMakeEmissive
+        from . ops import RfB_OT_ObjectSelectCamera
+        from . ops import RfB_OT_ObjectSelectLight
+        from . ops import RfB_OT_OutputToggleChannel
+        from . ops import RfB_OT_RenderAddPreset
+        from . gui import RfB_MT_RenderPresets
+
         from . import nodes
         # need this now rather than at beginning to make
         # sure preferences are loaded
         from . import engine
         properties.register()
-        operators.register()
+        ops.register()
         ui.register()
         add_handlers(None)
         nodes.register()
@@ -116,11 +153,12 @@ def load_addon():
 
 
 def register():
+    from . import rt
     from . import preferences
     preferences.register()
     load_addon()
-    from . import presets
-    presets.register()
+    from . import assets
+    assets.register()
     bpy.utils.register_module(__name__)
 
 
@@ -128,10 +166,10 @@ def unregister():
     from . import preferences
     remove_handlers()
     properties.unregister()
-    operators.unregister()
+    ops.unregister()
     ui.unregister()
     nodes.unregister()
     preferences.unregister()
-    from . import presets
-    presets.unregister()
+    from . import assets
+    assets.unregister()
     bpy.utils.unregister_module(__name__)

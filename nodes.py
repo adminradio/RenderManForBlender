@@ -40,25 +40,31 @@ import nodeitems_utils
 from nodeitems_utils import NodeCategory
 from nodeitems_utils import NodeItem
 
-from .cycles_convert import *
+from . cycles_convert import *
 
-from .shader_parameters import class_generate_properties
-from .shader_parameters import node_add_inputs
-from .shader_parameters import node_add_outputs
-from .shader_parameters import socket_map
-from .shader_parameters import txmake_options, update_conditional_visops
+from . shader_parameters import class_generate_properties
+from . shader_parameters import node_add_inputs
+from . shader_parameters import node_add_outputs
+from . shader_parameters import socket_map
+from . shader_parameters import txmake_options, update_conditional_visops
 
-from .util import args_files_in_path
-from .util import debug
-from .util import readOSO
-from .util import rib
-from .util import user_path
+from . utils import args_files_in_path
+from . utils import debug
+from . utils import readOSO
+from . utils import rib
+from . utils import user_path
 
 
-from . import icons
-from . ops import RfB_OT_RefreshShaderOSL
+from . gui import icons
 
-from .nodes_utils import RfB_LUTs as LUTS
+from . import ops
+from . ops import RfB_OT_NodeRefreshOSL
+
+from . ntree import utils
+# from . ntree.utils import update_func
+
+from . ntree.utils.SocketColor import SocketColor
+from . ntree.utils.PropertyLookup import PropertyLookup
 
 NODE_LAYOUT_SPLIT = 0.5
 
@@ -79,19 +85,20 @@ class RendermanSocket:
     ui_open = BoolProperty(name='UI Open', default=True)
 
     def get_pretty_name(self, node):
-        if node.bl_idname in LUTS.group_nodes:
+        if PropertyLookup.is_groupnode(node.bl_idname):
             return self.name
         else:
             return self.identifier
 
     def get_value(self, node):
-        if node.bl_idname in LUTS.group_nodes or not hasattr(node, self.name):
+        if (PropertyLookup.is_groupnode(node.bl_idname)
+            or not hasattr(node, self.name)):
             return self.default_value
         else:
             return getattr(node, self.name)
 
     def draw_color(self, context, node):
-        return LUTS.get_socket_color('bxdf')
+        return SocketColor.get('bxdf')
 
     def draw_value(self, context, layout, node):
         layout.prop(node, self.identifier)
@@ -99,7 +106,7 @@ class RendermanSocket:
     def draw(self, context, layout, node, text):
         if self.is_linked or self.is_output or self.hide_value or not hasattr(self, 'default_value'):
             layout.label(self.get_pretty_name(node))
-        elif node.bl_idname in LUTS.group_nodes or node.bl_idname == "PxrOSLPatternNode":
+        elif PropertyLookup.is_groupnode(node.bl_idname) or node.bl_idname == "PxrOSLPatternNode":
             layout.prop(self, 'default_value',
                         text=self.get_pretty_name(node), slider=True)
         else:
@@ -110,7 +117,7 @@ class RendermanSocket:
 class RendermanSocketInterface:
 
     def draw_color(self, context):
-        return LUTS.get_socket_color('bxdf')
+        return SocketColor.get('bxdf')
 
     # TODO: Add 'page' name in fornt of socket name if
     #       page is empty
@@ -144,7 +151,7 @@ class RendermanNodeSocketFloat(
     renderman_type = StringProperty(default='float')
 
     def draw_color(self, context, node):
-        return LUTS.get_socket_color('float')
+        return SocketColor.get('float')
 
 
 class RendermanNodeSocketInterfaceFloat(
@@ -159,7 +166,7 @@ class RendermanNodeSocketInterfaceFloat(
     default_value = FloatProperty()
 
     def draw_color(self, context):
-        return LUTS.get_socket_color('float')
+        return SocketColor.get('float')
 
 
 class RendermanNodeSocketInt(
@@ -174,7 +181,7 @@ class RendermanNodeSocketInt(
     renderman_type = StringProperty(default='int')
 
     def draw_color(self, context, node):
-        return LUTS.get_socket_color('int')
+        return SocketColor.get('int')
 
 
 class RendermanNodeSocketInterfaceInt(
@@ -189,7 +196,7 @@ class RendermanNodeSocketInterfaceInt(
     default_value = IntProperty()
 
     def draw_color(self, context):
-        return LUTS.get_socket_color('int')
+        return SocketColor.get('int')
 
 
 class RendermanNodeSocketString(
@@ -240,7 +247,7 @@ class RendermanNodeSocketColor(
     renderman_type = StringProperty(default='color')
 
     def draw_color(self, context, node):
-        return LUTS.get_socket_color('rgb')
+        return SocketColor.get('rgb')
 
 
 class RendermanNodeSocketInterfaceColor(
@@ -256,7 +263,7 @@ class RendermanNodeSocketInterfaceColor(
                                         subtype="COLOR")
 
     def draw_color(self, context):
-        return LUTS.get_socket_color('rgb')
+        return SocketColor.get('rgb')
 
 
 class RendermanNodeSocketVector(
@@ -273,7 +280,7 @@ class RendermanNodeSocketVector(
     renderman_type = StringProperty(default='vector')
 
     def draw_color(self, context, node):
-        return LUTS.get_socket_color('vector')
+        return SocketColor.get('vector')
 
 
 class RendermanNodeSocketInterfaceVector(
@@ -290,7 +297,7 @@ class RendermanNodeSocketInterfaceVector(
                                         subtype="EULER")
 
     def draw_color(self, context):
-        return LUTS.get_socket_color('vector')
+        return SocketColor.get('vector')
 
 
 # Custom socket type for connecting shaders
@@ -377,7 +384,7 @@ class RendermanShadingNode(bpy.types.ShaderNode):
     def draw_buttons(self, context, layout):
         self.draw_nonconnectable_props(context, layout, self.prop_names)
         if self.bl_idname == "PxrOSLPatternNode":
-            layout.operator("node.refresh_shader_osl")
+            layout.operator("rfb.refresh_shader_osl")
 
     def draw_buttons_ext(self, context, layout):
         self.draw_nonconnectable_props(context, layout, self.prop_names)
@@ -433,14 +440,14 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                 #
                 if ('widget' in prop_meta and prop_meta['widget'] == 'null'
                     or 'hidden' in prop_meta and prop_meta['hidden']
-                    or LUTS.is_empty_page(prop_id)):
+                    or PropertyLookup.is_emptypage(prop_id)):
                     continue
 
                 if prop_name not in self.inputs:
                     if prop_meta['renderman_type'] == 'page':
 
                         # boxed row layout for single prop with label
-                        if LUTS.is_single_prop(prop_id):
+                        if PropertyLookup.is_single(prop_id):
                             # draw label
                             row_label = prop_name.split('.')[-1] + ':'
                             cl = layout.box()
@@ -450,11 +457,9 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                             self.draw_nonconnectable_props(
                                 context, row, prop)
 
-                        # boxed row layout for single prop without labels
-                        # mostly because this prop draws its own label, but can
-                        # also be used if the property name is self-explanatory
-                        elif (LUTS.is_single_prop_with_label(prop_id) or
-                              LUTS.is_single_prop_no_label(prop_id)):
+                        # boxed row layout for single props with or withou label
+                        elif (PropertyLookup.is_labeled(prop_id) or
+                              PropertyLookup.is_unlabeled(prop_id)):
                             cl = layout.box()
                             row = cl.row()
                             prop = getattr(self, prop_name)
@@ -1515,8 +1520,8 @@ def gen_params(ri, node, mat_name=None):
                     # if this is a gain on PxrSurface and the lobe isn't
                     # enabled
                     if (node.bl_idname == 'PxrSurfaceBxdfNode'
-                        and prop_name in LUTS.gains_to_enable
-                        and not getattr(node, LUTS.gains_to_enable[prop_name])):
+                        and PropertyLookup.enable_gain(prop_name)
+                        and not getattr(node, PropertyLookup.map_gain(prop_name))):
 
                         val = (
                             [0, 0, 0]
@@ -1882,12 +1887,12 @@ def translate_cycles_node(ri, node, mat_name):
         translate_node_group(ri, node, mat_name)
         return
 
-    if node.bl_idname not in LUTS.cycles_node_map.keys():
+    if not PropertyLookup.do_map_cycles(node.bl_idname):
         print('No translation for node of type %s named %s' %
               (node.bl_idname, node.name))
         return
 
-    mapping = LUTS.cycles_node_map[node.bl_idname]
+    mapping = PropertyLookup.map_cycles[node.bl_idname]
     params = {}
     for in_name, input in node.inputs.items():
         param_name = "%s %s" % (get_socket_type(
@@ -2150,10 +2155,12 @@ def gather_nodes(node):
 
 
 # for an input node output all "nodes"
-def export_shader_nodetree(ri, id,
-                           handle=None,
-                           disp_bound=0.0,
-                           iterate_instance=False):
+def export_shader_nodetree(
+    ri, id,
+    handle=None,
+    disp_bound=0.0,
+    iterate_instance=False):
+
     if id and id.node_tree:
 
         if is_renderman_nodetree(id):

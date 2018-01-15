@@ -22,11 +22,3 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-
-
-__ALL__ = [
-    "RfB_HT_RenderControlsInfo",
-    "RfB_HT_RenderControlsNode",
-    "RfB_HT_RenderControlsImage",
-    "RfB_MT_AreaLights"
-]

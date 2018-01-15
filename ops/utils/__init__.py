@@ -22,3 +22,40 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
+
+import os
+import bpy
+
+from . RenderPresets import RenderPresets
+
+# Menus
+compile_shader_menu_func = (
+    lambda self,
+    context: self.layout.operator(TEXT_OT_compile_shader.bl_idname)
+)
+
+
+def quick_add_presets(presetList, pathFromPresetDir, name):
+    def as_filename(name):  # could reuse for other presets
+        for char in " !@#$%^&*(){}:\";'[]<>,.\\/?":
+            name = name.replace(char, '_')
+        return name.strip()
+
+    filename = as_filename(name)
+    target_path = os.path.join("presets", pathFromPresetDir)
+    target_path = bpy.utils.user_resource('SCRIPTS',
+                                          target_path,
+                                          create=True)
+    if not target_path:
+        self.report(
+            {'WARNING'},
+            "Failed to create presets path")
+        return {'CANCELLED'}
+
+    filepath = os.path.join(target_path, filename) + ".py"
+    file_preset = open(filepath, 'w')
+    file_preset.write("import bpy\n")
+
+    for item in presetList:
+        file_preset.write(str(item) + "\n")
+    file_preset.close()

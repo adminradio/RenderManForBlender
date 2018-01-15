@@ -22,14 +22,90 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-
-__all__ = [
-    "RFB_OT_SelectLight",
-    "RfB_OT_ViewStatsXML",
-    "RfB_OT_StartImageTool",
-    "RfB_OT_ExportObjectRIB",
-    "RfB_OT_StartInteractive",
-    "RfB_OT_BakePatternNodes",
-    "Rfb_OT_RefreshShaderOSL",
-    "RfB_OT_OpenLastRIB"
+__ALL__ = [
+    "RfB_OT_AOVsAddRenderman",
+    "RfB_OT_CollectionTogglePath",
+    "RfB_OT_FileOpenLastRIB",
+    "RfB_OT_FileSpoolRender",
+    "RfB_OT_FileViewStats",
+    "RfB_OT_ItemMovetoGroup",
+    "RfB_OT_ItemRemoveGroup",
+    "RfB_OT_ItemToggleLightlink",
+    "RfB_OT_ListAddMultilayer",
+    "RfB_OT_MaterialAddBXDF",
+    "RfB_OT_MaterialNewBXDF",
+    "RfB_OT_NodeAddNodetree",
+    "RfB_OT_NodeBakePatterns",
+    "RfB_OT_NodeCyclesConvertall",
+    "RfB_OT_NodeRefreshOSL",
+    "RfB_OT_ObjectAddArealight",
+    "RfB_OT_ObjectAddCamera",
+    "RfB_OT_ObjectAddDaylight",
+    "RfB_OT_ObjectAddHemilight",
+    "RfB_OT_ObjectAddLightfilter",
+    "RfB_OT_ObjectDeleteCamera",
+    "RfB_OT_ObjectDeleteLight",
+    "RfB_OT_ObjectEnableSubdiv",
+    "RfB_OT_ObjectExportRIB",
+    "RfB_OT_ObjectMakeEmissive",
+    "RfB_OT_ObjectSelectCamera",
+    "RfB_OT_ObjectSelectLight",
+    "RfB_OT_OutputToggleChannel",
+    "RfB_OT_RenderAddPreset",
+    "RfB_OT_ToolStartIPR",
+    "RfB_OT_ToolStartIT",
+    "Rfb_OT_ToolReloadRfB",
+    "register",
+    "unregister"
 ]
+
+import os
+import bpy
+
+from . import utils
+# from .. etc.RenderPresets import RenderPresets
+
+
+def register():
+    bpy.types.TEXT_MT_text.append(utils.compile_shader_menu_func)
+    bpy.types.TEXT_MT_toolbox.append(utils.compile_shader_menu_func)
+
+    # Register any default presets here. This includes render based and
+    # Material based
+    utils.quick_add_presets(
+        utils.RenderPresets.FinalDenoisePreset,
+        os.path.join("renderman", "render"),
+        "FinalDenoise")
+
+    utils.quick_add_presets(
+        utils.RenderPresets.FinalHighPreset,
+        os.path.join("renderman", "render"),
+        "FinalHigh")
+
+    utils.quick_add_presets(
+        utils.RenderPresets.FinalPreset,
+        os.path.join("renderman", "render"),
+        "Final")
+
+    utils.quick_add_presets(
+        utils.RenderPresets.MidPreset,
+        os.path.join("renderman", "render"),
+        "Mid")
+
+    utils.quick_add_presets(
+        utils.RenderPresets.PreviewPreset,
+        os.path.join("renderman", "render"),
+        "Preview")
+
+    utils.quick_add_presets(
+        utils.RenderPresets.TractorLocalQueuePreset,
+        os.path.join("renderman", "render"),
+        "TractorLocalQueue")
+
+
+def unregister():
+    bpy.types.TEXT_MT_text.remove(compile_shader_menu_func)
+    bpy.types.TEXT_MT_toolbox.remove(compile_shader_menu_func)
+    #
+    # It should be fine to leave presets registered as they are not in memory.
+    #

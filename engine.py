@@ -27,30 +27,43 @@ import bpy_types
 import math
 import os
 import time
+
 import subprocess
-from subprocess import Popen, PIPE
+from subprocess import Popen
+from subprocess import PIPE
+
 import mathutils
-from mathutils import Matrix, Vector, Quaternion
+from mathutils import Matrix
+from mathutils import Vector
+from mathutils import Quaternion
+
 import re
 import traceback
 import glob
 
 from . import bl_info
 
-from .util import bpy_newer_257
-from .util import BlenderVersionError
-from .util import rib, rib_path, rib_ob_bounds
-from .util import make_frame_path
-from .util import init_exporter_env
-from .util import get_sequence_path
-from .util import user_path
-from .util import get_path_list_converted, set_path
-from .util import path_list_convert, guess_rmantree, set_pythonpath,\
-    set_rmantree
-from .util import get_real_path, find_it_path
-from .util import debug
-from .util import get_Selected_Objects
-from .util import get_addon_prefs
+from . utils import bpy_newer_257
+from . utils import BlenderVersionError
+from . utils import rib
+from . utils import rib_path
+from . utils import rib_ob_bounds
+from . utils import make_frame_path
+from . utils import init_exporter_env
+from . utils import get_sequence_path
+from . utils import user_path
+from . utils import get_path_list_converted
+from . utils import set_path
+from . utils import path_list_convert
+from . utils import guess_rmantree
+from . utils import set_pythonpath
+from . utils import set_rmantree
+from . utils import get_real_path
+from . utils import find_it_path
+from . utils import debug
+from . utils import get_Selected_Objects
+from . import rt
+
 from random import randint
 import sys
 from bpy.app.handlers import persistent
@@ -93,7 +106,7 @@ def is_ipr_running():
         else:
             # shutdown IPR
             ipr.is_interactive_ready = False
-            bpy.ops.lighting.start_interactive('INVOKE_DEFAULT')
+            bpy.ops.rfb.tool_ipr('INVOKE_DEFAULT')
             return False
     else:
         return False
@@ -237,7 +250,7 @@ class RPass:
         if not os.path.exists(self.paths['export_dir']):
             os.makedirs(self.paths['export_dir'])
 
-        addon_prefs = get_addon_prefs()
+        addon_prefs = rt.reg.prefs()
         self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
                                                 scene=scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(
@@ -267,7 +280,7 @@ class RPass:
         self.scene.frame_set(num)
         self.paths['rib_output'] = user_path(self.scene.renderman.path_rib_output,
                                              scene=self.scene)
-        addon_prefs = get_addon_prefs()
+        addon_prefs = rt.reg.prefs()
         self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
                                                 scene=self.scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(
