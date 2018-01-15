@@ -62,8 +62,7 @@ from . ops import RfB_OT_NodeRefreshOSL
 
 from . ntree import utils
 # from . ntree.utils import update_func
-
-from . ntree.utils.SocketColor import SocketColor
+from . import rt
 from . ntree.utils.PropertyLookup import PropertyLookup
 
 NODE_LAYOUT_SPLIT = 0.5
@@ -98,7 +97,7 @@ class RendermanSocket:
             return getattr(node, self.name)
 
     def draw_color(self, context, node):
-        return SocketColor.get('bxdf')
+        return rt.reg.get('BXDF')
 
     def draw_value(self, context, layout, node):
         layout.prop(node, self.identifier)
@@ -117,12 +116,14 @@ class RendermanSocket:
 class RendermanSocketInterface:
 
     def draw_color(self, context):
-        return SocketColor.get('bxdf')
-
-    # TODO: Add 'page' name in fornt of socket name if
-    #       page is empty
-    # DATE: 2017-12-29
-
+        return rt.reg.get('BXDF')
+    #
+    # TODO:   Add 'page' name in front of socket name if page is empty?
+    #         Open for discussion.
+    # DATE:   2017-12-29
+    # AUTHOR: Timm Wimmers
+    # STATUS: -unassigned-
+    #
     def draw(self, context, layout):
         layout.label(self.name)
 
@@ -151,7 +152,7 @@ class RendermanNodeSocketFloat(
     renderman_type = StringProperty(default='float')
 
     def draw_color(self, context, node):
-        return SocketColor.get('float')
+        return rt.reg.get('FLOAT')
 
 
 class RendermanNodeSocketInterfaceFloat(
@@ -166,7 +167,7 @@ class RendermanNodeSocketInterfaceFloat(
     default_value = FloatProperty()
 
     def draw_color(self, context):
-        return SocketColor.get('float')
+        return rt.reg.get('FLOAT')
 
 
 class RendermanNodeSocketInt(
@@ -181,7 +182,7 @@ class RendermanNodeSocketInt(
     renderman_type = StringProperty(default='int')
 
     def draw_color(self, context, node):
-        return SocketColor.get('int')
+        return rt.reg.get('INT')
 
 
 class RendermanNodeSocketInterfaceInt(
@@ -196,7 +197,7 @@ class RendermanNodeSocketInterfaceInt(
     default_value = IntProperty()
 
     def draw_color(self, context):
-        return SocketColor.get('int')
+        return rt.reg.get('INT')
 
 
 class RendermanNodeSocketString(
@@ -247,7 +248,7 @@ class RendermanNodeSocketColor(
     renderman_type = StringProperty(default='color')
 
     def draw_color(self, context, node):
-        return SocketColor.get('rgb')
+        return rt.reg.get('RGB')
 
 
 class RendermanNodeSocketInterfaceColor(
@@ -263,7 +264,7 @@ class RendermanNodeSocketInterfaceColor(
                                         subtype="COLOR")
 
     def draw_color(self, context):
-        return SocketColor.get('rgb')
+        return rt.reg.get('RGB')
 
 
 class RendermanNodeSocketVector(
@@ -280,7 +281,7 @@ class RendermanNodeSocketVector(
     renderman_type = StringProperty(default='vector')
 
     def draw_color(self, context, node):
-        return SocketColor.get('vector')
+        return rt.reg.get('VECTOR')
 
 
 class RendermanNodeSocketInterfaceVector(
@@ -297,7 +298,7 @@ class RendermanNodeSocketInterfaceVector(
                                         subtype="EULER")
 
     def draw_color(self, context):
-        return SocketColor.get('vector')
+        return rt.reg.get('VECTOR')
 
 
 # Custom socket type for connecting shaders

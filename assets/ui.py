@@ -24,6 +24,7 @@
 # ##### END MIT LICENSE BLOCK #####
 
 import bpy
+from bpy.types import Panel
 from bpy.props import StringProperty
 
 from .. import utils
@@ -34,27 +35,30 @@ from . properties import RendermanAsset
 from . import assets
 from .. gui import icons
 from .. import rt
+from .. gui.RfB_PT_RootPanelIcon import RfB_PT_RootPanelIcon
 
 
 # panel for the toolbar of node editor
-class Renderman_Assets_UI_Panel(bpy.types.Panel):
+
+
+class Renderman_Assets_UI_Panel(RfB_PT_RootPanelIcon, Panel):
     bl_idname = "rfb.assets_ui_panel"
     bl_label = "RenderMan Assets"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "Renderman"
+    bl_category = rt.reg.get('BL_CATEGORY')
 
     @classmethod
     def poll(cls, context):
         rd = context.scene.render
         return rd.engine == 'PRMAN_RENDER'
 
-    def draw_header(self, context):
-        if rt.reg.prefs().draw_panel_icon:
-            iid = icons.iconid("renderman")
-            self.layout.label(text="", icon_value=iid)
-        else:
-            pass
+    # def draw_header(self, context):
+    #     if rt.reg.prefs().draw_panel_icon:
+    #         iid = icons.iconid("renderman")
+    #         self.layout.label(text="", icon_value=iid)
+    #     else:
+    #         pass
 
     # draws the panel
     def draw(self, context):

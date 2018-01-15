@@ -23,20 +23,29 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# Python imports
-import sys
 
-# RenderMan for Blender imports
+#
+# Blender Imports
+#
+from bpy.types import Panel
 
-sys.excepthook = (
-    lambda e, e_msg, e_tb:
-    stdmsg("{}: {}".format(e.__name__, e_msg))
-)
+#
+# RenderMan for Blender Imports
+#
+from . import icons
+
+from . RfB_PT_RootPanel import RfB_PT_RootPanel
 
 
-class RegistryKeyNotFound(Exception):
-    pass
+class RfB_PT_PropsRenderBaking(RfB_PT_RootPanel, Panel):
+    bl_label = "Baking"
+    bl_options = {'DEFAULT_CLOSED'}
 
-
-class RegistryKeyAlreadyUsed(Exception):
-    pass
+    def draw(self, context):
+        layout = self.layout.column()
+        iid = icons.iconid("batch_render")
+        layout.operator(
+            "rfb.bake_pattern_nodes",
+            text="Bake Pattern Nodes to Textures.",
+            icon_value=iid
+        )

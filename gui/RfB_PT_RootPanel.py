@@ -1,6 +1,6 @@
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
-# Copyright (c) 2015 - 2017 Pixar
+# Copyright (c) 2015 - 2018 Pixar
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,30 +23,19 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
-# TODO: for future use, these values should be go into a JSON file,
-#       so we have not to modify code if things are added or changed.
 #
-#       Or better, move into preferences!
+# RenderMan for Blender imports
+#
+from . RfB_PT_RootPanelIcon import RfB_PT_RootPanelIcon
 
-class SocketColor:
-    """Utility Class // Data Class."""
 
-    _colors = {
-        "bxdf": (0.25, 1.00, 0.25, 1.00),
-        "float": (0.50, 0.50, 0.50, 1.00),
-        "vector": (0.00, 0.00, 0.50, 1.00),
-        "rgb": (1.00, 0.50, 0.00, 1.00),
-        "euler": (0.00, 0.50, 0.50, 1.00),
-        "struct": (1.00, 1.00, 0.00, 1.00),
-        "string": (0.00, 0.00, 1.00, 1.00),
-        "int": (1.00, 1.00, 1.00, 1.00)}
+class RfB_PT_RootPanel(RfB_PT_RootPanelIcon):
+    """Base class of all Panels used by RfB."""
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "render"
 
     @classmethod
-    def get(cls, ident):
-        try:
-            return cls._colors[ident]
-
-        except KeyError:
-            # return magenta
-            return (1.00, 0.00, 1.00, 1.00)
+    def poll(cls, context):
+        rd = context.scene.render
+        return rd.engine == 'PRMAN_RENDER'

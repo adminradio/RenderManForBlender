@@ -70,7 +70,6 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    # addon = rt.reg.get('RFB_PACKAGE')
     addon = rt.reg.get('RFB_PREFS')
     prefs = bpy.context.user_preferences.addons[addon].preferences
 

@@ -23,4 +23,11 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-from . SocketColor import SocketColor
+
+#
+#
+# TODO:   Implement color stuff for the ui.
+# DATE:   2018-01-15
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#

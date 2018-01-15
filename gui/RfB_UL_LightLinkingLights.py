@@ -23,20 +23,31 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# Python imports
-import sys
 
-# RenderMan for Blender imports
+#
+# Blender Imports
+#
+import bpy
 
-sys.excepthook = (
-    lambda e, e_msg, e_tb:
-    stdmsg("{}: {}".format(e.__name__, e_msg))
-)
-
-
-class RegistryKeyNotFound(Exception):
-    pass
+#
+# RenderMan for Blender Imports
+#
+from . import icons
 
 
-class RegistryKeyAlreadyUsed(Exception):
-    pass
+class RfB_UL_LightLinkingLights(bpy.types.UIList):
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        rm = context.scene.renderman
+        iid = icons.iconid('ll_unlinked')
+        icn_linked_id = icons.iconid('ll_linked')
+        ll_prefix = "lg_%s>%s" % (rm.ll_light_type, item.name)
+
+        label = item.name
+        for ll in rm.ll.keys():
+            if ll_prefix in ll:
+                iid = icn_linked_id
+                break
+
+        layout.alignment = 'LEFT'
+        layout.label(label, icon_value=iid)

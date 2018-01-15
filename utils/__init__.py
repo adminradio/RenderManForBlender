@@ -107,15 +107,15 @@ def as_filename(name):  # could reuse for other presets
         name = name.replace(char, '_')
     return name.strip()
 
+# # unused ?
+# class BlenderVersionError(Exception):
+#     pass
 
-class BlenderVersionError(Exception):
-    pass
-
-
-def bpy_newer_257():
-    if (bpy.app.version[1] < 57 or (bpy.app.version[1] == 57 and
-                                    bpy.app.version[2] == 0)):
-        raise BlenderVersionError
+# # unused ?
+# def bpy_newer_257():
+#     if (bpy.app.version[1] < 57 or (bpy.app.version[1] == 57 and
+#                                     bpy.app.version[2] == 0)):
+#         raise BlenderVersionError
 
 
 def clamp(i, low, high):

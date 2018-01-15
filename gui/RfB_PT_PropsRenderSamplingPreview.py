@@ -25,15 +25,33 @@
 
 
 #
-# Python imports
+# Blender Imports
 #
-
-
-#
-# Blender imports
-#
-
+from bpy.types import Panel
 
 #
-# RfB imports
+# RenderMan for Blender Imports
 #
+# from . import icons
+from . RfB_PT_RootPanel import RfB_PT_RootPanel
+
+
+class RfB_PT_PropsRenderSamplingPreview(RfB_PT_RootPanel, Panel):
+    bl_label = "IPR and Preview Sampling"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+
+        layout = self.layout
+        scene = context.scene
+        rm = scene.renderman
+
+        col = layout.column()
+        col.prop(rm, "preview_pixel_variance")
+        row = col.row(align=True)
+        row.prop(rm, "preview_min_samples", text="Samples Min.")
+        row.prop(rm, "preview_max_samples", text="Samples Max.")
+        row = col.row(align=True)
+        row.prop(rm, "preview_max_specular_depth", text="Specular Depth")
+        row.prop(rm, "preview_max_diffuse_depth", text="Diffuse Depth")
+        row = col.row(align=True)

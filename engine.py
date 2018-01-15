@@ -43,8 +43,11 @@ import glob
 
 from . import bl_info
 
-from . utils import bpy_newer_257
-from . utils import BlenderVersionError
+# # unused
+# from . utils import bpy_newer_257
+# # unused
+# from . utils import BlenderVersionError
+
 from . utils import rib
 from . utils import rib_path
 from . utils import rib_ob_bounds
@@ -76,7 +79,8 @@ from .export import write_rib, write_preview_rib, get_texture_list,\
 
 from .nodes import get_tex_file_name
 
-addon_version = bl_info['version']
+# # unused?
+# addon_version = bl_info['version']
 
 prman_inited = False
 ipr_handle = None

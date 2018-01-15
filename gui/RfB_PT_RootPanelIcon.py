@@ -23,20 +23,20 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# Python imports
-import sys
-
+#
 # RenderMan for Blender imports
-
-sys.excepthook = (
-    lambda e, e_msg, e_tb:
-    stdmsg("{}: {}".format(e.__name__, e_msg))
-)
+#
+from . import icons
+from .. import rt
 
 
-class RegistryKeyNotFound(Exception):
-    pass
+class RfB_PT_RootPanelIcon():
+    """Mixin for RfB_PT_RootPanel, implements the root panel icon."""
+    iid = icons.iconid('renderman')
 
-
-class RegistryKeyAlreadyUsed(Exception):
-    pass
+    # override
+    def draw_header(self, context):
+        if rt.reg.prefs().draw_panel_icon:
+            self.layout.label(text='', icon_value=self.iid)
+        else:
+            pass
