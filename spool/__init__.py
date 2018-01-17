@@ -70,10 +70,11 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    addon = rfb.reg.get('RFB_PREFS')
-    prefs = bpy.context.user_preferences.addons[addon].preferences
+    # addon = rfb.reg.get('RFB_PREFS')
+    # prefs = bpy.context.user_preferences.addons[addon].preferences
 
-    out_dir = prefs.env_vars.out
+    # out_dir = prefs.env_vars.out
+    out_dir = rfb.reg.prefs().env_vars.out
     cdir = user_path(out_dir)
     scene = context.scene
     rm = scene.renderman

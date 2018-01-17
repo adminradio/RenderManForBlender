@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Blender Imports
 #
@@ -31,51 +33,54 @@ from bpy.types import Panel
 #
 # RenderMan for Blender Imports
 #
-from . import icons
-
 from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
 
 
 class RfB_PT_SCENE_ObjectGroups(RfB_PT_MIXIN_Collection, Panel):
-  bl_idname = "renderman_object_groups_panel"
-  bl_label = "RenderMan Object Groups"
-  bl_context = "scene"
-  bl_space_type = 'PROPERTIES'
-  bl_region_type = 'WINDOW'  # bl_category = "Renderman"
+    bl_idname = "rfb_pt_scene_objectgroup"
+    bl_label = "RenderMan Object Groups"
+    bl_context = "scene"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
 
-  @classmethod
-  def poll(cls, context):
-    rd = context.scene.render
-    return rd.engine == 'PRMAN_RENDER'
+    @classmethod
+    def poll(cls, context):
+        rd = context.scene.render
+        return rd.engine == 'PRMAN_RENDER'
 
-  def draw(self, context):
-    layout = self.layout
-    scene = context.scene
-    rm = scene.renderman
-    # if len(rm.object_groups) == 0:
-    #    collector_group = rm.object_groups.add()
-    #    collector_group.name = 'collector'
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        rm = scene.renderman
+        # if len(rm.object_groups) == 0:
+        #    collector_group = rm.object_groups.add()
+        #    collector_group.name = 'collector'
 
-    self._draw_collection(context, layout, rm, "",
-                          "rfb.collection_toggle_path",
-                          "scene.renderman",
-                          "object_groups", "object_groups_index",
-                          default_name=str(len(rm.object_groups)))
+        self._draw_collection(context, layout, rm, "",
+                              "rfb.collection_toggle_path",
+                              "scene.renderman",
+                              "object_groups", "object_groups_index",
+                              default_name=str(len(rm.object_groups)))
 
-  def draw_item(self, layout, context, item):
-    row = layout.row()
-    scene = context.scene
-    rm = scene.renderman
-    group = rm.object_groups[rm.object_groups_index]
+    def draw_item(self, layout, context, item):
+        row = layout.row()
+        scene = context.scene
+        rm = scene.renderman
+        group = rm.object_groups[rm.object_groups_index]
 
-    row = layout.row()
-    row.operator('rfb.item_moveto_group',
-                 'Add Selected to Group').group_index = rm.object_groups_index
-    row.operator('rfb.item_remove_group',
-                 'Remove Selected from Group').group_index = rm.object_groups_index
+        row = layout.row()
+        row.operator(
+            'rfb.item_moveto_group',
+            'Add Selected to Group'
+        ).group_index = rm.object_groups_index
 
-    row = layout.row()
-    row.template_list("RfB_UL_ObjectGroup", "Renderman_group_list",
-                      group, "members", group, 'members_index',
-                      item_dyntip_propname='name',
-                      type='GRID', columns=3)
+        row.operator(
+            'rfb.item_remove_group',
+            'Remove Selected from Group'
+        ).group_index = rm.object_groups_index
+
+        row = layout.row()
+        row.template_list("RfB_UL_ObjectGroup", "Renderman_group_list",
+                          group, "members", group, 'members_index',
+                          item_dyntip_propname='name',
+                          type='GRID', columns=3)

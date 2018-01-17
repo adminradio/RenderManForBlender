@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Blender Imports
 #
@@ -36,6 +38,7 @@ from . utils import draw_props
 
 
 class RfB_PT_SCENE_SampleFilters(RfB_PT_MIXIN_Collection, Panel):
+    bl_idname = "rfb_pt_scene_samplefilters"
     bl_label = "Sample Filters"
     bl_context = 'scene'
 
@@ -55,6 +58,6 @@ class RfB_PT_SCENE_SampleFilters(RfB_PT_MIXIN_Collection, Panel):
         scene = context.scene
         rm = scene.renderman
 
-        self._draw_collection(context, layout, rm, "Sample Filters:",
-                              "rfb.collection_toggle_path", "scene", "sample_filters",
-                              "sample_filters_index")
+        self._draw_collection(context, layout, rm, "",
+                              "rfb.collection_toggle_path", "scene",
+                              "sample_filters", "sample_filters_index")

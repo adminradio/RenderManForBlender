@@ -57,7 +57,6 @@ from . utils import user_path
 
 from . gui import icons
 
-# from . import ops
 from . ops import RfB_OT_NodeRefreshOSL
 
 from . import rfb
@@ -1232,7 +1231,6 @@ class NODE_OT_add_manifold(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
     bl_idname = 'node.add_manifold'
     bl_label = 'Add Manifold Node'
     bl_description = 'Connect a Manifold'
@@ -1244,7 +1242,6 @@ class NODE_OT_add_bump(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
     bl_idname = 'node.add_bump'
     bl_label = 'Add Bump Node'
     bl_description = 'Connect a bump node'
@@ -1669,8 +1666,8 @@ def convert_cycles_bsdf(nt, rman_parent, node, input_index):
             convert_cycles_input(
                 nt, node.inputs['Color'], meshlight, "textureColor")
         else:
-            setattr(meshlight, 'lightColor', node.inputs[
-                                                 'Color'].default_value[:3])
+            setattr(meshlight, 'lightColor',
+                    node.inputs['Color'].default_value[:3])
 
     else:
         rman_node = convert_cycles_node(nt, node)

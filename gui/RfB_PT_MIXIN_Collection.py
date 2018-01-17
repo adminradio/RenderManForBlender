@@ -23,20 +23,17 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# Blender Imports
-#
-from bpy.types import Panel
+# <pep8 compliant>
 
 #
 # RenderMan for Blender Imports
 #
-
 from . utils import split_lr
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
 
 class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
+    bl_idname = "rfb_pt_mixin_collection"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
 
@@ -58,11 +55,10 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
         default_name=''
     ):
 
+        # left: label
+        # right: group remove/add
         left, right = split_lr(layout)
-        # TODO: name is empty on light groups and object groups ???
-        # ll.label(name)
-        # FIXME: Removing a group can't be undone!
-        left.label("ATTENTION: Removing a group can't be undone!")
+        left.label(name)
 
         op = right.operator(operator, icon="ZOOMOUT", text="")
         op.context = opcontext
@@ -80,7 +76,7 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
         row = layout.row()
         row.template_list(
             "UI_UL_list",
-            "PRMAN",
+            self.bl_idname,
             ptr,
             prop_coll,
             ptr,
@@ -88,10 +84,9 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
             rows=1
         )
 
-        if (hasattr(ptr, prop_coll)
-            and len(getattr(ptr, prop_coll)) > 0
-            and getattr(ptr, collection_index) >= 0
-            ):
+        if (hasattr(ptr, prop_coll) and
+            len(getattr(ptr, prop_coll)) > 0 and
+                getattr(ptr, collection_index) >= 0):
 
             item = getattr(ptr, prop_coll)[getattr(ptr, collection_index)]
             self.draw_item(layout, context, item)

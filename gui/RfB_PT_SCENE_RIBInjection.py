@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Blender Imports
 #

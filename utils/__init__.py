@@ -425,7 +425,9 @@ def get_sequence_path(path, blender_frame, anim):
     return make_frame_path(path, frame)
 
 
-def user_path(path, scene=None, ob=None, display_driver=None, layer_name=None, pass_name=None):
+def user_path(path, scene=None,
+              ob=None, display_driver=None,
+              layer_name=None, pass_name=None):
     '''
     # bit more complicated system to allow accessing scene or object attributes.
     # let's stay simple for now...

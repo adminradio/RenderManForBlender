@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Blender Imports
 #
@@ -36,6 +38,7 @@ from . utils import draw_props
 
 
 class RfB_PT_SCENE_DisplayFilters(RfB_PT_MIXIN_Collection, Panel):
+    bl_idname = "rfb_pt_scene_displayfilters"
     bl_context = 'scene'
     bl_label = "Display Filters"
 
@@ -55,5 +58,5 @@ class RfB_PT_SCENE_DisplayFilters(RfB_PT_MIXIN_Collection, Panel):
         rm = scene.renderman
 
         self._draw_collection(context, layout, rm, "Display Filters:",
-                              "rfb.collection_toggle_path", "scene", "display_filters",
-                              "display_filters_index")
+                              "rfb.collection_toggle_path", "scene",
+                              "display_filters", "display_filters_index")

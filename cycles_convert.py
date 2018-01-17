@@ -60,10 +60,12 @@ def convert_cycles_node(nt, node, location=None):
         return rman_node
     elif node_type in ['ShaderNodeAddShader', 'ShaderNodeMixShader']:
         i = 0 if node.bl_idname == 'ShaderNodeAddShader' else 1
-        node1 = node.inputs[
-            0 + i].links[0].from_node if node.inputs[0 + i].is_linked else None
-        node2 = node.inputs[
-            1 + i].links[0].from_node if node.inputs[1 + i].is_linked else None
+        node1 = (node.inputs[0 + i].links[0].from_node
+                 if node.inputs[0 + i].is_linked
+                 else None)
+        node2 = (node.inputs[1 + i].links[0].from_node
+                 if node.inputs[1 + i].is_linked
+                 else None)
 
         mixer = nt.nodes.new('PxrLayerMixerPatternNode')
         if location:
@@ -282,6 +284,7 @@ def convert_ramp_node(nt, cycles_node, rman_node):
         new_e.color = e.color
 
     return
+
 
 math_map = {
     'ADD': 'floatInput1 + floatInput2',

@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Blender Imports
 #
@@ -32,19 +34,16 @@ from bpy.types import Panel
 #
 # RenderMan for Blender Imports
 #
-# from . import icons
-
 from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
 from . utils import split_ll
 
 
 class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
-    # bl_idname = "renderman_light_panel"
+    bl_idname = "rfb_pt_scene_light_linking"
     bl_label = "RenderMan Light Linking"
     bl_context = "scene"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    # bl_category = "Renderman"
 
     @classmethod
     def poll(cls, context):
@@ -56,39 +55,59 @@ class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
         scene = context.scene
         rm = scene.renderman
 
-        # ###
-        # ### Left and Right Column
-        # ###
+        #
+        #  Left and Right Column
+        #
         left, right = split_ll(layout)
-        left = left.column()  # vbox: vertical arrangement
-        right = right.column()  # vbox: vertical alignment
+        left = left.column()
+        right = right.column()
 
         #
         # first (left) col: select light type (lights or light groups)
         #
         left.prop(rm, 'll_light_type', text='')
         if rm.ll_light_type == 'light':
-            left.template_list("RfB_UL_LIGHTS_Linking", "Renderman_light_link_list",
-                               bpy.data, "lamps", rm, 'll_light_index')
+            left.template_list(
+                "RfB_UL_LIGHTS_Linking",
+                "Renderman_light_link_list",
+                bpy.data,
+                "lamps",
+                rm,
+                'll_light_index'
+            )
         else:
-            left.template_list("RfB_UL_LIGHTS_Linking", "Renderman_light_link_list",
-                               rm, "light_groups", rm, 'll_light_index')
+            left.template_list(
+                "RfB_UL_LIGHTS_Linking",
+                "Renderman_light_link_list",
+                rm,
+                "light_groups",
+                rm,
+                'll_light_index'
+            )
         #
         # second (right) col: select obeject type (objects or object groups)
         #
         right.prop(rm, 'll_object_type', text='')
         if rm.ll_object_type == 'object':
-            right.template_list("RfB_UL_LIGHTS_LinkingObjects", "Renderman_light_link_list",
-                                bpy.data, "objects", rm, 'll_object_index')
+            right.template_list(
+                "RfB_UL_LIGHTS_LinkingObjects",
+                "Renderman_light_link_list",
+                bpy.data,
+                "objects",
+                rm,
+                'll_object_index'
+            )
         else:
-            right.template_list("RfB_UL_LIGHTS_LinkingObjects", "Renderman_light_link_list",
-                                rm, "object_groups", rm, 'll_object_index')
-
-        # ###
-        # ### go out of split_ll() aka |left|right|
-        # ###
+            right.template_list(
+                "RfB_UL_LIGHTS_LinkingObjects",
+                "Renderman_light_link_list",
+                rm,
+                "object_groups",
+                rm,
+                'll_object_index'
+            )
         #
-        # Add / Remove Light Linking Button Bar
+        # add/remove Light Linking buttons
         #
         row = layout.row(align=True)
         if rm.ll_light_index == -1 or rm.ll_object_index == -1:
@@ -113,6 +132,7 @@ class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
                 #
                 rem = row.operator(
                     'rfb.item_toggle_lightlink', 'Remove Light Link')
+
                 rem.ll_name = ll_name
                 rem.add_remove = "remove"
                 row.prop(rm.ll[ll_name], 'illuminate', text='')
@@ -122,5 +142,6 @@ class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
                 #
                 add = row.operator(
                     'rfb.item_toggle_lightlink', 'Add Light Link')
+
                 add.ll_name = ll_name
                 add.add_remove = 'add'
