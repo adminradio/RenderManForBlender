@@ -31,8 +31,8 @@ bl_info = {
     "author": "Pixar",
     "version": (21, 5, 0),
     "blender": (2, 78, 0),
-    "location": "Info Header, render engine menu",
-    "description": "RenderMan 21.5 integration",
+    "location": "Info Header, Render Engine Menu",
+    "description": "RenderMan 21.5 Integration",
     "warning": "",
     "category": "Render"}
 
@@ -124,11 +124,11 @@ def load_addon():
         from . gui import RfB_HT_INFO_SmartControl
         from . gui import RfB_HT_NODE_SmartControl
         from . gui import RfB_HT_VIEW3D_SmartControl
-        from . gui import RfB_MT_RenderPresets
-        from . gui import RfB_MT_SceneAreaLights
-        from . gui import RfB_MT_SceneCameras
-        from . gui import RfB_MT_SceneDaylights
-        from . gui import RfB_MT_SceneHemiLights
+        from . gui import RfB_MT_RENDER_Presets
+        from . gui import RfB_MT_SCENE_AreaLights
+        from . gui import RfB_MT_SCENE_Cameras
+        from . gui import RfB_MT_SCENE_Daylights
+        from . gui import RfB_MT_SCENE_HemiLights
         from . gui import RfB_PT_DATA_Camera
         from . gui import RfB_PT_DATA_Lamp
         from . gui import RfB_PT_DATA_Light

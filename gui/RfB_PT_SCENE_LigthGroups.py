@@ -118,18 +118,20 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
                     if light_shader.bl_label == 'PxrEnvDayLight':
                         row.prop(light_shader, 'skyTint', text='')
 
-                        # pick light
-                        row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
-                        # lc.separator()
-                        # cl.separator()
+                        #
+                        # TODO:   Add a 'picker' button to select the light
+                        #         from UI right ther.
+                        # DATE:   2018-01-17
+                        # AUTHOR: Timm Wimmers
+                        # STATUS: assigned to self
+                        # LIKE:   row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
                     else:
                         row.prop(light_shader, 'lightColor', text='')
-                        # pick light
-                        row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
+                        # row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
 
-                        # color temperatur
+                        # color temperatur, same item as before, so draw an
+                        # empty label to keep things well aligned in column.
                         lc.label('')
-                        # lc.separator()
 
                         sub = cl.row(align=True)
                         sub.label(icon='BLANK1', text='')
@@ -150,8 +152,16 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
                                  icon_value=iid)
                         sub.prop(light_shader, 'temperature', text='')
 
-                        # preset menu
-                        sub.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
+                        #
+                        # TODO:   Add a drop down menu with well known values
+                        #         for color temperature like tungsten, sunrise,
+                        #         candle light, flashlight, etc. and maybe
+                        #         often used studio and filmin lights.
+                        #         RESEARCH for manufacturer values, i.e. ARI
+                        #
+                        # DATE:   2018-01-17
+                        # AUTHOR: Timm Wimmers
+                        # STATUS: assigned to self
                 else:
                     # TODO: when would this be drawn?
                     # row.label('')
@@ -160,7 +170,7 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
                     cl.prop(lamp, 'color', text='')
                     # TODO: add picker
                     # row.label('')
-                # finished item, add some space
+                # finished item, add some space in left and right layout.
                 lc.separator()
                 cl.separator()
                 lc.separator()

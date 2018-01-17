@@ -24,23 +24,35 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# Python imports
-#
-import os
-
-#
-# Blender imports
+# Blender Imports
 #
 import bpy
 
 #
-# RfB imports
+# RenderMan for Blender Imports
 #
+from . import icons
+from .. ops import RfB_OT_ObjectSelectLight
 
 
-class RfB_MT_RenderPresets(bpy.types.Menu):
-    bl_idname = "rfb_mt_render_presets"
-    bl_label = "RenderMan Presets"
-    preset_subdir = os.path.join("renderman", "render")
-    preset_operator = "script.execute_preset"
-    draw = bpy.types.Menu.draw_preset
+class RfB_MT_SCENE_AreaLights(bpy.types.Menu):
+    bl_idname = "rfb_mt_scene_arealights"
+    bl_label = "Scene Area Lights"
+
+    icn = icons.iconid('arealight')
+
+    def draw(self, context):
+        layout = self.layout
+
+        lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
+
+        if len(lamps):
+            for lamp in lamps:
+                if lamp.data.type == 'AREA':
+                    name = lamp.name
+                    op = layout.operator(
+                        "rfb.object_select_light", text=name, icon_value=self.icn)
+                    op.light_name = name
+
+        else:
+            layout.label("No AreaLight in the Scene")

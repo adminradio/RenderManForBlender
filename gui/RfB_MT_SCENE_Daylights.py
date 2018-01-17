@@ -35,7 +35,7 @@ from . import icons
 from .. ops import RfB_OT_ObjectSelectLight
 
 
-class RfB_MT_SceneDaylights(bpy.types.Menu):
+class RfB_MT_SCENE_Daylights(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_daylights"
     bl_label = "Scene Day Lights"
 

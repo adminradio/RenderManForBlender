@@ -24,28 +24,35 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# Blender Imports
+# Blender imports
 #
 import bpy
 
+#
+# RenderMan for Blender
+#
+from . import icons
 
-class RfB_MT_SceneCameras(bpy.types.Menu):
-    bl_idname = "rfb_mt_scene_cameras"
-    bl_label = "Scene Cameras"
+
+class RfB_MT_SCENE_HemiLights(bpy.types.Menu):
+    bl_idname = "rfb_mt_scene_hemilights"
+    bl_label = "EnvLight List"
+
+    icn = icons.iconid('envlight')
 
     def draw(self, context):
         layout = self.layout
         # col = layout.column(align=True)
 
-        cameras = [
-            obj for obj in bpy.context.scene.objects if obj.type == "CAMERA"]
+        lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
 
-        if len(cameras):
-            for cam in cameras:
-                name = cam.name
-                op = layout.operator(
-                    "rfb.object_select_camera", text=name, icon='CAMERA_DATA')
-                op.camera_name = name
+        if len(lamps):
+            for lamp in lamps:
+                if lamp.data.type == 'HEMI':
+                    name = lamp.name
+                    op = layout.operator(
+                        "rfb.object_select_light", text=name, icon_value=self.icn)
+                    op.light_name = name
 
         else:
-            layout.label("No Camera in the Scene")
+            layout.label("No EnvLight in the Scene")

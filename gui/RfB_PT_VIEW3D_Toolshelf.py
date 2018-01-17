@@ -37,7 +37,7 @@ from .. import rfb
 from .. import engine
 
 from . RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
-from . RfB_MT_RenderPresets import RfB_MT_RenderPresets
+from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets
 
 
 class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
