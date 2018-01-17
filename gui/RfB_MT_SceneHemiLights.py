@@ -23,20 +23,19 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender imports
 #
 import bpy
 
 #
-# RfB imports
+# RenderMan for Blender
 #
 from . import icons
 
 
 class RfB_MT_SceneHemiLights(bpy.types.Menu):
-    bl_idname = "RfB_MT_scene_hemilights"
+    bl_idname = "rfb_mt_scene_hemilights"
     bl_label = "EnvLight List"
 
     icn = icons.iconid('envlight')

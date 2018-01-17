@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender Imports
 #
@@ -37,15 +36,13 @@ from .. ops import RfB_OT_ObjectSelectLight
 
 
 class RfB_MT_SceneAreaLights(bpy.types.Menu):
-    """Create a menu of all area lights found in current scene."""
-    bl_idname = "RfB_MT_scene_arealights"
+    bl_idname = "rfb_mt_scene_arealights"
     bl_label = "Scene Area Lights"
 
     icn = icons.iconid('arealight')
 
     def draw(self, context):
         layout = self.layout
-        col = layout.column(align=True)
 
         lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
 

@@ -13,76 +13,96 @@
 # all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY",
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM",
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
 #
 # ##### END MIT LICENSE BLOCK #####
 
+__ALL__ = [
+    "RfB_HT_IMAGE_SmartControl",
+    "RfB_HT_INFO_SmartControl",
+    "RfB_HT_NODE_SmartControl",
+    "RfB_HT_VIEW3D_SmartControl",
+    "RfB_MT_ExampleFiles",
+    "RfB_MT_RenderPresets",
+    "RfB_MT_SceneAreaLights",
+    "RfB_MT_SceneCameras",
+    "RfB_MT_SceneDaylights",
+    "RfB_MT_SceneHemiLights"
+    "RfB_PT_DATA_Camera",
+    "RfB_PT_DATA_Lamp",
+    "RfB_PT_DATA_Light",
+    "RfB_PT_DATA_LightFilters",
+    "RfB_PT_DATA_World",
+    "RfB_PT_LAYER_LayerOptions",
+    "RfB_PT_LAYER_RenderPasses",
+    "RfB_PT_MATERIAL_Displacement",
+    "RfB_PT_MATERIAL_Preview",
+    "RfB_PT_MATERIAL_ShaderLight",
+    "RfB_PT_MATERIAL_ShaderSurface",
+    "RfB_PT_MESH_PrimVars",
+    "RfB_PT_OBJECT_Geometry",
+    "RfB_PT_OBJECT_MatteID",
+    "RfB_PT_OBJECT_Raytracing",
+    "RfB_PT_OBJECT_RIBInjection",
+    "RfB_PT_OBJECT_ShadingVisibility",
+    "RfB_PT_PARTICLE_PrimVars",
+    "RfB_PT_PARTICLE_Render",
+    "RfB_PT_RENDER_Advanced",
+    "RfB_PT_RENDER_Baking",
+    "RfB_PT_RENDER_MotionBlur",
+    "RfB_PT_RENDER_PreviewSampling",
+    "RfB_PT_RENDER_Render",
+    "RfB_PT_RENDER_Sampling",
+    "RfB_PT_RENDER_Spooling",
+    "RfB_PT_SCENE_DisplayFilters",
+    "RfB_PT_SCENE_LightLinking",
+    "RfB_PT_SCENE_LigthGroups",
+    "RfB_PT_SCENE_ObjectGroups",
+    "RfB_PT_SCENE_RIBInjection",
+    "RfB_PT_SCENE_SampleFilters",
+    "RfB_PT_VIEW3D_Toolshelf",
+    "RfB_UL_LIGHTS_Linking",
+    "RfB_UL_LIGHTS_LinkingObjects",
+    "RfB_UL_ObjectGroup",
+]
 
 #
 # Blender Imports
 #
 import bpy
 
-
 #
 # RenderMan for Blender Imports
 #
-from . import icons
+from . utils import rfb_panels
+from . utils import rfb_menu_func
+
+from . RfB_UL_ObjectGroup import RfB_UL_ObjectGroup
+from . RfB_UL_LIGHTS_Linking import RfB_UL_LIGHTS_Linking
+from . RfB_UL_LIGHTS_LinkingObjects import RfB_UL_LIGHTS_LinkingObjects
 
 
-def draw_props(node, prop_names, layout):
-    for prop_name in prop_names:
-        prop_meta = node.prop_meta[prop_name]
-        prop = getattr(node, prop_name)
+def register():
+    bpy.utils.register_class(RfB_UL_ObjectGroup)
+    bpy.utils.register_class(RfB_UL_LIGHTS_Linking)
+    bpy.utils.register_class(RfB_UL_LIGHTS_LinkingObjects)
+    bpy.types.INFO_MT_render.append(rfb_menu_func)
 
-        if prop_meta['renderman_type'] == 'page':
-            ui_prop = prop_name + "_ui_open"
-            ui_open = getattr(node, ui_prop)
+    for panel in rfb_panels():
+        panel.COMPAT_ENGINES.add('PRMAN_RENDER')
 
-            cond = bpy.context.scene.renderman.alf_options
-            icn = 'panel_open' if cond else 'panel_closed'
-            iid = icons.iconid(icn)
-            cl = layout.box()
-            cl.prop(
-                node,
-                ui_prop,
-                icon_value=iid,
-                text=prop_name.split('.')[-1],
-                icon_only=True,
-                emboss=False)
 
-            if ui_open:
-                draw_props(node, prop, cl)
+def unregister():
+    bpy.utils.unregister_class(RfB_UL_ObjectGroup)
+    bpy.utils.unregister_class(RfB_UL_LIGHTS_Linking)
+    bpy.utils.unregister_class(RfB_UL_LIGHTS_LinkingObjects)
+    bpy.types.INFO_MT_render.remove(rfb_menu_func)
 
-        else:
-            if ('widget' in prop_meta and prop_meta['widget'] == 'null'
-                    or 'hidden' in prop_meta and prop_meta['hidden']
-                    or prop_name == 'combineMode'):
-                continue
-
-            cl = layout.row()
-            if "Subset" in prop_name and prop_meta['type'] == 'string':
-                cl.prop_search(
-                    node,
-                    prop_name,
-                    bpy.data.scenes[0].renderman,
-                    "object_groups")
-            else:
-                if 'widget' in prop_meta and prop_meta['widget'] == 'floatRamp':
-                    rm = bpy.context.lamp.renderman
-                    nt = bpy.context.lamp.node_tree
-                    float_node = nt.nodes[rm.float_ramp_node]
-                    layout.template_curve_mapping(float_node, 'mapping')
-                elif 'widget' in prop_meta and prop_meta['widget'] == 'colorRamp':
-                    rm = bpy.context.lamp.renderman
-                    nt = bpy.context.lamp.node_tree
-                    ramp_node = nt.nodes[rm.color_ramp_node]
-                    layout.template_color_ramp(ramp_node, 'color_ramp')
-                else:
-                    cl.prop(node, prop_name)
+    for panel in rfb_panels():
+        panel.COMPAT_ENGINES.remove('PRMAN_RENDER')

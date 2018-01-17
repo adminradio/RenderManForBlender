@@ -63,15 +63,14 @@ import os
 import bpy
 
 from . import utils
-# from .. etc.RenderPresets import RenderPresets
 
 
 def register():
     bpy.types.TEXT_MT_text.append(utils.compile_shader_menu_func)
     bpy.types.TEXT_MT_toolbox.append(utils.compile_shader_menu_func)
 
-    # Register any default presets here. This includes render based and
-    # Material based
+    # Register any default presets here.
+    # This includes render based and Material based
     utils.quick_add_presets(
         utils.RenderPresets.FinalDenoisePreset,
         os.path.join("renderman", "render"),
@@ -104,8 +103,8 @@ def register():
 
 
 def unregister():
-    bpy.types.TEXT_MT_text.remove(compile_shader_menu_func)
-    bpy.types.TEXT_MT_toolbox.remove(compile_shader_menu_func)
+    bpy.types.TEXT_MT_text.remove(utils.compile_shader_menu_func)
+    bpy.types.TEXT_MT_toolbox.remove(utils.compile_shader_menu_func)
     #
     # It should be fine to leave presets registered as they are not in memory.
     #

@@ -24,16 +24,18 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender Imports
 #
 import bpy
 
-
+#
+# #### A T T E N T I O N  #####
+#
 # This operator should not be exposed to the UI as
-#   this can cause the loss of data since Blender does not
-#   preserve any information during script restart.
+# this can cause the loss of data since Blender does not
+# preserve any information during script restart.
+#
 class RfB_OT_ToolRestart(bpy.types.Operator):
     bl_idname = "rfb.tool_reloadrfb"
     bl_label = "Restart RenderMan for Blender."

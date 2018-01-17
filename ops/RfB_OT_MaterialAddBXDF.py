@@ -23,19 +23,17 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender Imports
 #
 import bpy
 from bpy.props import EnumProperty
 
-
 #
 # RenderMan for Blender Imports
 #
 # from .. export import EXCLUDED_OBJECT_TYPES
-# FIXME: has to be in export.py (TW)
+# FIXME: has to be in export.py or in RfB-Registry?
 EXCLUDED_OBJECT_TYPES = ['LAMP', 'CAMERA', 'ARMATURE']
 
 

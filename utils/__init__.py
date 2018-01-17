@@ -22,13 +22,21 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-EnableDebugging = False
 
-__ALL__ = [
-    "slugify",
-    "stdadd",
-    "stdmsg"
-]
+#
+# TODO:   Refactor functions by type into separate modules, i.e:
+#         clamp() -> math.clamp()
+#         get_path_list() -> path.dir()
+#         readOSO() -> file.read_oso()
+#         etc.
+#
+#         And everything related to env, prefs, cli tools, paths, etc.
+#         should be refactored into root module 'rfb'
+#
+#  DATE:  2018-01-17
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#
 
 #
 # Python imports
@@ -40,12 +48,12 @@ import fnmatch
 import platform
 
 import subprocess
-from subprocess import Popen
-from subprocess import PIPE
+# from subprocess import Popen
+# from subprocess import PIPE
 
 import mathutils
-from mathutils import Matrix
-from mathutils import Vector
+# from mathutils import Matrix
+# from mathutils import Vector
 
 from datetime import datetime
 
@@ -53,36 +61,21 @@ from extensions_framework import util as efutil
 
 
 #
-# Blender imports
+# Blender Imports
 #
 import bpy
 
 
 #
-# RfB imports
+# RenderMan for Blender Imports
 #
-from .. import rt
+from .. import rfb
 
 
-def slugify(string, length=36, offset=-8):
-    """
-    Shorten a string by removing the mid part of it.
-    """
-    #
-    # Todo: be sure that offset doesn't go to a negative
-    #       value of len(string).
-    #
-    strlen = len(string)
-    if strlen <= length:
-        return string
-    else:
-
-        l_end = int(length / 2 - 3 + offset)
-        r_start = int(strlen - (length / 2 - 3) + offset)
-        slug_l = string[:l_end]
-        slug_r = string[r_start:]
-
-        return "{} [..] {}".format(slug_l, slug_r)
+#
+# Developer Options (candidate for user prefs?)
+#
+EnableDebugging = False
 
 
 def stdmsg(msg):
@@ -102,16 +95,38 @@ def _echo(msg, extend=False):
     print('{}{}'.format(pre, msg))
 
 
-def as_filename(name):  # could reuse for other presets
+def slugify(string, length=40, offset=-11):
+    """Shorten a string by removing the mid part of it."""
+    #
+    # TODO:   be sure that offset doesn't go to a negative
+    #         value of len(string).
+    # DATE:   2018-01-17
+    # AUTHOR: Timm Wimmers
+    # STATUS: -unassigned-
+    #
+    strlen = len(string)
+    if strlen <= length:
+        return string
+    else:
+
+        l_end = int(length / 2 + offset)
+        r_start = int(strlen - (length / 2) + offset)
+        slug_l = string[:l_end]
+        slug_r = string[r_start:]
+
+        return "{}...{}".format(slug_l, slug_r)
+
+
+def fix_filename(name):  # could reuse for other presets
     for char in " !@#$%^&*(){}:\";'[]<>,.\\/?":
         name = name.replace(char, '_')
     return name.strip()
 
-# # unused ?
+# # FIXME: unused ?
 # class BlenderVersionError(Exception):
 #     pass
 
-# # unused ?
+# # FIXME: unused ?
 # def bpy_newer_257():
 #     if (bpy.app.version[1] < 57 or (bpy.app.version[1] == 57 and
 #                                     bpy.app.version[2] == 0)):
@@ -595,16 +610,16 @@ def get_rman_version(rmantree):
 
 
 # def get_addon_prefs():
-#     return rt.reg.prefs()
+#     return rfb.reg.prefs()
 
 
 def guess_rmantree():
-    # prefs = rt.reg.prefs()
-    rmantree_method = rt.reg.prefs().rmantree_method
-    choice = rt.reg.prefs().rmantree_choice
+    # prefs = rfb.reg.prefs()
+    rmantree_method = rfb.reg.prefs().rmantree_method
+    choice = rfb.reg.prefs().rmantree_choice
 
     if rmantree_method == 'MANUAL':
-        rmantree = rt.reg.prefs().path_rmantree
+        rmantree = rfb.reg.prefs().path_rmantree
     elif rmantree_method == 'ENV' or choice == 'NEWEST':
         rmantree = rmantree_from_env()
     else:

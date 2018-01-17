@@ -48,6 +48,7 @@ from . import bl_info
 # # unused
 # from . utils import BlenderVersionError
 
+from . import rfb
 from . utils import rib
 from . utils import rib_path
 from . utils import rib_ob_bounds
@@ -65,7 +66,6 @@ from . utils import get_real_path
 from . utils import find_it_path
 from . utils import debug
 from . utils import get_Selected_Objects
-from . import rt
 
 from random import randint
 import sys
@@ -254,7 +254,7 @@ class RPass:
         if not os.path.exists(self.paths['export_dir']):
             os.makedirs(self.paths['export_dir'])
 
-        addon_prefs = rt.reg.prefs()
+        addon_prefs = rfb.reg.prefs()
         self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
                                                 scene=scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(
@@ -284,7 +284,7 @@ class RPass:
         self.scene.frame_set(num)
         self.paths['rib_output'] = user_path(self.scene.renderman.path_rib_output,
                                              scene=self.scene)
-        addon_prefs = rt.reg.prefs()
+        addon_prefs = rfb.reg.prefs()
         self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
                                                 scene=self.scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(

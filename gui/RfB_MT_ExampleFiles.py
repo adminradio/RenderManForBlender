@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender imports
 #
@@ -31,14 +30,14 @@ import bpy
 import addon_utils
 
 #
-# RfB imports
+# RenderMan for Blender
 #
 from . import icons
 from .. utils import get_Files_in_Directory
 
 
 class RfB_MT_ExampleFiles(bpy.types.Menu):
-    bl_idname = "RfB_MT_example_files"
+    bl_idname = "rfb_mt_example_files"
     bl_label = "RenderMan Examples"
     iid = icons.iconid('prman')
 

@@ -23,15 +23,21 @@
 #
 # ##### END MIT LICENSE BLOCK ####
 
+#
 # python imports
+#
 import os
 import subprocess
 import traceback
 
+#
 # blender imports
+#
 import bpy
 
-# RfB imports
+#
+# RenderMan for Blender imports
+#
 from .. import engine
 from .. utils import find_local_queue
 from .. utils import find_tractor_spool

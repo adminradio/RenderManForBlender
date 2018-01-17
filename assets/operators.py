@@ -33,7 +33,7 @@ from bpy.types import NodeTree
 from . properties import RendermanAssetGroup
 from . properties import RendermanAsset
 from . import assets
-from .. import rt
+from .. import rfb
 from .. import utils
 
 # update the tree structure from disk file
@@ -86,8 +86,8 @@ class init_asset_library(bpy.types.Operator):
     bl_description = "Copies the Asset Library from RMANTREE to the library path if not present\n Or refreshes if changed on disk."
 
     def invoke(self, context, event):
-        assets_library = rt.reg.prefs().assets_library
-        assets_path = rt.reg.prefs().assets_path
+        assets_library = rfb.reg.prefs().assets_library
+        assets_path = rfb.reg.prefs().assets_path
         if not os.path.exists(assets_path):
             rmantree_lib_path = os.path.join(utils.guess_rmantree(), 'lib', 'RenderManAssetLibrary')
             shutil.copytree(rmantree_lib_path, assets_path)
@@ -129,7 +129,7 @@ class save_asset_to_lib(bpy.types.Operator):
     lib_path = StringProperty(default='')
 
     def invoke(self, context, event):
-        assets_path = rt.reg.prefs().assets_library.path
+        assets_path = rfb.reg.prefs().assets_library.path
         path = os.path.relpath(self.properties.lib_path, assets_path)
         library = RendermanAssetGroup.get_from_path(self.properties.lib_path)
         ob = context.active_object
@@ -160,7 +160,7 @@ class set_active_asset_library(bpy.types.Operator):
     def execute(self, context):
         lib_path = self.properties.lib_path
         if lib_path:
-            rt.reg.prefs().active_assets_path = lib_path
+            rfb.reg.prefs().active_assets_path = lib_path
         return {'FINISHED'}
 
 # if the library isn't present copy it from rmantree to the path in addon prefs
@@ -183,7 +183,7 @@ class add_asset_library(bpy.types.Operator):
             sub_group = active.sub_groups.add()
             sub_group.name = new_folder
             sub_group.path = path
-            rt.reg.prefs().active_assets_path = path
+            rfb.reg.prefs().active_assets_path = path
         bpy.ops.wm.save_userpref()
         return {'FINISHED'}
 
@@ -206,7 +206,7 @@ class remove_asset_library(bpy.types.Operator):
         if lib_path:
             parent_path = os.path.split(active.path)[0]
             parent = RendermanAssetGroup.get_from_path(parent_path)
-            rt.reg.prefs().active_assets_path = parent_path
+            rfb.reg.prefs().active_assets_path = parent_path
 
             shutil.rmtree(active.path)
 
@@ -253,7 +253,7 @@ class move_asset(bpy.types.Operator):
             for lib in parent_lib.sub_groups:
                 enum.extend(get_libs(lib))
             return enum
-        return get_libs(rt.reg.prefs().assets_library)
+        return get_libs(rfb.reg.prefs().assets_library)
 
     asset_path = StringProperty(default='')
     new_library = EnumProperty(items=get_libraries, description='New Library', name="New Library")
@@ -293,7 +293,7 @@ class move_asset_library(bpy.types.Operator):
                 enum.extend(get_libs(lib))
             return enum
 
-        return get_libs(rt.reg.prefs().assets_library)
+        return get_libs(rfb.reg.prefs().assets_library)
 
     lib_path = StringProperty(default='')
     new_library = EnumProperty(items=get_libraries, description='New Library', name="New Library")

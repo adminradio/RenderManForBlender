@@ -23,21 +23,19 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# bpy import
+#
+# Blender Imports
+#
 import bpy
 
-from bpy.props import (
-    # IntProperty,
-    BoolProperty,
-    # EnumProperty,
-    # FloatProperty,
-    # StringProperty,
-    PointerProperty,
-    CollectionProperty,
-    FloatVectorProperty
-)
+from bpy.props import BoolProperty
+from bpy.props import PointerProperty
+from bpy.props import CollectionProperty
+from bpy.props import FloatVectorProperty
 
-# RfB imports
+#
+# RenderMan for Blender Imports
+#
 from .. import engine
 from .. export import write_archive_RIB
 

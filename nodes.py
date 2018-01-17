@@ -57,14 +57,13 @@ from . utils import user_path
 
 from . gui import icons
 
-from . import ops
+# from . import ops
 from . ops import RfB_OT_NodeRefreshOSL
 
-from . ntree import utils
-# from . ntree.utils import update_func
-from . import rt
-from . ntree.utils.PropertyLookup import PropertyLookup
+from . import rfb
+from . nds.utils.PropertyLookup import PropertyLookup
 
+# FIXME: A candidate for RfB registry?
 NODE_LAYOUT_SPLIT = 0.5
 
 
@@ -97,7 +96,7 @@ class RendermanSocket:
             return getattr(node, self.name)
 
     def draw_color(self, context, node):
-        return rt.reg.get('BXDF')
+        return rfb.reg.get('BXDF')
 
     def draw_value(self, context, layout, node):
         layout.prop(node, self.identifier)
@@ -116,7 +115,7 @@ class RendermanSocket:
 class RendermanSocketInterface:
 
     def draw_color(self, context):
-        return rt.reg.get('BXDF')
+        return rfb.reg.get('BXDF')
     #
     # TODO:   Add 'page' name in front of socket name if page is empty?
     #         Open for discussion.
@@ -152,7 +151,7 @@ class RendermanNodeSocketFloat(
     renderman_type = StringProperty(default='float')
 
     def draw_color(self, context, node):
-        return rt.reg.get('FLOAT')
+        return rfb.reg.get('FLOAT')
 
 
 class RendermanNodeSocketInterfaceFloat(
@@ -167,7 +166,7 @@ class RendermanNodeSocketInterfaceFloat(
     default_value = FloatProperty()
 
     def draw_color(self, context):
-        return rt.reg.get('FLOAT')
+        return rfb.reg.get('FLOAT')
 
 
 class RendermanNodeSocketInt(
@@ -182,7 +181,7 @@ class RendermanNodeSocketInt(
     renderman_type = StringProperty(default='int')
 
     def draw_color(self, context, node):
-        return rt.reg.get('INT')
+        return rfb.reg.get('INT')
 
 
 class RendermanNodeSocketInterfaceInt(
@@ -197,7 +196,7 @@ class RendermanNodeSocketInterfaceInt(
     default_value = IntProperty()
 
     def draw_color(self, context):
-        return rt.reg.get('INT')
+        return rfb.reg.get('INT')
 
 
 class RendermanNodeSocketString(
@@ -248,7 +247,7 @@ class RendermanNodeSocketColor(
     renderman_type = StringProperty(default='color')
 
     def draw_color(self, context, node):
-        return rt.reg.get('RGB')
+        return rfb.reg.get('RGB')
 
 
 class RendermanNodeSocketInterfaceColor(
@@ -264,7 +263,7 @@ class RendermanNodeSocketInterfaceColor(
                                         subtype="COLOR")
 
     def draw_color(self, context):
-        return rt.reg.get('RGB')
+        return rfb.reg.get('RGB')
 
 
 class RendermanNodeSocketVector(
@@ -281,7 +280,7 @@ class RendermanNodeSocketVector(
     renderman_type = StringProperty(default='vector')
 
     def draw_color(self, context, node):
-        return rt.reg.get('VECTOR')
+        return rfb.reg.get('VECTOR')
 
 
 class RendermanNodeSocketInterfaceVector(
@@ -298,7 +297,7 @@ class RendermanNodeSocketInterfaceVector(
                                         subtype="EULER")
 
     def draw_color(self, context):
-        return rt.reg.get('VECTOR')
+        return rfb.reg.get('VECTOR')
 
 
 # Custom socket type for connecting shaders
@@ -1068,8 +1067,6 @@ class Add_Node:
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
-
     def get_type_items(self, context):
         items = []
         # if this is a pattern input do columns!

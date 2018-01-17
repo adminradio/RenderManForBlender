@@ -23,12 +23,25 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+#
+# Python Imports
+#
 import os
+
+#
+# Blender Imports
+#
 import bpy
 
+#
+# RenderMan for Blender Imports
+#
 from . RenderPresets import RenderPresets
+from ... utils import fix_filename
 
+#
 # Menus
+#
 compile_shader_menu_func = (
     lambda self,
     context: self.layout.operator(TEXT_OT_compile_shader.bl_idname)
@@ -36,12 +49,7 @@ compile_shader_menu_func = (
 
 
 def quick_add_presets(presetList, pathFromPresetDir, name):
-    def as_filename(name):  # could reuse for other presets
-        for char in " !@#$%^&*(){}:\";'[]<>,.\\/?":
-            name = name.replace(char, '_')
-        return name.strip()
-
-    filename = as_filename(name)
+    filename = fix_filename(name)
     target_path = os.path.join("presets", pathFromPresetDir)
     target_path = bpy.utils.user_resource('SCRIPTS',
                                           target_path,

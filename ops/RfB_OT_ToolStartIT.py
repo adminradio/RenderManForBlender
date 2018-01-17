@@ -24,7 +24,7 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# python imports
+# Python Imports
 #
 import sys
 import os
@@ -32,17 +32,23 @@ import platform
 import subprocess
 
 #
-# blender imports
+# Blender Imports
 #
 import bpy
 
 #
-# RfB imports
+# RenderMan for Blender Imports
 #
 from .. utils import stdmsg
 from .. utils import stdadd
 from .. utils import guess_rmantree
-# TODO: refactor 'guess_rmantree' to rt.env('RMANTREE')
+#
+#
+# TODO:   Refactor 'guess_rmantree' into RfB registry.
+# DATE:   2018-01-17
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#
 
 
 class RfB_OT_ToolStartIT(bpy.types.Operator):
@@ -61,6 +67,7 @@ class RfB_OT_ToolStartIT(bpy.types.Operator):
 
         if rmt:
             binpath = os.path.join(rmt, 'bin')
+
             #
             # Windows
             #

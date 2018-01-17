@@ -26,7 +26,7 @@
 import bpy
 import os
 import time
-from .. import rt
+from .. import rfb
 from .. utils import user_path
 
 
@@ -70,7 +70,7 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    addon = rt.reg.get('RFB_PREFS')
+    addon = rfb.reg.get('RFB_PREFS')
     prefs = bpy.context.user_preferences.addons[addon].preferences
 
     out_dir = prefs.env_vars.out

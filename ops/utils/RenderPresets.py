@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # TODO:   Implement a JSON laoader/saver and store customised preset
 #         there (under ../../datafiles/RfB). Open for discussion.

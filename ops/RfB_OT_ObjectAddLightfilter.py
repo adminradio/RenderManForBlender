@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender imports
 #

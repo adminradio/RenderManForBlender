@@ -73,7 +73,7 @@ class PRManRender(bpy.types.RenderEngine):
             engine.render(self)
 
 
-# these handlers are for marking files as dirty for ribgen
+# # these handlers are for marking files as dirty for ribgen
 def add_handlers(scene):
     if (engine.update_timestamp
             not in bpy.app.handlers.scene_update_post):
@@ -104,22 +104,78 @@ def load_addon():
     from . utils import throw_error
     from . import preferences
 
+    #
+    # TODO:   Refactor guess_rmantree() to RfB Registry
+    # DATE:   2018-01-17
+    # AUTHOR: Timm Wimmers
+    # STATUS: -unassigned-
+    #
     if guess_rmantree():
+        #
         # else display an error, tell user to correct
         # and don't load anything else
-        from . import ui
-        from . import properties
+        #
+        from . import gui
         from . import ops
+        from . import nodes
+        from . import properties
+
+        from . gui import RfB_HT_IMAGE_SmartControl
+        from . gui import RfB_HT_INFO_SmartControl
+        from . gui import RfB_HT_NODE_SmartControl
+        from . gui import RfB_HT_VIEW3D_SmartControl
+        from . gui import RfB_MT_RenderPresets
+        from . gui import RfB_MT_SceneAreaLights
+        from . gui import RfB_MT_SceneCameras
+        from . gui import RfB_MT_SceneDaylights
+        from . gui import RfB_MT_SceneHemiLights
+        from . gui import RfB_PT_DATA_Camera
+        from . gui import RfB_PT_DATA_Lamp
+        from . gui import RfB_PT_DATA_Light
+        from . gui import RfB_PT_DATA_LightFilters
+        from . gui import RfB_PT_DATA_World
+        from . gui import RfB_PT_LAYER_LayerOptions
+        from . gui import RfB_PT_LAYER_RenderPasses
+        from . gui import RfB_PT_MATERIAL_Displacement
+        from . gui import RfB_PT_MATERIAL_Preview
+        from . gui import RfB_PT_MATERIAL_ShaderLight
+        from . gui import RfB_PT_MATERIAL_ShaderSurface
+        from . gui import RfB_PT_MESH_PrimVars
+        from . gui import RfB_PT_MIXIN_Collection
+        from . gui import RfB_PT_OBJECT_Geometry
+        from . gui import RfB_PT_OBJECT_MatteID
+        from . gui import RfB_PT_OBJECT_Raytracing
+        from . gui import RfB_PT_OBJECT_RIBInjection
+        from . gui import RfB_PT_OBJECT_ShadingVisibility
+        from . gui import RfB_PT_PARTICLE_PrimVars
+        from . gui import RfB_PT_PARTICLE_Render
+        from . gui import RfB_PT_RENDER_Advanced
+        from . gui import RfB_PT_RENDER_Baking
+        from . gui import RfB_PT_RENDER_MotionBlur
+        from . gui import RfB_PT_RENDER_PreviewSampling
+        from . gui import RfB_PT_RENDER_Render
+        from . gui import RfB_PT_RENDER_Sampling
+        from . gui import RfB_PT_RENDER_Spooling
+        from . gui import RfB_PT_SCENE_DisplayFilters
+        from . gui import RfB_PT_SCENE_LightLinking
+        from . gui import RfB_PT_SCENE_LigthGroups
+        from . gui import RfB_PT_SCENE_ObjectGroups
+        from . gui import RfB_PT_SCENE_RIBInjection
+        from . gui import RfB_PT_SCENE_SampleFilters
+        from . gui import RfB_PT_VIEW3D_Toolshelf
         from . ops import RfB_OT_AOVsAddRenderman
         from . ops import RfB_OT_CollectionTogglePath
         from . ops import RfB_OT_FileOpenLastRIB
         from . ops import RfB_OT_FileSpoolRender
+        from . ops import RfB_OT_FileViewStats
         from . ops import RfB_OT_ItemMovetoGroup
         from . ops import RfB_OT_ItemRemoveGroup
+        from . ops import RfB_OT_ItemToggleLightlink
         from . ops import RfB_OT_ListAddMultilayer
         from . ops import RfB_OT_MaterialAddBXDF
         from . ops import RfB_OT_MaterialNewBXDF
         from . ops import RfB_OT_NodeAddNodetree
+        from . ops import RfB_OT_NodeBakePatterns
         from . ops import RfB_OT_NodeCyclesConvertall
         from . ops import RfB_OT_NodeRefreshOSL
         from . ops import RfB_OT_ObjectAddArealight
@@ -129,31 +185,37 @@ def load_addon():
         from . ops import RfB_OT_ObjectDeleteCamera
         from . ops import RfB_OT_ObjectDeleteLight
         from . ops import RfB_OT_ObjectEnableSubdiv
+        from . ops import RfB_OT_ObjectExportRIB
         from . ops import RfB_OT_ObjectMakeEmissive
         from . ops import RfB_OT_ObjectSelectCamera
         from . ops import RfB_OT_ObjectSelectLight
         from . ops import RfB_OT_OutputToggleChannel
         from . ops import RfB_OT_RenderAddPreset
-        from . gui import RfB_MT_RenderPresets
-
-        from . import nodes
+        from . ops import RfB_OT_ToolStartIPR
+        from . ops import RfB_OT_ToolStartIT
+        #
         # need this now rather than at beginning to make
         # sure preferences are loaded
+        #
+        # FIXME: Beginning of what? Mmmh, looks ugly to me. Even the functions
+        #        on top are complaining undefined 'engine'. (TW)
+        #
         from . import engine
         properties.register()
         ops.register()
-        ui.register()
+        gui.register()
         add_handlers(None)
         nodes.register()
-
     else:
+        #
         # display loading error
+        #
         throw_error(
             "Error loading addon.  Correct RMANTREE setting in addon preferences.")
 
 
 def register():
-    from . import rt
+    from . import rfb
     from . import preferences
     preferences.register()
     load_addon()
@@ -167,7 +229,7 @@ def unregister():
     remove_handlers()
     properties.unregister()
     ops.unregister()
-    ui.unregister()
+    gui.unregister()
     nodes.unregister()
     preferences.unregister()
     from . import assets

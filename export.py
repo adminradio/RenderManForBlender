@@ -53,7 +53,7 @@ from . nodes import get_tex_file_name
 from . nodes import shader_node_rib, get_mat_name
 from . nodes import replace_frame_num
 
-from . import rt
+from . import rfb
 
 addon_version = bl_info['version']
 
@@ -3021,7 +3021,7 @@ def export_samplefilters(ri, rpass, scene):
     rm = scene.renderman
     filter_names = []
     display_driver = rpass.display_driver
-    addon_prefs = rt.reg.prefs()
+    addon_prefs = rfb.reg.prefs()
     for sf in rm.sample_filters:
         params = property_group_to_params(sf.get_filter_node())
         ri.SampleFilter(sf.get_filter_name(), sf.name, params)
@@ -3152,7 +3152,7 @@ def export_display(ri, rpass, scene):
 
     display_driver = rpass.display_driver
     rpass.output_files = []
-    addon_prefs = rt.reg.prefs()
+    addon_prefs = rfb.reg.prefs()
     main_display = user_path(
         addon_prefs.path_display_driver_image, scene=scene, display_driver=rpass.display_driver)
     debug("info", "Main_display: " + main_display)

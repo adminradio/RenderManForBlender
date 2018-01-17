@@ -1,12 +1,39 @@
-# python imports
+# ##### BEGIN MIT LICENSE BLOCK #####
+#
+# Copyright (c) 2015 - 2018 Pixar
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+#
+# ##### END MIT LICENSE BLOCK #####
 
-# blender imports
+#
+# Blender imports
+#
 import bpy
 import bgl
 import blf
 
-# RfB imports
-from .. import rt
+#
+# RenderMan for Bender Imports
+#
+from .. import rfb
 from .. import engine
 
 
@@ -19,9 +46,19 @@ class RfB_OT_ToolStartIPR(bpy.types.Operator):
 
     def draw(self, context):
         w = context.region.width
-        h = context.region.height
+        h = context.region.height  # FIXME: unused?
 
+        #
         # Draw text area that RenderMan is running.
+        #
+        #
+        #
+        # TODO:   Implement GL drawing of viewport frame like Boxcutter,
+        #         HardOPS & Co.
+        # DATE:   2018-01-17
+        # AUTHOR: Timm Wimmers
+        # STATUS: -unassigned-
+        #
         pos_x = w / 2 - 100
         pos_y = 20
         blf.enable(0, blf.SHADOW)
@@ -41,7 +78,7 @@ class RfB_OT_ToolStartIPR(bpy.types.Operator):
 
             engine.ipr.start_interactive()
 
-            if rt.reg.prefs().draw_ipr_text:
+            if rfb.reg.prefs().draw_ipr_text:
                 engine.ipr_handle = (
                     bpy.types.SpaceView3D.draw_handler_add(
                         self.draw, (context,), 'WINDOW', 'POST_PIXEL'
@@ -64,8 +101,14 @@ class RfB_OT_ToolStartIPR(bpy.types.Operator):
             )
             #
             # The user should not turn this on and off during IPR rendering.
-            # TODO: Then we should disable editing the preferences.
-            if rt.reg.prefs().draw_ipr_text:
+            #
+            # TODO:   Then we should disabel this property in prefs if IPR
+            #         is running.
+            # DATE:   2018-01-17
+            # AUTHOR: Timm Wimmers
+            # STATUS: -unassigned-
+            #
+            if rfb.reg.prefs().draw_ipr_text:
                 bpy.types.SpaceView3D.draw_handler_remove(
                     engine.ipr_handle, 'WINDOW'
                 )

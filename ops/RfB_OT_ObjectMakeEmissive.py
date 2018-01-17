@@ -23,12 +23,12 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender Imports
 #
 import bpy
 from .. export import EXCLUDED_OBJECT_TYPES
+
 
 class RfB_OT_ObjectMakeEmissive(bpy.types.Operator):
     bl_idname = "rfb.object_make_emissive"

@@ -23,6 +23,9 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+#
+# Blender Imports
+#
 import bpy
 
 

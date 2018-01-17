@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 #
 # TODO:   Implement color stuff for the ui.

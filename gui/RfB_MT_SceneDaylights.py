@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender Imports
 #
@@ -37,7 +36,7 @@ from .. ops import RfB_OT_ObjectSelectLight
 
 
 class RfB_MT_SceneDaylights(bpy.types.Menu):
-    bl_idname = "RfB_MT_scene_daylights"
+    bl_idname = "rfb_mt_scene_daylights"
     bl_label = "Scene Day Lights"
 
     icn = icons.iconid('sunlight')

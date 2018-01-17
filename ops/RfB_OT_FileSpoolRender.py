@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Python Imports
 #
@@ -47,7 +46,7 @@ from .. utils import user_path
 from .. utils import find_local_queue
 from .. utils import find_tractor_spool
 
-from .. import rt
+from .. import rfb
 
 from .. import spool   # import spool_render
 from .. export import get_texture_list
@@ -69,7 +68,7 @@ class RfB_OT_FileSpoolRender(bpy.types.Operator):
                 'RIB generation error: ' + traceback.format_exc())
 
     def gen_denoise_aov_name(self, scene, rpass):
-        addon_prefs = rt.reg.prefs()
+        addon_prefs = rfb.reg.prefs()
         files = []
         rm = scene.renderman
         for layer in scene.render.layers:

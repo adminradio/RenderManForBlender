@@ -30,7 +30,7 @@ import bpy
 
 
 class RfB_MT_SceneCameras(bpy.types.Menu):
-    bl_idname = "RfB_MT_scene_cameras"
+    bl_idname = "rfb_mt_scene_cameras"
     bl_label = "Scene Cameras"
 
     def draw(self, context):

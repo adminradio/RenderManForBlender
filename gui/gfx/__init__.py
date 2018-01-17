@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Python imports
 #
@@ -35,5 +34,5 @@
 
 
 #
-# RfB imports
+# RenderMan for Blender
 #

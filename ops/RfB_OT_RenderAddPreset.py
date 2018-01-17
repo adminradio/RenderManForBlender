@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Python imports
 #
@@ -36,17 +35,12 @@ import bpy
 from bl_operators.presets import AddPresetBase
 
 
-#
-# RfB imports
-#
-
-
 class RfB_OT_RenderAddPreset(AddPresetBase, bpy.types.Operator):
     '''Add or remove a RenderMan Sampling Preset'''
     bl_idname = "rfb.render_add_preset"
     bl_label = "Add RenderMan Preset"
     bl_options = {'REGISTER', 'UNDO'}
-    preset_menu = "RfB_MT_render_presets"
+    preset_menu = "rfb_mt_render_presets"
     preset_defines = ["scene = bpy.context.scene", ]
 
     preset_values = [

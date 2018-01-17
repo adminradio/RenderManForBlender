@@ -23,7 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-
 #
 # Blender Imports
 #
@@ -32,14 +31,12 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-# from . import icons
 
 
 class RfB_UL_ObjectGroup(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-
+        #
         # We could write some code to decide which icon to use here...
-        custom_icon = 'OBJECT_DATAMODE'
-        # Make sure your code supports all 3 layout types
+        #
         layout.alignment = 'LEFT'
-        layout.label(item.name, icon=custom_icon)
+        layout.label(item.name, icon='OBJECT_DATAMODE')
