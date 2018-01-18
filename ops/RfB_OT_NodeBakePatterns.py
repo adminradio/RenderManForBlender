@@ -41,7 +41,7 @@ import bpy
 from .. import engine
 from .. utils import find_local_queue
 from .. utils import find_tractor_spool
-from .. import spool
+from .. rfb import spl
 from .. export import get_texture_list
 
 
@@ -88,7 +88,7 @@ class RfB_OT_NodeBakePatterns(bpy.types.Operator):
         denoise_aov_files = []
         job_tex_cmds = []
         denoise = False
-        alf_file = spool.render(str(rm_version), to_render, [rib_names], denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass, bake=True)
+        alf_file = spl.render(str(rm_version), to_render, [rib_names], denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass, bake=True)
         exe = find_tractor_spool() if rm.queuing_system == 'tractor' else find_local_queue()
 
         self.report(

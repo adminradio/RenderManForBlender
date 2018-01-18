@@ -1,6 +1,6 @@
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
-# Copyright (c) 2015 - 2018 Pixar
+# Copyright (c) 2015 - 2017 Pixar
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,9 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# Python imports
 #
-
-
-#
-# Blender imports
-#
-
-
-#
-# RenderMan for Blender
+# TODO:   Implement gl drawing of interactive.
+# DATE:   2018-01-18
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
 #
