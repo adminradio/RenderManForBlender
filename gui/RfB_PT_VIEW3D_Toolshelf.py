@@ -41,7 +41,6 @@ from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets
 
 
 class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
-    # class Renderman_UI_Panel(bpy.types.Panel, RfB_PT_MIXIN_PanelIcon):
     bl_idname = "renderman_ui_panel"
     bl_label = "RenderMan"
     bl_space_type = "VIEW_3D"
@@ -57,348 +56,243 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         layout = self.layout
         scene = context.scene
         rm = scene.renderman
-
-        # #
-        # # [Save Scene] Button
-        # #
-        # layout.operator("wm.save_mainfile", text="Save Scene", icon='FILE_TICK')
-
-        # layout.separator()
-        # layout.separator()
-
         if scene.render.engine != "PRMAN_RENDER":
             return
 
+        flat_ui = not rfb.reg.get('RFB_FLAT_UI')
+
+        # rootleyout, vertical arrangement
+        rlv = layout.column()
+
         # ######################################################################
-        # RENDER LAYOUT
+        # RENDER AND SPOOL LAYOUT (lay: current layout aka section)
         # ----------------------------------------------------------------------
-        cl = layout.column(align=True)
 
-        #
         # [Render] Button with TRIA
-        #
-        row = cl.row(align=True)
-
+        lay = rlv.column(align=True)
+        row = lay.row(align=True)
         iid = icons.iconid("render")
-        row.operator("render.render", text="Render", icon_value=iid)
-
-        icon = 'TRIA_DOWN' if context.scene.rm_render else 'TRIA_RIGHT'
-        row.prop(context.scene, "rm_render", text="", icon=icon)
+        row.operator("render.render", text="Render Frame", icon_value=iid)
+        icon = 'TRIA_DOWN' if scene.rm_render else 'TRIA_RIGHT'
+        row.prop(scene, "rm_render", text="", icon=icon)
 
         if scene.rm_render:
+            # Render UI (Smartcontrol)
             #
-            # [Render] - Sublayout is open.
-            #
-            box = cl.box()
-            # box.separator()  # slightly more space
-            #
-            # [Render Animation]
-            #
-            iid = icons.iconid("batch_render")
-            row = box.row(align=True)
-            row.operator("render.render", text="Render Animation",
-                         icon_value=iid).animation = True
+            # outer frame
+            lay = lay.box()
 
-            #
-            # [Display Driver] [Denoise] [Selected]
-            #
-            row = box.row(align=True)
+            # inner frame
+            box = lay.box()
+            # ... and just switch to vertical arrangement
+            box = box.column()
+
+            # Render to | Denoise Post | Selected Only
+            row = box.row()
             row.prop(rm, "render_into", text="")
 
+            # Toggle: Denoise
+            sub = row.row(align=True)
             iid = (icons.iconid("dnoise_on")
                    if rm.do_denoise
                    else icons.iconid("dnoise_off"))
-            row.prop(rm, "do_denoise",
-                     text="",
-                     icon_value=iid)
+            sub.prop(rm, "do_denoise", text="", icon_value=iid, emboss=flat_ui)
 
+            # Toggle: selected objects only
             iid = (icons.iconid("selected_on")
                    if rm.render_selected_objects_only
                    else icons.iconid("selected_off"))
-            row.prop(rm, "render_selected_objects_only",
-                     text="",
-                     icon_value=iid)
+            sub.prop(rm, "render_selected_objects_only", text="", icon_value=iid, emboss=flat_ui)
 
-            #
-            # [RenderMan Presets]
-            #
-            row = box.row(align=True)
-            row.menu("rfb_mt_render_presets")
+            # -------------
+            box.separator()
+            # -------------
 
-            row.operator("rfb.render_add_preset", text="",
-                         icon='ZOOMIN')
+            # Render Presets
+            row = box.row()
+            row.menu("rfb_mt_render_presets", text=bpy.types.rfb_mt_render_presets.bl_label)
 
-            row.operator("rfb.render_add_preset", text="",
-                         icon='ZOOMOUT').remove_active = True
-            # ### Renderman Presets ####
+            sub = row.row(align=True)
+            sub.label(text="", icon='BLANK1')
+            sub.label(text="", icon='BLANK1')
+            # sub.operator("rfb.render_add_preset", text="", icon='ZOOMIN')
+            # sub.operator("rfb.render_add_preset", text="", icon='ZOOMOUT').remove_active = True
 
-            # rd = scene.render ### ???? ####
-            # #Resolution
-            # row = box.row(align=True)
-            # sub = row.column(align=True)
-            # sub.label(text="Resolution:")
-            # sub.prop(rd, "resolution_x", text="X")
-            # sub.prop(rd, "resolution_y", text="Y")
-            # sub.prop(rd, "resolution_percentage", text="")
+            # -------------
+            box.separator()
+            # -------------
 
-            # # layout.prop(rm, "display_driver")
-            # #Sampling
-            # row = box.row(align=True)
-            # row.label(text="Sampling:")
-            # row = box.row(align=True)
-            # col = row.column()
-            # col.prop(rm, "pixel_variance")
-            # row = col.row(align=True)
-            # row.prop(rm, "min_samples", text="Min Samples")
-            # row.prop(rm, "max_samples", text="Max Samples")
-            # row = col.row(align=True)
-            # row.prop(rm, "max_specular_depth", text="Specular Depth")
-            # row.prop(rm, "max_diffuse_depth", text="Diffuse Depth")
-            #
-        # ----------------------------------------------------------------------
-        # END RENDER LAYOUT
-        # ######################################################################
+            # Spool Action | External | Animation
+            row = box.row()
+            sub = row.row()
+            op_label = "Spool Animation" if rm.external_animation else "Spool Frame"
+            sub.enabled = rm.enable_external_rendering
+            sub.operator("rfb.file_spool_render", text=op_label)
 
-        # ######################################################################
-        # EXTERNAL RENDER LAYOUT
-        # ----------------------------------------------------------------------
-        cl = layout.column(align=True)
-        row = cl.row(align=True)
+            # Toggle: External?
+            subb = row.row(align=True)
+            iid = (icons.iconid('spool_on')
+                   if rm.enable_external_rendering
+                   else icons.iconid('spool_off'))
+            subb.prop(rm, "enable_external_rendering", icon_value=iid, icon_only=True, emboss=flat_ui)
 
-        # if scene.renderman.enable_external_rendering:
-        iid = icons.iconid("render_spool")
-        row.operator("rfb.file_spool_render",
-                     text="External Render",
-                     icon_value=iid)
+            # Toggle: Animation?
+            iid = (icons.iconid("animation_on")
+                   if rm.external_animation
+                   else icons.iconid("animation_off"))
+            subbb = subb.row(align=True)
+            subbb.enabled = rm.enable_external_rendering
+            subbb.prop(rm, "external_animation", text="", icon_value=iid, emboss=flat_ui)
 
-        icon = 'TRIA_DOWN' if scene.rm_render_external else 'TRIA_RIGHT'
-        row.prop(context.scene,
-                 "rm_render_external", text="",
-                 icon=icon)
+            # Display Driver | Denoise? | Selected only?
+            row = box.row()
+            row.enabled = rm.enable_external_rendering
+            sub = row.row(align=True)
+            sub.prop(rm, "display_driver", text="")
 
-        if scene.rm_render_external:
-            #
-            # Layout is open
-            #
-            box = cl.box()
-            # box.separator()  # slightly more space
-
-            row = box.row(align=True)
-
-            #
-            # [Display Driver] [Denoise] [Crossframe] [Selected only]
-            #
-
-            row.prop(rm, "display_driver", text="")
-
-            #
-            # Denoise (simple)
-            #
+            # Denoise
+            sub = row.row(align=True)
+            sub.enabled = rm.enable_external_rendering
             iid = (icons.iconid("dnoise_on")
                    if rm.external_denoise
                    else icons.iconid("dnoise_off"))
-            row.prop(rm, "external_denoise",
-                     text="",
-                     icon_value=iid)
-            #
-            # Cross Denoise
-            #
-            sub = row.row(align=True)
-            sub.enabled = rm.external_denoise and rm.external_animation
-            iid = (icons.iconid("crossdn_on")
-                   if rm.crossframe_denoise
-                   else icons.iconid("crossdn_off"))
-            sub.prop(rm, "crossframe_denoise",
-                     text="",
-                     icon_value=iid)
-            #
-            # Selected Objects only
-            #
+            sub.prop(rm, "external_denoise", text="", icon_value=iid, emboss=flat_ui)
+
+            # Selected only?
+            # needs extra layout to enabale/disable explicitly
+            subb = sub.row(align=True)
             iid = (icons.iconid("selected_on")
                    if rm.render_selected_objects_only
                    else icons.iconid("selected_off"))
-            row.prop(rm, "render_selected_objects_only",
-                     text="",
-                     icon_value=iid)
-            #
-            # Animation
-            #
-            iid = (icons.iconid("animation_on")
-                   if rm.external_animation
-                   else icons.iconid("animation_on"))
+            subb.prop(rm, "render_selected_objects_only", text="", icon_value=iid, emboss=flat_ui)
 
-            row = box.row(align=True)
-
+            row = box.row()
+            row.enabled = rm.external_animation and rm.enable_external_rendering
             sub = row.row(align=True)
-            sub.enabled = rm.external_animation
+            # sub.enabled = rm.external_animation and rm.enable_external_rendering
             sub.prop(scene, "frame_start", text="Start")
             sub.prop(scene, "frame_end", text="End")
 
-            row.prop(rm, "external_animation",
-                     text="",
-                     icon_value=iid)
-            #
-            # Presets Menu
-            #
-            row = box.row(align=True)
-            row.menu("rfb_mt_render_presets", text=bpy.types.rfb_mt_render_presets.bl_label)
+            subb = row.row(align=True)
+            subb.enabled = rm.external_animation and rm.external_denoise
+            iid = (icons.iconid("crossdn_on") if rm.crossframe_denoise else icons.iconid("crossdn_off"))
+            subb.prop(rm, "crossframe_denoise", text="", icon_value=iid, emboss=flat_ui)
+            subb.label(text="", icon='BLANK1')  # right indent
 
-            #
-            # spool render
-            #
-            # FIXME: property not found
-            # row = box.row(align=True)
-            # row.prop(rm, "external_action", text='')
-            # col = row.column()
-            # col.enabled = rm.external_action == 'spool'
-            # col.prop(rm, "queuing_system", text='')
-        # ----------------------------------------------------------------------
-        # EXTERNAL RENDER LAYOUT END
-        # ######################################################################
+            # ui open - slightly more space on root layout
+            rlv.separator()
+            rlv.separator()
 
         # ######################################################################
         # IPR LAYOUT
         # ----------------------------------------------------------------------
-        cl = layout.column(align=True)
 
+        # next section layout
+        lay = rlv.column(align=True)
+
+        # Header (button with icon and label + open/close UI control)
+        row = lay.row(align=True)
+
+        # Icon for opened/closed UI
+        icn = 'TRIA_DOWN' if scene.rm_ipr else 'TRIA_RIGHT'
+
+        # Header: Stop IPR, it's running
         if engine.ipr:
-            #
-            # [Stop IPR} it's running
-            #
-            row = cl.row(align=True)
             iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="Stop IPR", icon_value=iid)
-            row.prop(context.scene, "rm_ipr", text="",
-                     icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
+            row.operator('rfb.tool_ipr', text="Stop IPR", icon_value=iid)
 
-            if scene.rm_ipr:
+            iid = icons.iconid("start_it")
+            row.operator("rfb.tool_it", text="", icon_value=iid)
+            row.prop(scene, "rm_ipr", text="", icon=icn)
 
-                # scene = context.scene
-                # rm = scene.renderman
-
-                box = cl.box()
-                row = box.row(align=True)
-
-                col = row.column()
-                col.prop(rm, "preview_pixel_variance")
-                row = col.row(align=True)
-                row.prop(rm, "preview_min_samples", text="Min Samples")
-                row.prop(rm, "preview_max_samples", text="Max Samples")
-                row = col.row(align=True)
-                row.prop(rm, "preview_max_specular_depth",
-                         text="Specular Depth")
-                row.prop(rm, "preview_max_diffuse_depth", text="Diffuse Depth")
-                row = col.row(align=True)
-
+        # Header: Start IPR isn't running
         else:
-            #
-            # [Start IPR] it's not running
-            #
-            row = cl.row(align=True)
             iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr', text="Start IPR",
-                         icon_value=iid)
+            row.operator('rfb.tool_ipr', text="Start IPR", icon_value=iid)
 
-            row.prop(context.scene, "rm_ipr", text="",
-                     icon='TRIA_DOWN' if context.scene.rm_ipr else 'TRIA_RIGHT')
+            iid = icons.iconid("start_it")
+            row.operator("rfb.tool_it", text="", icon_value=iid)
+            row.prop(scene, "rm_ipr", text="", icon=icn)
 
-            if scene.rm_ipr:
-                #
-                # [Start IT] (in sublayout)
-                #
-                box = cl.box()
-                iid = icons.iconid("start_it")
-                # box.separator()  # slightly more space
+        # ui open?
+        if scene.rm_ipr:
+            # outer frame
+            lay = lay.box()
 
-                box.operator("rfb.tool_it",
-                             text="Start · Focus IT",
-                             icon_value=iid)
-                #
-                # Interactive and Preview Sampling
-                #
-                row = box.row(align=True)
-                col = row.column()
-                col.prop(rm, "preview_pixel_variance")
+            # inner frame
+            box = lay.box()
+            # ... and just switch to vertical arrangement
+            box = box.column()
 
-                row = col.row(align=True)
-                row.prop(rm, "preview_min_samples", text="Min. Samples")
-                row.prop(rm, "preview_max_samples", text="Max. Samples")
+            # Interactive and Preview Sampling
+            row = box.row(align=True)
+            row.prop(rm, "preview_pixel_variance")
 
-                row = col.row(align=True)
-                row.prop(rm, "preview_max_specular_depth",
-                         text="Specular Depth")
+            row = box.row(align=True)
+            row.prop(rm, "preview_min_samples", text="Min. Sampl.")
+            row.prop(rm, "preview_max_samples", text="Max. Sampl.")
 
-                row.prop(rm, "preview_max_diffuse_depth", text="Diffuse Depth")
-        # ----------------------------------------------------------------------
-        # END IPR LAYOUT
-        # ######################################################################
+            row = box.row(align=True)
+            row.prop(rm, "preview_max_specular_depth", text="Spec. Depth")
+            row.prop(rm, "preview_max_diffuse_depth", text="Diff. Depth")
+
+            # only when ui is open: slightly more space on root layout after
+            # the frames
+            rlv.separator()
+            rlv.separator()
 
         # ######################################################################
-        # CREATE CAMERA LAYOUT
+        # CAMERA LAYOUT
         # ----------------------------------------------------------------------
-        cl = layout.column(align=True)
-        row = cl.row(align=True)
+
+        # next section layout
+        lay = rlv.column(align=True)
+
+        # Header (button with icon and label + open/close control)
+        row = lay.row(align=True)
         iid = icons.iconid("camera")
-        row.operator("rfb.object_add_camera",
-                     text="Add Camera", icon_value=iid)
+        icn = 'TRIA_DOWN' if context.scene.prm_cam else 'TRIA_RIGHT'
+        row.operator("rfb.object_add_camera", text="Add Camera", icon_value=iid)
+        row.prop(context.scene, "prm_cam", text="", icon=icn)
 
-        row.prop(context.scene, "prm_cam", text="",
-                 icon='TRIA_DOWN' if context.scene.prm_cam else 'TRIA_RIGHT')
-
+        # ui open?
         if context.scene.prm_cam:
             ob = bpy.context.object
-            box = cl.box()
-            row = box.row(align=True)
-            row.menu("rfb_mt_scene_cameras",
-                     text="Camera List", icon_value=iid)
+            lay = lay.box()
+            box = lay.box()
+            box = box.column()
 
+            # camera list menu
+            row = box.row()
+            row.menu("rfb_mt_scene_cameras", text="Camera List", icon_value=iid)
+
+            # a camera is selected, show camera controls
             if ob.type == 'CAMERA':
+                row = box.row()
+                # icn = 'LOCKED' if context.space_data.lock_camera else 'UNLOCKED'
+                # sub = row.row(align=True)
+                # sub.operator("view3d.object_as_camera", text="", icon='CURSOR')
+                # sub.operator("view3d.viewnumpad", text="", icon='VISIBLE_IPO_ON').type = 'CAMERA'
+                # sub.operator("wm.context_toggle", text="", icon=icn).data_path = "space_data.lock_camera"
+                # sub.operator("view3d.camera_to_view", text="", icon='MAN_TRANS')
 
-                row = box.row(align=True)
-                row.prop(ob, "name", text="", icon_value=iid)
-                row.prop(ob, "hide", text="")
-                row.prop(ob, "hide_render",
-                         icon='RESTRICT_RENDER_OFF', text="")
-                row.operator("rfb.object_delete_camera",
-                             text="", icon='PANEL_CLOSE')
+                # camera tools
+                sub = row.row(align=True)
+                sub.prop(ob, "name", text="", icon_value=iid)
+                sub.prop(ob, "hide", text="")
+                sub.prop(ob, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
+                sub.operator("rfb.object_delete_camera", text="", icon='PANEL_CLOSE')
 
-                row = box.row(align=True)
-                row.scale_x = 2
-                row.operator("view3d.object_as_camera", text="", icon='CURSOR')
-
-                row.scale_x = 2
-                row.operator("view3d.viewnumpad", text="",
-                             icon='VISIBLE_IPO_ON').type = 'CAMERA'
-
-                if not context.space_data.lock_camera:
-                    row.scale_x = 2
-                    row.operator("wm.context_toggle", text="",
-                                 icon='UNLOCKED').data_path = "space_data.lock_camera"
-                elif context.space_data.lock_camera:
-                    row.scale_x = 2
-                    row.operator("wm.context_toggle", text="",
-                                 icon='LOCKED').data_path = "space_data.lock_camera"
-
-                row.scale_x = 2
-                row.operator("view3d.camera_to_view",
-                             text="", icon='MAN_TRANS')
-
-                row = box.row(align=True)
-                row.label("Depth Of Field :")
-
+                # depth of field
                 row = box.row(align=True)
                 row.prop(context.object.data, "dof_object", text="")
                 row.prop(context.object.data.cycles, "aperture_type", text="")
-
-                row = box.row(align=True)
-                row.prop(context.object.data, "dof_distance", text="Distance")
-
+                row.prop(context.object.data, "dof_distance", text="Dist.")
             else:
+                box.label("")
                 box.label("No Camera Selected")
-        # ----------------------------------------------------------------------
-        # CREATE CAMERA LAYOUT END
-        # ######################################################################
+            rlv.separator()
+            rlv.separator()
 
         # ######################################################################
         # CREATE ENVIRONMENT LIGHT LAYOUT
@@ -461,11 +355,9 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
                 else:
                     row = box.row()
+                    row.label("")
+                    row = box.row()
                     row.label("No EnvLight Selected")
-
-        # ----------------------------------------------------------------------
-        # CREATE ENVIRONMENT LIGHT LAYOUT END
-        # ######################################################################
 
         # ######################################################################
         # CREATE AREA LIGHT LAYOUT
@@ -513,7 +405,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 row.menu("rfb_mt_scene_arealights",
                          text="Area Light List", icon_value=iid)
 
-                if ob.type == 'LAMP' and ob.data.type == 'AREA':
+                if ob and ob.type == 'LAMP' and ob.data.type == 'AREA':
 
                     row = box.row(align=True)
                     row.prop(ob, "name", text="", icon_value=iid)
@@ -728,3 +620,26 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         # ----------------------------------------------------------------------
         # OPEN LAST RIB END
         # ######################################################################
+
+# EOF
+
+# [CODE_ID_001]
+# # Sampling
+# row = box.row(align=True)
+# row = box.row(align=True)
+# col = row.column(align=True)
+# col.prop(rm, "pixel_variance")
+# row = col.row(align=True)
+# row.prop(rm, "min_samples", text="Min Samples")
+# row.prop(rm, "max_samples", text="Max Samples")
+# row = col.row(align=True)
+# row.prop(rm, "max_specular_depth", text="Specular Depth")
+# row.prop(rm, "max_diffuse_depth", text="Diffuse Depth")
+
+# # Resolution
+# rd = scene.render
+# row = box.row(align=True)
+# sub = row.row(align=True)
+# sub.prop(rd, "resolution_x", text="X")
+# sub.prop(rd, "resolution_y", text="Y")
+# sub.prop(rd, "resolution_percentage", text="")

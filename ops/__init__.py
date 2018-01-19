@@ -54,6 +54,7 @@ __ALL__ = [
     "RfB_OT_RenderAddPreset",
     "RfB_OT_ToolStartIPR",
     "RfB_OT_ToolStartIT",
+    "RfB_OT_ToolStartLQ",
     "Rfb_OT_ToolReloadRfB",
     "register",
     "unregister"
@@ -62,42 +63,44 @@ __ALL__ = [
 import os
 import bpy
 
-from . import utils
+from . utils import quick_add_presets
+from . utils import compile_shader_menu_func
+from . utils.RenderPresets import RenderPresets
 
 
 def register():
-    bpy.types.TEXT_MT_text.append(utils.compile_shader_menu_func)
-    bpy.types.TEXT_MT_toolbox.append(utils.compile_shader_menu_func)
+    bpy.types.TEXT_MT_text.append(compile_shader_menu_func)
+    bpy.types.TEXT_MT_toolbox.append(compile_shader_menu_func)
 
     # Register any default presets here.
     # This includes render based and Material based
-    utils.quick_add_presets(
-        utils.RenderPresets.FinalDenoisePreset,
+    quick_add_presets(
+        RenderPresets.FinalDenoisePreset,
         os.path.join("renderman", "render"),
         "FinalDenoise")
 
-    utils.quick_add_presets(
-        utils.RenderPresets.FinalHighPreset,
+    quick_add_presets(
+        RenderPresets.FinalHighPreset,
         os.path.join("renderman", "render"),
         "FinalHigh")
 
-    utils.quick_add_presets(
-        utils.RenderPresets.FinalPreset,
+    quick_add_presets(
+        RenderPresets.FinalPreset,
         os.path.join("renderman", "render"),
         "Final")
 
-    utils.quick_add_presets(
-        utils.RenderPresets.MidPreset,
+    quick_add_presets(
+        RenderPresets.MidPreset,
         os.path.join("renderman", "render"),
         "Mid")
 
-    utils.quick_add_presets(
-        utils.RenderPresets.PreviewPreset,
+    quick_add_presets(
+        RenderPresets.PreviewPreset,
         os.path.join("renderman", "render"),
         "Preview")
 
-    utils.quick_add_presets(
-        utils.RenderPresets.TractorLocalQueuePreset,
+    quick_add_presets(
+        RenderPresets.TractorLocalQueuePreset,
         os.path.join("renderman", "render"),
         "TractorLocalQueue")
 

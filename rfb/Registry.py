@@ -77,6 +77,7 @@ class Registry():
     _env['STRUCT'] = (1.00, 1.00, 0.00, 1.00)
     _env['STRING'] = (0.00, 0.00, 1.00, 1.00)
     _env['INT'] = (1.00, 1.00, 1.00, 1.00)
+    _env['RFB_FLAT_UI'] = False  # should be go into user prefs
     #
     # TODO:   Implement the (commented) items afterwards.
     #         - have to be fully validated at startup
