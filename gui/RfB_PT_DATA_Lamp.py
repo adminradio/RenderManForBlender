@@ -44,7 +44,7 @@ class RfB_PT_DATA_Lamp(RfB_PT_MIXIN_ShaderTypePolling, Panel):
         layout = self.layout
 
         lamp = context.lamp
-        ipr_running = engine.ipr != None  # FIXME: E711
+        ipr_running = True if engine.ipr else False  # != None  # FIXME: E711
         if not lamp.renderman.use_renderman_node:
             layout.prop(lamp, "type", expand=True)
             layout.operator('rfb.node_add_nodetree').idtype = 'lamp'

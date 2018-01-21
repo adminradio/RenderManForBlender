@@ -38,7 +38,6 @@ from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
 
 class RfB_PT_RENDER_Sampling(RfB_PT_MIXIN_Panel, Panel):
-    # class RENDER_PT_renderman_sampling(RfB_PT_MIXIN_Panel, Panel):
     bl_label = "Sampling → Integrator"
 
     def draw(self, context):
@@ -47,56 +46,51 @@ class RfB_PT_RENDER_Sampling(RfB_PT_MIXIN_Panel, Panel):
         scene = context.scene
         rm = scene.renderman
 
-        # layout.prop(rm, "display_driver")
+        sub = layout.row()
 
-        # cl: currentlayout
-        cl = layout.row(align=True)
+        mnu = "rfb_mt_render_presets"
+        txt = bpy.types.rfb_mt_render_presets.bl_label
+        sub.menu(mnu, text=txt)
 
-        cl.menu("rfb_mt_render_presets", text=bpy.types.rfb_mt_render_presets.bl_label)
-        cl.operator("rfb.render_add_preset",
-                    text="",
-                    icon='ZOOMIN')
-        cl.operator("rfb.render_add_preset",
-                    text="",
-                    icon='ZOOMOUT'
-                    ).remove_active = True
+        opr = "rfb.render_add_preset"
+        sub.operator(opr, text="", icon='ZOOMIN')
 
-        cl = layout.row()
-        cl.prop(rm, "pixel_variance")
+        opr = "rfb.render_add_preset"
+        sub.operator(opr, text="", icon='ZOOMOUT').remove_active = True
 
-        cl = layout.row(align=True)
-        cl.prop(rm, "min_samples", text="Samples Min.")
-        cl.prop(rm, "max_samples", text="Samples Max.")
+        sub = layout.row()
+        sub.prop(rm, "pixel_variance")
 
-        cl = layout.row(align=True)
-        cl.prop(rm, "max_specular_depth", text="Specular Depth")
-        cl.prop(rm, "max_diffuse_depth", text="Diffuse Depth")
+        row = layout.row(align=True)
+        row.prop(rm, "min_samples", text="Min. Samples")
+        row.prop(rm, "max_samples", text="Max. Samples")
+
+        row = layout.row(align=True)
+        row.prop(rm, "max_specular_depth", text="Spec. Depth")
+        row.prop(rm, "max_diffuse_depth", text="Diff. Depth")
 
         layout.separator()
 
-        cl = layout.row(align=True)
-        cl.prop(rm, 'incremental')
+        row = layout.row()
+        row.prop(rm, 'incremental')
 
         layout.separator()
 
         # find args for integrators here!
         integrator_settings = getattr(rm, "%s_settings" % rm.integrator)
-        cl = layout.box()
+        sub = layout.box()
         layout.separator()
 
-        iid = (
-            icons.iconid("panel_open")
-            if rm.show_integrator_settings
-            else icons.iconid("panel_closed"))
+        iid = icons.toggle("panel", rm.show_integrator_settings)
 
-        cl.prop(rm, "show_integrator_settings",
-                icon_value=iid,
-                text="Integrator Settings",
-                emboss=False)
-        cl.prop(rm, "integrator", text="")
+        sub.prop(rm, "show_integrator_settings",
+                 icon_value=iid,
+                 text="Integrator Settings",
+                 emboss=False)
+        sub.prop(rm, "integrator", text="")
 
         # draw properties in scope of
-        # current layout (cl)
+        # current layout (sub)
         if rm.show_integrator_settings:
             draw_props(integrator_settings,
-                       integrator_settings.prop_names, cl)
+                       integrator_settings.prop_names, sub)

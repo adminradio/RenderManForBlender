@@ -23,15 +23,24 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Blender Imports
 #
 import bpy
 
+#
+# RenderMan for Blender Imports
+#
+from . import icons
+
 
 class RfB_MT_SCENE_Cameras(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_cameras"
     bl_label = "Scene Cameras"
+
+    iid = icons.iconid('camera')
 
     def draw(self, context):
         layout = self.layout
@@ -44,7 +53,7 @@ class RfB_MT_SCENE_Cameras(bpy.types.Menu):
             for cam in cameras:
                 name = cam.name
                 op = layout.operator(
-                    "rfb.object_select_camera", text=name, icon='CAMERA_DATA')
+                    "rfb.object_select_camera", text=name, icon_value=self.iid)
                 op.camera_name = name
 
         else:

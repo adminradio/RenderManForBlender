@@ -1539,7 +1539,7 @@ def importAsset(filepath):
                     plugin_node.lightColorMap = env_map_path
                 # create a new dome light
                 else:
-                    bpy.ops.rfb.object_add_hemilight()
+                    bpy.ops.rfb.object_add_light_hemi()
                     ob = scene.objects.active
                     plugin_node = ob.data.renderman.get_light_node()
                     plugin_node.lightColorMap = env_map_path

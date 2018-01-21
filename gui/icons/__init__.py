@@ -52,6 +52,12 @@ def iconid(ident):
     return iid
 
 
+def toggle(prefix, b):
+    suffix = "_on" if b else '_off'
+    ident = "{}{}".format(prefix, suffix)
+    return iconid(ident)
+
+
 #
 # 'theme' is a preperation for theming support. (TW)
 #
@@ -61,10 +67,10 @@ def __load(theme='default'):
     prvcoll = bpy.utils.previews.new()
     basedir = os.path.join(os.path.dirname(__file__), "themes", theme)
 
-    for file in os.listdir(basedir):
-        if file.endswith(".png"):
-            ident = os.path.splitext(file)[0].lower()
-            prvcoll.load(ident, os.path.join(basedir, file), 'IMAGE')
+    for f in os.listdir(basedir):
+        if f.endswith(".png"):
+            ident = os.path.splitext(f)[0].lower()
+            prvcoll.load(ident, os.path.join(basedir, f), 'IMAGE')
 
     stdadd("Done!")
     return prvcoll

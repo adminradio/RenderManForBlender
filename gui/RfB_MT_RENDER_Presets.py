@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8 compliant>
+
 #
 # Python imports
 #
@@ -32,10 +34,6 @@ import os
 # Blender imports
 #
 import bpy
-
-#
-# RfB imports
-#
 
 
 class RfB_MT_RENDER_Presets(bpy.types.Menu):

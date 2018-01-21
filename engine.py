@@ -96,6 +96,7 @@ def init_prman():
     import prman
     prman_inited = True
 
+
 ipr = None
 
 
@@ -667,7 +668,7 @@ class RPass:
     # find the changed object and send for edits
     def issue_transform_edits(self, scene):
         cw = (scene.render.border_min_x, scene.render.border_max_x,
-                      1.0 - scene.render.border_min_y, 1.0 - scene.render.border_max_y)
+              1.0 - scene.render.border_min_y, 1.0 - scene.render.border_max_y)
         if cw != self.crop_window:
             self.crop_window = cw
             update_crop_window(self.ri, self, prman, cw)
@@ -681,6 +682,7 @@ class RPass:
                 return
         # record the marker to rib and flush to that point
         # also do the camera in case the camera is locked to display.
+
         if scene.camera.name != active.name and scene.camera.is_updated:
             if is_ipr_running():
                 issue_transform_edits(self, self.ri, scene.camera, prman)

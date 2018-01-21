@@ -83,10 +83,7 @@ def draw_props(node, prop_names, layout):
         if prop_meta['renderman_type'] == 'page':
             ui_prop = prop_name + "_ui_open"
             ui_open = getattr(node, ui_prop)
-
-            cond = bpy.context.scene.renderman.alf_options
-            icn = 'panel_open' if cond else 'panel_closed'
-            iid = icons.iconid(icn)
+            iid = icons.toggle('panel', ui_open)
             cl = layout.box()
             cl.prop(
                 node,
