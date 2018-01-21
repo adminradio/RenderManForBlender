@@ -4,10 +4,10 @@
     <g transform="matrix(1,0,0,1,-36,0)">
         <g id="add_subdiv_sheme" transform="matrix(1,0,0,1,36,0)">
             <rect x="0" y="0" width="32" height="32" style="fill:none;"/>
-            <g transform="matrix(1,0,0,1,-36,0)">
+            <g transform="matrix(1.07692,0,0,1.07692,-40.0009,-1.23077)">
                 <rect x="39.024" y="3" width="25.976" height="26" style="fill-opacity:0.25098;"/>
             </g>
-            <path d="M29,29L3,29L3,3L29,3L29,29ZM15,27L15,17L5,17L5,27L15,27ZM27,17L17,17L17,27L27,27L27,17ZM5,5L5,15L15,15L15,5L5,5ZM17,5L17,15L27,15L27,5L17,5Z" style="fill:white;"/>
+            <path d="M28,28L4,28L4,4L28,4L28,28ZM14,26L14,18L6,18L6,26L14,26ZM26,18L18,18L18,26L26,26L26,18ZM6,6L6,14L14,14L14,6L6,6ZM18,6L18,14L26,14L26,6L18,6Z" style="fill:white;"/>
         </g>
     </g>
 </svg>

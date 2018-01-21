@@ -46,7 +46,7 @@ class RfB_PT_RENDER_Sampling(RfB_PT_MIXIN_Panel, Panel):
         scene = context.scene
         rm = scene.renderman
 
-        sub = layout.row()
+        sub = layout.row(align=True)
 
         mnu = "rfb_mt_render_presets"
         txt = bpy.types.rfb_mt_render_presets.bl_label

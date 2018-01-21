@@ -23,7 +23,7 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8 compliant>
+# <pep8-80 compliant>
 #
 # blender imports
 #
@@ -32,8 +32,8 @@ import bpy
 #
 # RenderMan for Blender imports
 #
-from .. import engine
 from . import icons
+from .. import engine
 
 
 class RfB_HT_IMAGE_SmartControl(bpy.types.Header):
@@ -47,17 +47,11 @@ class RfB_HT_IMAGE_SmartControl(bpy.types.Header):
 
         row = layout.row(align=True)
         iid = icons.iconid("render")
-        row.operator("render.render",
-                     text="Render",
-                     icon_value=iid)
+        row.operator("render.render", text="Render", icon_value=iid)
 
         if engine.ipr:
             iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="Stop IPR",
-                         icon_value=iid)
+            row.operator('rfb.tool_ipr', text="Stop IPR", icon_value=iid)
         else:
             iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="Start IPR",
-                         icon_value=iid)
+            row.operator('rfb.tool_ipr', text="Start IPR", icon_value=iid)

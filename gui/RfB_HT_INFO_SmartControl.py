@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # blender imports
 #
@@ -37,29 +39,30 @@ from .. import engine
 
 class RfB_HT_INFO_SmartControl(bpy.types.Header):
     bl_idname = 'rfb_ht_info_smart_control'
-    bl_space_type = "INFO"
+    bl_space_type = 'INFO'
 
     def draw(self, context):
-        if context.scene.render.engine != "PRMAN_RENDER":
+        if context.scene.render.engine != 'PRMAN_RENDER':
             return
         layout = self.layout
 
         row = layout.row(align=True)
-        iid = icons.iconid("render")
-        row.operator("render.render", text="Render", icon_value=iid)
+        opr = 'render.render'
+        iid = icons.iconid('render')
+        row.operator(opr, text="Render", icon_value=iid)
 
-        iid = icons.iconid("render_spool")
         if context.scene.renderman.enable_external_rendering:
-            row.operator("rfb.file_spool_render",
-                         text="Spool",
-                         icon_value=iid)
+            opr = 'rfb.file_spool_render'
+            txt = "Spool"
+            iid = icons.iconid('render_spool')
+            row.operator(opr, text=txt, icon_value=iid)
         if engine.ipr:
-            iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="IPR",
-                         icon_value=iid)
+            opr = 'rfb.tool_ipr'
+            txt = "IPR"
+            iid = icons.iconid('stop_ipr')
+            row.operator(opr, text=txt, icon_value=iid)
         else:
-            iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="IPR",
-                         icon_value=iid)
+            opr = 'rfb.tool_ipr'
+            txt = "IPR"
+            iid = icons.iconid('start_ipr')
+            row.operator(opr, text=txt, icon_value=iid)
