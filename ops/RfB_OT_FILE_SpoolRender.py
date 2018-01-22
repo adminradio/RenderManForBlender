@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Python Imports
 #
@@ -71,6 +73,7 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
         addon_prefs = rfb.reg.prefs()
         files = []
         rm = scene.renderman
+
         for layer in scene.render.layers:
             # custom aovs
             rm_rl = None
@@ -79,6 +82,7 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                     rm_rl = render_layer_settings
             if rm_rl:
                 layer_name = layer.name.replace(' ', '')
+
                 if rm_rl.denoise_aov:
                     if rm_rl.export_multilayer:
                         dspy_name = user_path(
@@ -102,8 +106,9 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
     def execute(self, context):
         if engine.ipr:
             self.report(
-                {"ERROR"}, 'Please stop IPR before rendering externally')
+                {"ERROR"}, "Please stop IPR before rendering externally")
             return {'FINISHED'}
+
         scene = context.scene
         rpass = engine.RPass(scene, external_render=True)
         rm = scene.renderman
@@ -140,7 +145,9 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                 rpass.update_frame_num(frame)
                 if do_rib:
                     self.report(
-                        {'INFO'}, 'RenderMan External Rendering generating rib for frame %d' % scene.frame_current)
+                        {'INFO'},
+                        "RenderMan External Rendering generating rib"
+                        "for frame %d" % scene.frame_current)
                     self.gen_rib_frame(rpass, do_objects)
                 rib_names.append(rpass.paths['rib_output'])
                 if rm.convert_textures:
@@ -155,7 +162,9 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
         else:
             if do_rib:
                 self.report(
-                    {'INFO'}, 'RenderMan External Rendering generating rib for frame %d' % scene.frame_current)
+                    {'INFO'},
+                    "RenderMan External Rendering generating rib"
+                    "for frame %d" % scene.frame_current)
                 self.gen_rib_frame(rpass, do_objects)
             rib_names.append(rpass.paths['rib_output'])
             if rm.convert_textures:
@@ -172,19 +181,47 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
             to_render = rm.generate_render
             rm_version = rm.path_rmantree.split('-')[-1]
             rm_version = rm_version.strip('/\\')
+
             if denoise:
-                denoise = 'crossframe' if rm.crossframe_denoise and scene.frame_start != scene.frame_end and rm.external_animation else 'frame'
-            frame_begin = scene.frame_start if rm.external_animation else scene.frame_current
-            frame_end = scene.frame_end if rm.external_animation else scene.frame_current
+                denoise = (
+                    'crossframe'
+                    if rm.crossframe_denoise and
+                    scene.frame_start != scene.frame_end and
+                    rm.external_animation
+                    else 'frame'
+                )
+
+            frame_begin = (
+                scene.frame_start
+                if rm.external_animation
+                else scene.frame_current
+            )
+
+            frame_end = (
+                scene.frame_end
+                if rm.external_animation
+                else scene.frame_current
+            )
+
             alf_file = spool.render(
-                str(rm_version), to_render, rib_names, denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass)
+                str(rm_version), to_render, rib_names, denoise_files,
+                denoise_aov_files, frame_begin, frame_end, denoise,
+                context, job_texture_cmds=job_tex_cmds,
+                frame_texture_cmds=frame_tex_cmds, rpass=rpass
+            )
 
             # if spooling send job to queuing
             if rm.do_render:
-                exe = find_tractor_spool() if rm.queuing_system == 'tractor' else find_local_queue()
+                exe = (
+                    find_tractor_spool()
+                    if rm.queuing_system == 'tractor'
+                    else find_local_queue()
+                )
                 self.report(
-                    {'INFO'}, 'RenderMan External Rendering spooling to %s.' % rm.queuing_system)
+                    {'INFO'},
+                    "RenderMan External Rendering spooling "
+                    "to %s." % rm.queuing_system
+                )
                 subprocess.Popen([exe, alf_file])
-
         rpass = None
         return {'FINISHED'}

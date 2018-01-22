@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Blender Imports
 #
@@ -64,16 +66,16 @@ class RfB_OT_COLL_TogglePath(bpy.types.Operator):
         name="Default Name",
         description="Default name to give this collection item",
         default="")
-
     # BBM addition begin
-    is_shader_param = BoolProperty(name='Is shader parameter', default=False)
+    is_shader_param = BoolProperty(
+        name='Is shader parameter',
+        default=False)
     shader_type = StringProperty(
         name="shader type",
         default='surface')
     # BBM addition end
 
     def invoke(self, context, event):
-        scene = context.scene
         # BBM modification
         if not self.properties.is_shader_param:
             id = getattr_recursive(context, self.properties.context)
@@ -106,11 +108,14 @@ class RfB_OT_COLL_TogglePath(bpy.types.Operator):
                 collection[-1].name = coshader_name
             # BBM addition end
         elif self.properties.action == 'REMOVE':
-            if prop_coll == 'light_groups' and collection[index].name == 'All':
+            if prop_coll == 'light_groups' and \
+                    collection[index].name == 'All':
                 return {'FINISHED'}
-            elif prop_coll == 'object_groups' and collection[index].name == 'collector':
+            elif prop_coll == 'object_groups' and \
+                    collection[index].name == 'collector':
                 return {'FINISHED'}
-            elif prop_coll == 'aov_channels' and not collection[index].custom:
+            elif prop_coll == 'aov_channels' and not \
+                    collection[index].custom:
                 return {'FINISHED'}
             else:
                 collection.remove(index)

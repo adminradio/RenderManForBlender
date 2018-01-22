@@ -321,6 +321,16 @@ def args_files_in_path(prefs, idblock, shader_type='', threaded=True):
 
     path_list = get_path_list_converted(prefs, 'args')
     for path in path_list:
+        #
+        # TODO:   Refactor path handling
+        #         https://github.com/adminradio/RenderManForBlender/issues/3
+        # DATE:   2018-01-22
+        # AUTHOR: Timm Wimmers
+        # STATUS: assigned to self
+        #
+        # QUICKFIX: from moving this 'utils.py' to 'utils/__init__.py'
+        path = path.replace("\\utils", "")
+        # QUICKFIX end
         for root, dirnames, filenames in os.walk(path):
             for filename in fnmatch.filter(filenames, '*.args'):
                 args[filename.split('.')[0]] = os.path.join(root, filename)

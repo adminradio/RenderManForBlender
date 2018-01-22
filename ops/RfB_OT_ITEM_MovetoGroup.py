@@ -68,7 +68,6 @@ class RfB_OT_ITEM_MovetoGroup(bpy.types.Operator):
                                         "Lamp %s cannot be added to light group %s, already a member of %s" % (
                                             ob.name, scene.renderman.light_groups[group_index].name, lg.name)
                                     )
-
                         if do_add:
                             ob_in_group = object_group.add()
                             ob_in_group.name = ob.name
