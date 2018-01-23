@@ -57,7 +57,7 @@ from . utils import user_path
 
 from . gui import icons
 
-from . ops import RfB_OT_NODE_RefreshOSL
+from . ops import RfB_OT_NodeRefreshOSL
 
 from . import rfb
 from . nds.utils.PropertyLookup import PropertyLookup
@@ -469,11 +469,14 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         else:
                             ui_prop = prop_name + "_ui_open"
                             ui_open = getattr(self, ui_prop)
+                            icn = 'panel_open' if ui_open else 'panel_closed'
+                            iid = icons.iconid(icn)
                             sub = layout.box()
                             sub = sub.column()
-                            txt = prop_name.split('.')[-1]
-                            iid = icons.toggle('panel', ui_open)
-                            sub.prop(self, ui_prop, text=txt, icon_value=iid, emboss=False)
+                            sub.prop(self, ui_prop,
+                                     icon_value=iid,
+                                     text=prop_name.split('.')[-1],
+                                     emboss=False)
                             if ui_open:
                                 prop = getattr(self, prop_name)
                                 self.draw_nonconnectable_props(

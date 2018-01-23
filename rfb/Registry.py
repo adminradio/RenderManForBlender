@@ -50,18 +50,18 @@ from .. utils import slugify
 
 
 class Registry():
-    _rfb = 'RenderManForBlender'
+
     _env = OrderedDict()
 
     # _env['DEV_TEST'] = 'foo/bar'
     _env['OS'] = platform.system()
-    _env['BL_ROOT'] = str(Path(__file__).resolve().parents[5])
+    _env['RFB_PREFS'] = __package__.split(".")[0]
+    _env['BLENDER_ROOT'] = str(Path(__file__).resolve().parents[4])
     _env['RFB_ROOT'] = str(Path(__file__).resolve().parents[1])
     _env['RFB_DATA'] = str(Path(_env['RFB_ROOT'], 'data'))
     _env['RFB_ARGS'] = str(Path(_env['RFB_DATA'], 'args'))
-    _env['RFB_ROAMING'] = str(Path(_env['BL_ROOT'], 'datafiles', _rfb))
-    _env['RFB_TABNAME'] = "RenderMan"
-    _env['RFB_PREF_ID'] = __package__.split(".")[0]
+    _env['RFB_ROAMING'] = str(Path(_env['BLENDER_ROOT'], 'datafiles'))
+    _env['BL_CATEGORY'] = "RenderMan"
     #
     # TODO:   Socket colors should be go into user prefs, and have more
     #         specific names.
@@ -77,6 +77,7 @@ class Registry():
     _env['STRUCT'] = (1.00, 1.00, 0.00, 1.00)
     _env['STRING'] = (0.00, 0.00, 1.00, 1.00)
     _env['INT'] = (1.00, 1.00, 1.00, 1.00)
+    _env['RFB_FLAT_UI'] = False  # should be go into user prefs
     #
     # TODO:   Implement the (commented) items afterwards.
     #         - have to be fully validated at startup
@@ -111,7 +112,7 @@ class Registry():
 
     @classmethod
     def prefs(cls):
-        addon = bpy.context.user_preferences.addons[cls._env['RFB_PREF_ID']]
+        addon = bpy.context.user_preferences.addons[cls._env['RFB_PREFS']]
         return addon.preferences
 
     @classmethod
@@ -166,7 +167,7 @@ class Registry():
         stdadd("")
         for k, v in cls.dir():
             display_k = k.ljust(14)
-            # display_v = slugify(v)
-            stdadd("{}= {}".format(display_k, v))
+            display_v = slugify(v)
+            stdadd("{}= {}".format(display_k, display_v))
         stdadd("")
         stdadd("Registry initialised, looks good so far.")

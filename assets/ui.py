@@ -46,7 +46,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_label = "RenderMan Assets"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = rfb.reg.get('RFB_TABNAME')
+    bl_category = rfb.reg.get('BL_CATEGORY')
 
     @classmethod
     def poll(cls, context):

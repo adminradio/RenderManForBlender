@@ -23,43 +23,36 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8 compliant>
-
 #
-# Blender Imports
+# Blender imports
 #
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderMan for Blender
 #
 from . import icons
-from .. ops import RfB_OT_OBJECT_SelectLight
 
 
 class RfB_MT_SCENE_HemiLights(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_hemilights"
     bl_label = "EnvLight List"
 
-    iid = icons.iconid('envlight')
+    icn = icons.iconid('envlight')
 
     def draw(self, context):
-        menu = self.layout
+        layout = self.layout
+        # col = layout.column(align=True)
 
-        lamps = [
-            obj for obj in bpy.context.scene.objects
-            if obj.type == "LAMP"
-        ]
+        lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
 
         if len(lamps):
             for lamp in lamps:
                 if lamp.data.type == 'HEMI':
                     name = lamp.name
-                    op = menu.operator(
-                        "rfb.object_select_light",
-                        text=name,
-                        icon_value=self.iid
-                    )
+                    op = layout.operator(
+                        "rfb.object_select_light", text=name, icon_value=self.icn)
                     op.light_name = name
+
         else:
-            menu.label("No EnvLight in Scene")
+            layout.label("No EnvLight in the Scene")

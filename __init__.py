@@ -23,16 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# Python Imports
-#
-import sys
-
-#
-# Blender Imports
-#
 import bpy
-
+import sys
 
 bl_info = {
     "name": "RenderMan For Blender",
@@ -81,7 +73,7 @@ class PRManRender(bpy.types.RenderEngine):
             engine.render(self)
 
 
-# these handlers are for marking files as dirty for ribgen
+# # these handlers are for marking files as dirty for ribgen
 def add_handlers(scene):
     if (engine.update_timestamp
             not in bpy.app.handlers.scene_update_post):
@@ -110,6 +102,7 @@ def load_addon():
     # if rmantree is ok load the stuff
     from . utils import guess_rmantree
     from . utils import throw_error
+    # from . import preferences
 
     #
     # TODO:   Refactor guess_rmantree() to RfB Registry
@@ -132,11 +125,11 @@ def load_addon():
         from . gui import RfB_HT_NODE_SmartControl
         from . gui import RfB_HT_VIEW3D_SmartControl
         from . gui import RfB_MT_RENDER_Presets
+        # from . gui import RfB_MT_RENDER_SpoolPresets
         from . gui import RfB_MT_SCENE_AreaLights
         from . gui import RfB_MT_SCENE_Cameras
-        from . gui import RfB_MT_SCENE_LightsDay
+        from . gui import RfB_MT_SCENE_Daylights
         from . gui import RfB_MT_SCENE_HemiLights
-        from . gui import RfB_MT_FILE_Examples
         from . gui import RfB_PT_DATA_Camera
         from . gui import RfB_PT_DATA_Lamp
         from . gui import RfB_PT_DATA_Light
@@ -171,37 +164,37 @@ def load_addon():
         from . gui import RfB_PT_SCENE_RIBInjection
         from . gui import RfB_PT_SCENE_SampleFilters
         from . gui import RfB_PT_VIEW3D_Toolshelf
-        from . ops import RfB_OT_RPASS_AddRenderman
-        from . ops import RfB_OT_COLL_TogglePath
-        from . ops import RfB_OT_FILE_OpenLastRIB
-        from . ops import RfB_OT_FILE_SpoolRender
-        from . ops import RfB_OT_FILE_ViewStats
-        from . ops import RfB_OT_ITEM_MovetoGroup
-        from . ops import RfB_OT_ITEM_RemoveGroup
-        from . ops import RfB_OT_ITEM_ToggleLightlink
-        from . ops import RfB_OT_LIST_AddMultilayer
-        from . ops import RfB_OT_MATERIAL_AddBXDF
-        from . ops import RfB_OT_MATERIAL_NewBXDF
-        from . ops import RfB_OT_NODE_AddNodetree
-        from . ops import RfB_OT_NODE_BakePatterns
-        from . ops import RfB_OT_NODE_CyclesConvertall
-        from . ops import RfB_OT_NODE_RefreshOSL
-        from . ops import RfB_OT_OBJECT_AddLightArea
-        from . ops import RfB_OT_OBJECT_AddCamera
-        from . ops import RfB_OT_OBJECT_AddLightDay
-        from . ops import RfB_OT_OBJECT_AddLightHemi
-        from . ops import RfB_OT_OBJECT_DeleteCamera
-        from . ops import RfB_OT_OBJECT_DeleteLight
-        from . ops import RfB_OT_OBJECT_EnableSubdiv
-        from . ops import RfB_OT_OBJECT_ExportRIB
-        from . ops import RfB_OT_OBJECT_MakeEmissive
-        from . ops import RfB_OT_OBJECT_SelectCamera
-        from . ops import RfB_OT_OBJECT_SelectLight
-        from . ops import RfB_OT_OUTPUT_ToggleChannel
-        from . ops import RfB_OT_RENDER_AddPreset
-        from . ops import RfB_OT_TOOL_StartIPR
-        from . ops import RfB_OT_TOOL_StartIT
-        from . ops import RfB_OT_TOOL_StartLQ
+        from . ops import RfB_OT_AOVsAddRenderman
+        from . ops import RfB_OT_CollectionTogglePath
+        from . ops import RfB_OT_FileOpenLastRIB
+        from . ops import RfB_OT_FileSpoolRender
+        from . ops import RfB_OT_FileViewStats
+        from . ops import RfB_OT_ItemMovetoGroup
+        from . ops import RfB_OT_ItemRemoveGroup
+        from . ops import RfB_OT_ItemToggleLightlink
+        from . ops import RfB_OT_ListAddMultilayer
+        from . ops import RfB_OT_MaterialAddBXDF
+        from . ops import RfB_OT_MaterialNewBXDF
+        from . ops import RfB_OT_NodeAddNodetree
+        from . ops import RfB_OT_NodeBakePatterns
+        from . ops import RfB_OT_NodeCyclesConvertall
+        from . ops import RfB_OT_NodeRefreshOSL
+        from . ops import RfB_OT_ObjectAddArealight
+        from . ops import RfB_OT_ObjectAddCamera
+        from . ops import RfB_OT_ObjectAddDaylight
+        from . ops import RfB_OT_ObjectAddHemilight
+        from . ops import RfB_OT_ObjectDeleteCamera
+        from . ops import RfB_OT_ObjectDeleteLight
+        from . ops import RfB_OT_ObjectEnableSubdiv
+        from . ops import RfB_OT_ObjectExportRIB
+        from . ops import RfB_OT_ObjectMakeEmissive
+        from . ops import RfB_OT_ObjectSelectCamera
+        from . ops import RfB_OT_ObjectSelectLight
+        from . ops import RfB_OT_OutputToggleChannel
+        from . ops import RfB_OT_RenderAddPreset
+        from . ops import RfB_OT_ToolStartIPR
+        from . ops import RfB_OT_ToolStartIT
+        from . ops import RfB_OT_ToolStartLQ
 
         #
         # need this now rather than at beginning to make
@@ -220,8 +213,8 @@ def load_addon():
         #
         # display loading error
         #
-        throw_error("Error loading addon. "
-                    "Correct RMANTREE setting in addon preferences.")
+        throw_error(
+            "Error loading addon.  Correct RMANTREE setting in addon preferences.")
 
 
 def register():

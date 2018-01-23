@@ -85,7 +85,8 @@ class RfB_PT_RENDER_Spooling(RfB_PT_MIXIN_Panel, Panel):
         cll = cl.box()
         cll = cll.column()
 
-        iid = icons.toggle('panel', rm.export_options)
+        icn = 'panel_open' if rm.export_options else 'panel_closed'
+        iid = icons.iconid(icn)
         cll.prop(rm,
                  "export_options",
                  text="Export Options",
@@ -110,7 +111,8 @@ class RfB_PT_RENDER_Spooling(RfB_PT_MIXIN_Panel, Panel):
             sub_row.prop(rm, "queuing_system")
 
         if rm.generate_alf:
-            iid = icons.toggle('panel', rm.alf_options)
+            icn = 'panel_open' if rm.alf_options else 'panel_closed'
+            iid = icons.iconid(icn)
             cll = cl.box()
             cll = cll.column()
             cll.prop(rm,

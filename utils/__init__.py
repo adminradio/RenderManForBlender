@@ -25,9 +25,9 @@
 
 #
 # TODO:   Refactor functions by type into separate modules, i.e:
-#         clamp() -> rfb.math.clamp()
+#         clamp() -> math.clamp()
 #         get_path_list() -> path.dir()
-#         readOSO() -> rfb.io.read_oso()
+#         readOSO() -> file.read_oso()
 #         etc.
 #
 #         And everything related to env, prefs, cli tools, paths, etc.
@@ -95,7 +95,7 @@ def _echo(msg, extend=False):
     print('{}{}'.format(pre, msg))
 
 
-def slugify(input, length=60, offset=-11):
+def slugify(input, length=40, offset=-11):
     """Shorten a input by removing the mid part of it."""
     #
     # TODO:   be sure that offset doesn't go to a negative

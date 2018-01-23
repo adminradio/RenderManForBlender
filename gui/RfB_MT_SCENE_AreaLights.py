@@ -23,8 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8 compliant>
-
 #
 # Blender Imports
 #
@@ -34,7 +32,7 @@ import bpy
 # RenderMan for Blender Imports
 #
 from . import icons
-from .. ops import RfB_OT_OBJECT_SelectLight
+from .. ops import RfB_OT_ObjectSelectLight
 
 
 class RfB_MT_SCENE_AreaLights(bpy.types.Menu):
@@ -53,10 +51,8 @@ class RfB_MT_SCENE_AreaLights(bpy.types.Menu):
                 if lamp.data.type == 'AREA':
                     name = lamp.name
                     op = layout.operator(
-                        "rfb.object_select_light",
-                        text=name,
-                        icon_value=self.icn
-                    )
+                        "rfb.object_select_light", text=name, icon_value=self.icn)
                     op.light_name = name
+
         else:
-            layout.label("No Area Lights in Scene")
+            layout.label("No AreaLight in the Scene")
