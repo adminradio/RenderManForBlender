@@ -36,8 +36,8 @@ from . import icons
 from .. import rfb
 from .. import engine
 
-from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets
 from . RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
+from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets
 
 
 class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
@@ -167,6 +167,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
             # ui open - slightly more space on root layout
             layout.separator()
+            # layout.separator()
 
         # ######################################################################
         # IPR LAYOUT
@@ -212,6 +213,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # only when ui is open: slightly more space on root layout after
             # the frames
             layout.separator()
+            # layout.separator()
 
         # ######################################################################
         # CAMERA LAYOUT
@@ -241,6 +243,12 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             obj = bpy.context.object
             if obj and obj.type == 'CAMERA':
                 row = sub.row()
+                # icn = 'LOCKED' if context.space_data.lock_camera else 'UNLOCKED'
+                # sub = row.row(align=True)
+                # sub.operator("view3d.object_as_camera", text="", icon='CURSOR')
+                # sub.operator("view3d.viewnumpad", text="", icon='VISIBLE_IPO_ON').type = 'CAMERA'
+                # sub.operator("wm.context_toggle", text="", icon=icn).data_path = "space_data.lock_camera"
+                # sub.operator("view3d.camera_to_view", text="", icon='MAN_TRANS')
 
                 # camera tools
                 sb1 = row.row(align=True)
@@ -355,6 +363,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 row.label(txt)
 
             layout.separator()
+            # layout.separator()
 
         # ######################################################################
         # CREATE AREA LIGHT LAYOUT
@@ -418,6 +427,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 row.label(txt)
             # if layout is open create more space on root layout
             layout.separator()
+            # layout.separator()
 
         # ######################################################################
         # CREATE DAYLIGHT LIGHT LAYOUT
@@ -485,6 +495,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 row.label(txt)
             # if layout is open create more space on root layout
             layout.separator()
+            # layout.separator()
 
         # ######################################################################
         # SELECTED OBJECTS - SUPPORT - OPEN LAST RIB

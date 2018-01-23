@@ -683,7 +683,7 @@ class RPass:
         # record the marker to rib and flush to that point
         # also do the camera in case the camera is locked to display.
 
-        if active and scene.camera.name != active.name and scene.camera.is_updated:
+        if scene.camera.name != active.name and scene.camera.is_updated:
             if is_ipr_running():
                 issue_transform_edits(self, self.ri, scene.camera, prman)
             else:

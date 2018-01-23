@@ -24,42 +24,23 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# blender imports
+# Python imports
+#
+import os
+
+#
+# Blender imports
 #
 import bpy
 
 #
-# RenderMan for Blender imports
+# RfB imports
 #
-from . import icons
-from .. import engine
 
 
-class RfB_HT_INFO_SmartControl(bpy.types.Header):
-    bl_idname = 'rfb_ht_info_smart_control'
-    bl_space_type = "INFO"
-
-    def draw(self, context):
-        if context.scene.render.engine != "PRMAN_RENDER":
-            return
-        layout = self.layout
-
-        row = layout.row(align=True)
-        iid = icons.iconid("render")
-        row.operator("render.render", text="Render", icon_value=iid)
-
-        iid = icons.iconid("render_spool")
-        if context.scene.renderman.enable_external_rendering:
-            row.operator("rfb.file_spool_render",
-                         text="Spool",
-                         icon_value=iid)
-        if engine.ipr:
-            iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="IPR",
-                         icon_value=iid)
-        else:
-            iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="IPR",
-                         icon_value=iid)
+class RfB_MT_RENDER_SpoolPresets(bpy.types.Menu):
+    bl_idname = "rfb_mt_render_spoolpresets"
+    bl_label = "Spool Presets"
+    preset_subdir = os.path.join("renderman", "render")
+    preset_operator = "script.execute_preset"
+    draw = bpy.types.Menu.draw_preset
