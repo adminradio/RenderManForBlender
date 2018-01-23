@@ -77,7 +77,7 @@ from .export import write_rib, write_preview_rib, get_texture_list,\
     interactive_initial_rib, update_light_link, delete_light,\
     reset_light_illum, solo_light, mute_lights, issue_light_vis, update_crop_window
 
-from . nds.util import get_tex_file_name
+from .nodes import get_tex_file_name
 
 # # unused?
 # addon_version = bl_info['version']

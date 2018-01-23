@@ -31,7 +31,7 @@ import bpy
 #
 # RenderMan for Blender
 #
-from .. nds.util import is_renderman
+from .. nodes import is_renderman_nodetree
 
 
 class RfB_HT_NODE_SmartControl(bpy.types.Header):
@@ -47,7 +47,7 @@ class RfB_HT_NODE_SmartControl(bpy.types.Header):
 
         if (hasattr(context.space_data, 'id')
                 and type(context.space_data.id) == bpy.types.Material
-                and not is_renderman(context.space_data.id)):
+                and not is_renderman_nodetree(context.space_data.id)):
             row.operator(
                 'rfb.node_add_nodetree',
                 text="Convert to RenderMan"

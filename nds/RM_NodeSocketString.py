@@ -36,7 +36,7 @@ from bpy.props import StringProperty
 # RenderManForBlender Imports
 #
 from . RM_Socket import RM_Socket
-from . util import update_func
+from . import update_func
 
 
 class RM_NodeSocketString(NodeSocketString, RM_Socket):

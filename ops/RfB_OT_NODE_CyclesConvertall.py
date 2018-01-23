@@ -32,7 +32,7 @@ import bpy
 # RenderMan for Blender Imports
 #
 from .. nodes import convert_cycles_nodetree
-from .. nds.util import is_renderman
+from .. nodes import is_renderman_nodetree
 
 
 class RfB_OT_NODE_CyclesConvertall(bpy.types.Operator):
@@ -44,7 +44,7 @@ class RfB_OT_NODE_CyclesConvertall(bpy.types.Operator):
         for mat in bpy.data.materials:
             mat.use_nodes = True
             nt = mat.node_tree
-            if is_renderman(mat):
+            if is_renderman_nodetree(mat):
                 continue
             output = nt.nodes.new('RendermanOutputNode')
             try:

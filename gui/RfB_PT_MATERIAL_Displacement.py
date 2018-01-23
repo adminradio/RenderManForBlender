@@ -31,7 +31,8 @@ from bpy.types import Panel
 #
 # RenderMan for Blender Imports
 #
-from .. nds.util import draw_props_ui
+from . import icons
+from .. nodes import draw_nodes_properties_ui
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 
 
@@ -43,8 +44,9 @@ class RfB_PT_MATERIAL_Displacement(RfB_PT_MIXIN_ShaderTypePolling, Panel):
     def draw(self, context):
         if context.material.node_tree:
             nt = context.material.node_tree
-            draw_props_ui(self.layout, context, nt, input_name=self.shader_type)
-        # BBM addition begin
+            draw_nodes_properties_ui(
+                self.layout, context, nt, input_name=self.shader_type)
+            # BBM addition begin
         row = self.layout.row()
         row.prop(context.material.renderman, "displacementbound")
         # BBM addition end
