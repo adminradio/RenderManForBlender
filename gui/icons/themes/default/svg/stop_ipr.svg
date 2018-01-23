@@ -4,12 +4,12 @@
     <g transform="matrix(1,0,0,1,-36,-142)">
         <g id="stop_ipr" transform="matrix(1,0,0,1,36,142)">
             <rect x="0" y="0" width="32" height="32" style="fill:none;"/>
-            <g transform="matrix(1.07692,0,0,1.07692,-1.23077,-155.231)">
+            <g transform="matrix(0.923077,0,0,0.923077,1.23077,-130.769)">
                 <rect x="3" y="146" width="26" height="26" style="fill:rgb(220,87,98);"/>
-                <path d="M29,172L3,172L3,146L29,146L29,172ZM4.857,147.857L4.857,170.143L27.143,170.143L27.143,147.857L4.857,147.857Z" style="fill:white;"/>
+                <path d="M29,172L3,172L3,146L29,146L29,172ZM5.167,148.167L5.167,169.833L26.833,169.833L26.833,148.167L5.167,148.167Z" style="fill:white;fill-opacity:0.74902;"/>
             </g>
             <g id="ic_close_24px" transform="matrix(1,0,0,1,4,4)">
-                <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" style="fill:white;fill-rule:nonzero;"/>
+                <path d="M19.707,7.117L16.883,4.293L12,9.176L7.117,4.293L4.293,7.117L9.176,12L4.293,16.883L7.117,19.707L12,14.824L16.883,19.707L19.707,16.883L14.824,12L19.707,7.117Z" style="fill:white;fill-rule:nonzero;"/>
             </g>
         </g>
     </g>

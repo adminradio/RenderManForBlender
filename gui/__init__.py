@@ -30,10 +30,10 @@ __ALL__ = [
     "RfB_HT_VIEW3D_SmartControl",
     "RfB_MT_ExampleFiles",
     "RfB_MT_RENDER_Presets",
-    "RfB_MT_SCENE_AreaLights",
+    "RfB_MT_SCENE_LightsArea",
     "RfB_MT_SCENE_Cameras",
-    "RfB_MT_SCENE_Daylights",
-    "RfB_MT_SCENE_HemiLights"
+    "RfB_MT_SCENE_LightsDay",
+    "RfB_MT_SCENE_LightsHemi"
     "RfB_PT_DATA_Camera",
     "RfB_PT_DATA_Lamp",
     "RfB_PT_DATA_Light",

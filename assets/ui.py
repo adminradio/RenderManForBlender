@@ -43,7 +43,7 @@ from .. gui.RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_idname = "rfb.assets_ui_panel"
-    bl_label = "RenderMan Assets"
+    bl_label = "Asset Manager"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = rfb.reg.get('BL_CATEGORY')
@@ -93,7 +93,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
 
                 if current_asset:
                     row = layout.row()
-                    #row.label("Current Asset:")
+                    # row.label("Current Asset:")
                     row.prop(active, 'current_asset', text='')
                     layout.template_icon_view(active, "current_asset")
                     # row of controls for asset

@@ -23,16 +23,47 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# Python imports
-#
-
+# <pep8-80 compliant>
 
 #
 # Blender imports
 #
+from bgl import *
 
 
-#
-# RenderMan for Blender
-#
+def vp_border(self, vp):
+    w = vp.width
+    h = vp.height
+    l = 6  # noqa
+    a = l // 2  # noqa
+
+    glEnable(GL_BLEND)
+    # glEnable(GL_LINE_SMOOTH)
+    #
+    # TODO:   Color and linewidth should go into Userprefs.
+    # DATE:   2018-01-23
+    # AUTHOR: Timm Wimmers
+    # STATUS: -unassigned-
+    #
+    glColor4f(0.870, 0.325, 0.375, 0.750)
+    glLineWidth(l)
+
+    # bottom left, bottom right, top right, top left
+    glBegin(GL_LINE_STRIP)
+    glVertex2i(0, a)
+    glVertex2i(w, a)
+    glEnd()
+    glBegin(GL_LINE_STRIP)
+    glVertex2i(0, h - a)
+    glVertex2i(w, h - a)
+    glEnd()
+    glBegin(GL_LINE_STRIP)
+    glVertex2i(a, l)
+    glVertex2i(a, h - l)
+    glEnd()
+    glBegin(GL_LINE_STRIP)
+    glVertex2i(w - a, l)
+    glVertex2i(w - a, h - l)
+    glEnd()
+    glDisable(GL_BLEND)
+    # glDisable(GL_LINE_SMOOTH)

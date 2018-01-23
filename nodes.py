@@ -58,7 +58,7 @@ from . utils import user_path
 from . gui import icons
 
 # from . import ops
-from . ops import RfB_OT_NodeRefreshOSL
+from . ops import RfB_OT_NODE_RefreshOSL
 
 from . import rfb
 from . nds.utils.PropertyLookup import PropertyLookup

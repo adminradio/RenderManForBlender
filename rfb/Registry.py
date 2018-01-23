@@ -61,6 +61,7 @@ class Registry():
     _env['RFB_DATA'] = str(Path(_env['RFB_ROOT'], 'data'))
     _env['RFB_ARGS'] = str(Path(_env['RFB_DATA'], 'args'))
     _env['RFB_ROAMING'] = str(Path(_env['BLENDER_ROOT'], 'datafiles'))
+    _env['RFB_TABNAME'] = "RenderMan"
     _env['BL_CATEGORY'] = "RenderMan"
     #
     # TODO:   Socket colors should be go into user prefs, and have more

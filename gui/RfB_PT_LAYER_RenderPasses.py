@@ -107,7 +107,7 @@ class RfB_PT_LAYER_RenderPasses(RfB_PT_MIXIN_Collection, Panel):
                 rm_rl = l
                 break
         if rm_rl is None:
-            layout.operator('rfb.aovs_add_renderman')
+            layout.operator('rfb.rpass_add_renderman')
             split = layout.split()
             col = split.column()
             rl = active_layer

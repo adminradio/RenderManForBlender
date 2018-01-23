@@ -667,10 +667,22 @@ class RPass:
     # find the changed object and send for edits
     def issue_transform_edits(self, scene):
         cw = (scene.render.border_min_x, scene.render.border_max_x,
-                      1.0 - scene.render.border_min_y, 1.0 - scene.render.border_max_y)
-        if cw != self.crop_window:
-            self.crop_window = cw
-            update_crop_window(self.ri, self, prman, cw)
+              1.0 - scene.render.border_min_y, 1.0 - scene.render.border_max_y)
+        #
+        # FIXME:  Catch Attribute Error if there is no camera in scene!
+        #         ('RPass' has no attribute 'crop_window' (self.crop_window
+        #         is None)) - and draw a nice gfx overlay.
+        # DATE:   2018-01-23
+        # AUTHOR: Timm Wimmers
+        # STATUS: assigned to self
+        #
+        try:
+            if cw != self.crop_window:
+                self.crop_window = cw
+                update_crop_window(self.ri, self, prman, cw)
+        except AttributeError:
+            print("No Camera in Scene!")
+        finally:
             return
 
         active = scene.objects.active
