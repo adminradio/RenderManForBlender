@@ -23,7 +23,7 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8-80 compliant>
+# <pep8 compliant>
 
 #
 # Python Imports
@@ -45,8 +45,8 @@ from .. import engine
 class RfB_OT_FILE_OpenLastRIB(bpy.types.Operator):
     bl_idname = 'rfb.file_open_last_rib'
     bl_label = "Open Last RIB Scene file."
-    bl_description = "Open the last generated Scene.rib file with " \
-                     "system default text editor."
+    bl_description = "Opens the last generated Scene.rib file in the" \
+                     "system default text editor"
 
     #
     # TODO:   Editor customization via Preferences.
@@ -65,9 +65,8 @@ class RfB_OT_FILE_OpenLastRIB(bpy.types.Operator):
             try:
                 os.system(command)
             except Exception:
-                self.report({'ERROR'},
-                            "File or text editor not available. Check and "
-                            "make sure text editor is in system path.)")
+                self.report({'ERROR'}, "File or text editor not available."
+                            "(Check and make sure text editor is in system path.)")
         else:
             try:
                 webbrowser.open(path)
