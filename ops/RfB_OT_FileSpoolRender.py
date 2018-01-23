@@ -48,7 +48,7 @@ from .. utils import find_tractor_spool
 
 from .. import rfb
 
-from .. rfb import spl
+from .. import spool   # import spool_render
 from .. export import get_texture_list
 
 
@@ -93,8 +93,7 @@ class RfB_OT_FileSpoolRender(bpy.types.Operator):
                         for aov in rm_rl.custom_aovs:
                             aov_name = aov.name.replace(' ', '')
                             dspy_name = user_path(
-                                addon_prefs.path_aov_image, scene=scene,
-                                display_driver=rpass.display_driver,
+                                addon_prefs.path_aov_image, scene=scene, display_driver=rpass.display_driver,
                                 layer_name=layer_name, pass_name=aov_name)
                             files.append(dspy_name)
         return files
@@ -176,7 +175,7 @@ class RfB_OT_FileSpoolRender(bpy.types.Operator):
                 denoise = 'crossframe' if rm.crossframe_denoise and scene.frame_start != scene.frame_end and rm.external_animation else 'frame'
             frame_begin = scene.frame_start if rm.external_animation else scene.frame_current
             frame_end = scene.frame_end if rm.external_animation else scene.frame_current
-            alf_file = spl.render(
+            alf_file = spool.render(
                 str(rm_version), to_render, rib_names, denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass)
 
             # if spooling send job to queuing

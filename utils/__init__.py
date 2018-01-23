@@ -648,15 +648,12 @@ def guess_rmantree():
     # check rmantree valid
     if version[0] == 0:
         throw_error(
-            "Error loading addon.  RMANTREE %s is not valid. "
-            "Correct RMANTREE setting in addon preferences." % rmantree)
+            "Error loading addon.  RMANTREE %s is not valid.  Correct RMANTREE setting in addon preferences." % rmantree)
         return None
 
     # check that it's >= 21
     if version[0] < 21:
-        throw_error("Error loading addon using RMANTREE=%s. "
-            "RMANTREE must be version 21.0 or greater.  Correct "
-            "RMANTREE setting in addon preferences." % rmantree)
+        throw_error("Error loading addon using RMANTREE=%s.  RMANTREE must be version 21.0 or greater.  Correct RMANTREE setting in addon preferences." % rmantree)
         return None
 
     return rmantree
