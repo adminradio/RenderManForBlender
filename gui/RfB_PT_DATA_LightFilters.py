@@ -57,7 +57,7 @@ class RfB_PT_DATA_LightFilters(RfB_PT_MIXIN_Collection, Panel):
         lamp = context.lamp
 
         self._draw_collection(
-            context, layout, lamp.renderman, "-=Light Filters=-",
+            context, layout, lamp.renderman, "",
             "rfb.collection_toggle_path", "lamp", "light_filters",
             "light_filters_index"
         )

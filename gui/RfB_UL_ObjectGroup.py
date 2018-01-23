@@ -23,17 +23,18 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8 compliant>
-
 #
 # Blender Imports
 #
 import bpy
 
+#
+# RenderMan for Blender Imports
+#
+
 
 class RfB_UL_ObjectGroup(bpy.types.UIList):
-    def draw_item(self, context, layout, data, item,
-                  icon, active_data, active_propname, index):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         #
         # We could write some code to decide which icon to use here...
         #

@@ -150,6 +150,6 @@ class RfB_PT_LAYER_RenderPasses(RfB_PT_MIXIN_Collection, Panel):
             col.prop(rl, "use_pass_ambient_occlusion")
         else:
             layout.context_pointer_set("pass_list", rm_rl)
-            self._draw_collection(context, layout, rm_rl, "-=RRENDER PASS=-",
+            self._draw_collection(context, layout, rm_rl, "",
                                   "rfb.collection_toggle_path", "pass_list",
                                   "custom_aovs", "custom_aov_index")

@@ -115,7 +115,7 @@ class Registry():
         return addon.preferences
 
     @classmethod
-    def dir(cls):
+    def list(cls):
         return cls._env.items()
 
     @classmethod
@@ -164,7 +164,7 @@ class Registry():
     def display(cls, title="Current registry values:"):
         stdmsg(title)
         stdadd("")
-        for k, v in cls.dir():
+        for k, v in cls.list():
             display_k = k.ljust(14)
             display_v = slugify(v)
             stdadd("{}= {}".format(display_k, display_v))

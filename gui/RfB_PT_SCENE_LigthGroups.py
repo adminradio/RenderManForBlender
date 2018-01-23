@@ -23,8 +23,6 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8 compliant>
-
 #
 # Blender Imports
 #
@@ -45,9 +43,6 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
     bl_context = "scene"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    #
-    # OVERRIDE: give this list a unique ID.
-    rfb_list_id = "RFB_LIGHTGROUP"
 
     @classmethod
     def poll(cls, context):
@@ -58,23 +53,28 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
         layout = self.layout
         scene = context.scene
         rm = scene.renderman
-
-        self._draw_collection(
-            context, layout, rm, "", "rfb.collection_toggle_path",
-            "scene.renderman", "light_groups", "light_groups_index",
-            default_name=str(len(rm.light_groups))
-        )
+        # if len(rm.light_groups) == 0:
+        #    light_group = rm.object_groups.add()
+        #    light_group.name = 'All'
+        self._draw_collection(context, layout, rm, "",
+                              "rfb.collection_toggle_path",
+                              "scene.renderman",
+                              "light_groups", "light_groups_index", default_name=str(len(rm.light_groups)))
 
     def draw_item(self, layout, context, item):
         scene = context.scene
         rm = scene.renderman
         light_group = rm.light_groups[rm.light_groups_index]
+        # row.template_list("RfB_UL_ObjectGroup", "Renderman_light_group_list",
+        #                    light_group, "members", light_group, 'members_index',
+        #                    rows=9, maxrows=100, type='GRID', columns=9)
 
         row = layout.row()
         add = row.operator('rfb.item_moveto_group', 'Add Selected to Group')
         add.item_type = 'light'
         add.group_index = rm.light_groups_index
 
+        # row = layout.row()
         remove = row.operator('rfb.item_remove_group',
                               'Remove Selected from Group')
         remove.item_type = 'light'
@@ -82,9 +82,8 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
 
         light_names = [member.name for member in light_group.members]
         if light_group.name == 'All':
-            light_names = [lamp.name
-                           for lamp in context.scene.objects
-                           if lamp.type == 'LAMP']
+            light_names = [
+                lamp.name for lamp in context.scene.objects if lamp.type == 'LAMP']
 
         if len(light_names) > 0:
             box = layout.box()
@@ -102,17 +101,10 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
                 lc.label(light_name)
 
                 row = cl.row(align=True)
-
-                iid = (icons.iconid("solo_on")
-                       if lamp_rm.solo
-                       else icons.iconid("solo_off"))
-
+                iid = icons.iconid("solo_on") if lamp_rm.solo else icons.iconid("solo_off")
                 row.prop(lamp_rm, 'solo', text='', icon_value=iid, emboss=True)
 
-                iid = (icons.iconid("mute_on")
-                       if lamp_rm.mute
-                       else icons.iconid("mute_off"))
-
+                iid = icons.iconid("mute_on") if lamp_rm.mute else icons.iconid("mute_off")
                 row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
 
                 light_shader = lamp.renderman.get_light_node()
@@ -125,14 +117,17 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
                     sub.prop(light_shader, 'exposure', text='')
                     if light_shader.bl_label == 'PxrEnvDayLight':
                         row.prop(light_shader, 'skyTint', text='')
+
                         #
                         # TODO:   Add a 'picker' button to select the light
                         #         from UI right ther.
                         # DATE:   2018-01-17
                         # AUTHOR: Timm Wimmers
                         # STATUS: assigned to self
+                        # LIKE:   row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
                     else:
                         row.prop(light_shader, 'lightColor', text='')
+                        # row.prop(lamp_rm, 'mute', text='', icon_value=iid, emboss=True)
 
                         # color temperatur, same item as before, so draw an
                         # empty label to keep things well aligned in column.
@@ -176,5 +171,7 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
                     # TODO: add picker
                     # row.label('')
                 # finished item, add some space in left and right layout.
+                lc.separator()
+                cl.separator()
                 lc.separator()
                 cl.separator()
