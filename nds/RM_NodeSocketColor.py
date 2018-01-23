@@ -39,7 +39,7 @@ from bpy.props import StringProperty
 #
 from . RM_Socket import RM_Socket
 from . RM_NodeSocketColorInterface import RM_NodeSocketColorInterface
-from . import update_func
+from . util import update_func
 from .. import rfb
 
 

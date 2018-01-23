@@ -33,7 +33,6 @@ from bpy.props import StringProperty
 # RenderMan for Blender Imports
 #
 from .. nodes import convert_cycles_nodetree
-from .. nodes import is_renderman_nodetree
 
 
 class RfB_OT_NODE_AddNodetree(bpy.types.Operator):

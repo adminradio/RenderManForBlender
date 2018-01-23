@@ -23,34 +23,16 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# blender imports
-#
-import bpy
+# <pep8-80 compliant>
 
 #
-# RenderMan for Blender
+# RenderManForBlender Imports
 #
-from .. nds.util import is_renderman
+from . RM_ShaderNodeBase import RM_ShaderNodeBase
 
 
-class RfB_HT_NODE_SmartControl(bpy.types.Header):
-    bl_idname = 'rfb_ht_node_smart_control'
-    bl_space_type = "NODE_EDITOR"
-
-    def draw(self, context):
-        if context.scene.render.engine != "PRMAN_RENDER":
-            return
-        layout = self.layout
-
-        row = layout.row(align=True)
-
-        if (hasattr(context.space_data, 'id')
-                and type(context.space_data.id) == bpy.types.Material
-                and not is_renderman(context.space_data.id)):
-            row.operator(
-                'rfb.node_add_nodetree',
-                text="Convert to RenderMan"
-            ).idtype = "node_editor"
-
-        row.operator('rfb.material_new_bxdf')
+# Final output node, used as a dummy to find top level shaders
+class RendermanBxdfNode(RM_ShaderNodeBase):
+    bl_label = 'Bxdf'
+    renderman_node_type = 'bxdf'
+    shading_compatibility = {'NEW_SHADING'}

@@ -23,34 +23,26 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# blender imports
-#
-import bpy
+# <pep8-80 compliant>
 
 #
-# RenderMan for Blender
+# Blender Imports
 #
-from .. nds.util import is_renderman
+from bpy.types import Operator
+from bpy.props import StringProperty
+
+#
+# RenderManForBlender Imports
+#
+from . RM_AddNodeBase import RM_AddNodeBase
 
 
-class RfB_HT_NODE_SmartControl(bpy.types.Header):
-    bl_idname = 'rfb_ht_node_smart_control'
-    bl_space_type = "NODE_EDITOR"
-
-    def draw(self, context):
-        if context.scene.render.engine != "PRMAN_RENDER":
-            return
-        layout = self.layout
-
-        row = layout.row(align=True)
-
-        if (hasattr(context.space_data, 'id')
-                and type(context.space_data.id) == bpy.types.Material
-                and not is_renderman(context.space_data.id)):
-            row.operator(
-                'rfb.node_add_nodetree',
-                text="Convert to RenderMan"
-            ).idtype = "node_editor"
-
-        row.operator('rfb.material_new_bxdf')
+class NODE_OT_AddBxdf(Operator, RM_AddNodeBase):
+    """
+    For generating cycles-style ui menus to add new bxdfs,
+    connected to a given input socket.
+    """
+    bl_idname = 'node.add_bxdf'
+    bl_label = 'Add Bxdf Node'
+    bl_description = 'Connect a Bxdf to this socket'
+    input_type = StringProperty(default='Bxdf')

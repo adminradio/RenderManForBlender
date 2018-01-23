@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Blender Imports
 #
@@ -32,7 +34,7 @@ from bpy.types import Panel
 # RenderMan for Blender Imports
 #
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
-from .. nodes import draw_nodes_properties_ui
+from .. nds.util import draw_props_ui
 
 
 class RfB_PT_MATERIAL_ShaderLight(RfB_PT_MIXIN_ShaderTypePolling, Panel):
@@ -43,5 +45,4 @@ class RfB_PT_MATERIAL_ShaderLight(RfB_PT_MIXIN_ShaderTypePolling, Panel):
     def draw(self, context):
         if context.material.node_tree:
             nt = context.material.node_tree
-            draw_nodes_properties_ui(
-                self.layout, context, nt, input_name=self.shader_type)
+            draw_props_ui(self.layout, context, nt, input_name=self.shader_type)

@@ -26,8 +26,8 @@
 #
 # Blender Imports
 #
-from bpy.props import EnumProperty
 from operator import itemgetter
+from bpy.props import EnumProperty
 
 #
 # RenderMan for Blender Imports
@@ -35,9 +35,9 @@ from operator import itemgetter
 
 from . import nodetypes
 from . import pattern_categories
-from . import socket_node_input
 
-from . import link_node
+from . util import link_node
+from . util import socket_node_input
 
 
 class RM_AddNodeBase:

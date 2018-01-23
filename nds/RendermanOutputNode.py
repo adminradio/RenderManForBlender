@@ -23,34 +23,39 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# blender imports
-#
-import bpy
+# <pep8-80 compliant>
 
 #
-# RenderMan for Blender
+# RenderManForBlender Imports
 #
-from .. nds.util import is_renderman
+from . RM_ShaderNodeBase import RM_ShaderNodeBase
 
 
-class RfB_HT_NODE_SmartControl(bpy.types.Header):
-    bl_idname = 'rfb_ht_node_smart_control'
-    bl_space_type = "NODE_EDITOR"
+class RendermanOutputNode(RM_ShaderNodeBase):
+    bl_label = 'RenderMan Material'
+    renderman_node_type = 'output'
+    bl_icon = 'MATERIAL'
+    node_tree = None
 
-    def draw(self, context):
-        if context.scene.render.engine != "PRMAN_RENDER":
-            return
-        layout = self.layout
+    def init(self, context):
+        input = self.inputs.new('RendermanShaderSocket', 'Bxdf')
+        input.type = 'SHADER'
+        input.hide_value = True
+        input = self.inputs.new('RendermanShaderSocket', 'Light')
+        input.hide_value = True
+        input = self.inputs.new('RendermanShaderSocket', 'Displacement')
+        input.hide_value = True
 
-        row = layout.row(align=True)
+    def draw_buttons(self, context, layout):
+        return
 
-        if (hasattr(context.space_data, 'id')
-                and type(context.space_data.id) == bpy.types.Material
-                and not is_renderman(context.space_data.id)):
-            row.operator(
-                'rfb.node_add_nodetree',
-                text="Convert to RenderMan"
-            ).idtype = "node_editor"
+    def draw_buttons_ext(self, context, layout):
+        return
 
-        row.operator('rfb.material_new_bxdf')
+    # when a connection is made or removed see if we're in IPR mode and issue
+    # updates
+    def update(self):
+        from .. import engine
+        if engine.is_ipr_running():
+            engine.ipr.last_edit_mat = None
+            engine.ipr.issue_shader_edits(nt=self.id_data)

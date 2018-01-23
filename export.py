@@ -35,23 +35,27 @@ from mathutils import Matrix, Vector, Quaternion, Euler
 
 from . import bl_info
 
-from . utils import rib, rib_path, rib_ob_bounds
+from . utils import rib, rib_path
+from . utils import rib_ob_bounds
 from . utils import make_frame_path
 from . utils import init_env
 from . utils import get_sequence_path
 from . utils import user_path
-from . utils import path_list_convert, get_real_path
-from . utils import get_properties, check_if_archive_dirty
+from . utils import path_list_convert
+from . utils import get_real_path
+from . utils import get_properties
+from . utils import check_if_archive_dirty
 from . utils import locate_openVDB_cache
 from . utils import debug
 from . utils import find_it_path
 
 from . nodes import export_shader_nodetree
-from . nodes import get_textures
-from . nodes import get_textures_for_node
-from . nodes import get_tex_file_name
-from . nodes import shader_node_rib, get_mat_name
-from . nodes import replace_frame_num
+from . nodes import shader_node_rib
+from . nodes import get_mat_name
+from . nds.util import get_textures
+from . nds.util import get_textures_for_node
+from . nds.util import get_tex_file_name
+from . nds.util import replace_frame_num
 
 from . import rfb
 

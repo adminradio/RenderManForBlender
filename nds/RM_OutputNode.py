@@ -23,14 +23,39 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# Python imports
-#
+# <pep8-80 compliant>
 
 #
-# Blender imports
+# RenderManForBlender Imports
 #
+from . RM_ShaderNodeBase import RM_ShaderNodeBase
 
-#
-# RenderMan for Blender
-#
+
+class RM_OutputNode(RM_ShaderNodeBase):
+    bl_label = 'RenderMan Material'
+    renderman_node_type = 'output'
+    bl_icon = 'MATERIAL'
+    node_tree = None
+
+    def init(self, context):
+        input = self.inputs.new('RendermanShaderSocket', 'Bxdf')
+        input.type = 'SHADER'
+        input.hide_value = True
+        input = self.inputs.new('RendermanShaderSocket', 'Light')
+        input.hide_value = True
+        input = self.inputs.new('RendermanShaderSocket', 'Displacement')
+        input.hide_value = True
+
+    def draw_buttons(self, context, layout):
+        return
+
+    def draw_buttons_ext(self, context, layout):
+        return
+
+    # when a connection is made or removed see if we're in IPR mode and issue
+    # updates
+    def update(self):
+        from .. import engine
+        if engine.is_ipr_running():
+            engine.ipr.last_edit_mat = None
+            engine.ipr.issue_shader_edits(nt=self.id_data)

@@ -31,45 +31,6 @@
 # Blender Imports
 #
 
-#
-# RenderManForBlender Imports
-#
-
-
-def socket_node_input(nt, socket):
-    return next((l.from_node for l in nt.links if l.to_socket == socket), None)
-
-
-def update_func(self, context):
-    """Update node during IPR for a socket default_value."""
-
-    # check if this prop is set on an input
-    node = self.node if hasattr(self, 'node') else self
-
-    from .. import engine
-    if engine.is_ipr_running():
-        engine.ipr.issue_shader_edits(node=node)
-
-
-def link_node(nt, from_node, in_socket):
-    out_socket = None
-    # first look for resultF/resultRGB
-    if type(in_socket).__name__ in ['RendermanNodeSocketColor',
-                                    'RendermanNodeSocketVector']:
-        out_socket = from_node.outputs.get('resultRGB',
-                                           next((s for s in from_node.outputs
-                                                 if type(s).__name__ == 'RendermanNodeSocketColor'), None))
-    elif type(in_socket).__name__ == 'RendermanNodeSocketStruct':
-        out_socket = from_node.outputs.get('pxrMaterialOut', None)
-        if not out_socket:
-            out_socket = from_node.outputs.get('result', None)
-    else:
-        out_socket = from_node.outputs.get('resultF',
-                                           next((s for s in from_node.outputs
-                                                 if type(s).__name__ == 'RendermanNodeSocketFloat'), None))
-    if out_socket:
-        nt.links.new(out_socket, in_socket)
-
 
 nodetypes = {}
 pattern_categories = {}

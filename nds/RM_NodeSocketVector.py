@@ -37,7 +37,7 @@ from bpy.props import StringProperty
 #
 from . RM_Socket import RM_Socket
 from . RM_NodeSocketVectorInterface import RM_NodeSocketVectorInterface
-from . import update_func
+from . util import update_func
 from .. import rfb
 
 

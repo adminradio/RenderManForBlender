@@ -34,8 +34,8 @@ from bpy.types import Panel
 #
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 
-from .. nodes import panel_node_draw
-from .. nodes import is_renderman_nodetree
+from .. nds.util import draw_panel
+from .. nds.util import is_renderman
 
 
 class RfB_PT_MATERIAL_ShaderSurface(RfB_PT_MIXIN_ShaderTypePolling, Panel):
@@ -47,28 +47,30 @@ class RfB_PT_MATERIAL_ShaderSurface(RfB_PT_MIXIN_ShaderTypePolling, Panel):
         mat = context.material
         layout = self.layout
         if context.material.renderman and context.material.node_tree:
+            # FIXME: nt is unused?
             nt = context.material.node_tree
 
-            if is_renderman_nodetree(mat):
-                panel_node_draw(layout, context, mat,
-                                'RendermanOutputNode', 'Bxdf')
+            if is_renderman(mat):
+                draw_panel(layout, context, mat,
+                           'RendermanOutputNode', 'Bxdf')
                 # draw_nodes_properties_ui(
                 #    self.layout, context, nt, input_name=self.shader_type)
             else:
-                if not panel_node_draw(layout, context, mat, 'ShaderNodeOutputMaterial', 'Surface'):
+                if not draw_panel(layout, context, mat, 'ShaderNodeOutputMaterial', 'Surface'):
                     layout.prop(mat, "diffuse_color")
             layout.separator()
 
         else:
             # if no nodetree we use pxrdisney
             mat = context.material
+            # FIXME: rm is unused
             rm = mat.renderman
 
             row = layout.row()
             row.prop(mat, "diffuse_color")
 
             layout.separator()
-        if mat and not is_renderman_nodetree(mat):
+        if mat and not is_renderman(mat):
             layout.operator(
                 'rfb.node_add_nodetree').idtype = "material"
             layout.operator('rfb.node_cycles_convertall')
