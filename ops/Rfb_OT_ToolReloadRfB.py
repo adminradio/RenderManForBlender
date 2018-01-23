@@ -29,7 +29,6 @@
 #
 import bpy
 
-
 #
 # #### A T T E N T I O N  #####
 #
@@ -37,13 +36,10 @@ import bpy
 # this can cause the loss of data since Blender does not
 # preserve any information during script restart.
 #
-# As of 2018-01-19 this tool isn't available via UI, also it
-# doesn't work well. (TW)
-#
 class RfB_OT_ToolRestart(bpy.types.Operator):
     bl_idname = "rfb.tool_reloadrfb"
     bl_label = "Restart RenderMan for Blender."
-    bl_description = "Restarts RenderMan for Blender (Addon)"
+    bl_description = "Restarts the RenderMan for Blender addon"
 
     def execute(self, context):
         bpy.ops.script.reload()

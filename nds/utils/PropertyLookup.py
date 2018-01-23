@@ -55,13 +55,13 @@ class PropertyLookup():
     _unlabeled = [
         #
         # Singles as before but their labels should not be drawn as of
-        # cosmetical, due to self explanatory or other maybe unlogical reasons.
+        # cosmetical or unlogical reasons.
         #
         "PxrVolumeBxdfNodeMultiScatter Optimization"]
 
     _labeled = [
         #
-        # Singles as before, but their labels ar not taken from 'bl-label',
+        # Singles as before, but their labels ar not talen from 'bl-label',
         # they would be defined at runtime in the code (should we refactor this?).
         #
         "PxrMarschnerHairBxdfNodeDiffuse",
@@ -70,9 +70,9 @@ class PropertyLookup():
 
     _emptypage = [
         #
-        # These property groups are empty because ALL properties
-        # are consumed by in- or ouput ports of the nodeleaving the page empty,
-        # so a 'page' should not be drawn.
+        # These property groups are empty because all properties
+        # are consumed by in- or ouput ports leaving the page empty, so
+        # neither 'page' or 'property' should be drawn.
         #
         "PxrBumpPatternNodePattern",
         "PxrMarschnerHairBxdfNodeGlow",

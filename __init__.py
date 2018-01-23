@@ -102,7 +102,7 @@ def load_addon():
     # if rmantree is ok load the stuff
     from . utils import guess_rmantree
     from . utils import throw_error
-    # from . import preferences
+    from . import preferences
 
     #
     # TODO:   Refactor guess_rmantree() to RfB Registry
@@ -125,7 +125,6 @@ def load_addon():
         from . gui import RfB_HT_NODE_SmartControl
         from . gui import RfB_HT_VIEW3D_SmartControl
         from . gui import RfB_MT_RENDER_Presets
-        # from . gui import RfB_MT_RENDER_SpoolPresets
         from . gui import RfB_MT_SCENE_AreaLights
         from . gui import RfB_MT_SCENE_Cameras
         from . gui import RfB_MT_SCENE_Daylights
@@ -194,8 +193,6 @@ def load_addon():
         from . ops import RfB_OT_RenderAddPreset
         from . ops import RfB_OT_ToolStartIPR
         from . ops import RfB_OT_ToolStartIT
-        from . ops import RfB_OT_ToolStartLQ
-
         #
         # need this now rather than at beginning to make
         # sure preferences are loaded

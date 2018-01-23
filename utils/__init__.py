@@ -95,16 +95,15 @@ def _echo(msg, extend=False):
     print('{}{}'.format(pre, msg))
 
 
-def slugify(input, length=40, offset=-11):
-    """Shorten a input by removing the mid part of it."""
+def slugify(string, length=40, offset=-11):
+    """Shorten a string by removing the mid part of it."""
     #
     # TODO:   be sure that offset doesn't go to a negative
-    #         value of len(input).
+    #         value of len(string).
     # DATE:   2018-01-17
     # AUTHOR: Timm Wimmers
     # STATUS: -unassigned-
     #
-    string = str(input)
     strlen = len(string)
     if strlen <= length:
         return string
@@ -656,8 +655,8 @@ def guess_rmantree():
     # check that it's >= 21
     if version[0] < 21:
         throw_error("Error loading addon using RMANTREE=%s. "
-                    "RMANTREE must be version 21.0 or greater.  Correct "
-                    "RMANTREE setting in addon preferences." % rmantree)
+            "RMANTREE must be version 21.0 or greater.  Correct "
+            "RMANTREE setting in addon preferences." % rmantree)
         return None
 
     return rmantree

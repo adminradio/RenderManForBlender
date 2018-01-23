@@ -40,7 +40,7 @@ import bpy
 
 class RfB_MT_RENDER_Presets(bpy.types.Menu):
     bl_idname = "rfb_mt_render_presets"
-    bl_label = "Render Presets"
+    bl_label = "RenderMan Presets"
     preset_subdir = os.path.join("renderman", "render")
     preset_operator = "script.execute_preset"
     draw = bpy.types.Menu.draw_preset

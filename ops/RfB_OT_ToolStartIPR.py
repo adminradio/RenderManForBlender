@@ -46,7 +46,7 @@ class RfB_OT_ToolStartIPR(bpy.types.Operator):
 
     def draw(self, context):
         w = context.region.width
-        h = context.region.height
+        h = context.region.height  # FIXME: unused?
 
         #
         # Draw text area that RenderMan is running.
