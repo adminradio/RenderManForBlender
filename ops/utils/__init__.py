@@ -37,7 +37,7 @@ import bpy
 # RenderMan for Blender Imports
 #
 from . RenderPresets import RenderPresets
-from ... utils import fix_filename
+from ... rfb.utils import fix_filename
 
 #
 # Menus

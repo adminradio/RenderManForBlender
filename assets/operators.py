@@ -34,7 +34,7 @@ from . properties import RendermanAssetGroup
 from . properties import RendermanAsset
 from . import assets
 from .. import rfb
-from .. import utils
+from .. rfb import utils
 
 # update the tree structure from disk file
 

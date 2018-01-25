@@ -31,8 +31,8 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from .. nodes import convert_cycles_nodetree
-from .. nodes import is_renderman_nodetree
+from .. nds import convert_cycles_nodetree
+from .. nds import is_renderman_nodetree
 
 
 class RfB_OT_NODE_CyclesConvertall(bpy.types.Operator):

@@ -32,18 +32,16 @@ import bpy
 # RenderMan for Blender Imports
 #
 from . import icons
-from .. ops import RfB_OT_OBJECT_SelectLight
 
 
 class RfB_MT_SCENE_LightsDay(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_lightsday"
-    bl_label = "Scene Day Lights"
+    bl_label = "Select DayLight"
 
     icn = icons.iconid('sunlight')
 
     def draw(self, context):
         layout = self.layout
-        # col = layout.column(align=True)
 
         lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
 
@@ -56,4 +54,4 @@ class RfB_MT_SCENE_LightsDay(bpy.types.Menu):
                     op.light_name = name
 
         else:
-            layout.label("No Daylight in the Scene")
+            layout.label("No DayLight (Sun) in the Scene!")

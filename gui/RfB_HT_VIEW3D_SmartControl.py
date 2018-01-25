@@ -48,6 +48,7 @@ class RfB_HT_VIEW3D_SmartControl(bpy.types.Header):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
         layout = self.layout
+        layout.enabled = True if bpy.context.scene.camera else False
         row = layout.row(align=True)
         row.scale_x = 1.25
         row.separator()

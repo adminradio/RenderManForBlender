@@ -1,3 +1,4 @@
+
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
 # Copyright (c) 2015 - 2018 Pixar
@@ -29,17 +30,25 @@
 import bpy
 
 
-class RfB_OT_OBJECT_SelectCamera(bpy.types.Operator):
-    bl_idname = "rfb.object_select_camera"
-    bl_label = "Select Cameras"
-
-    cam_name = bpy.props.StringProperty(default="")
+#
+# #### A T T E N T I O N  #####
+#
+# This operator should not be exposed to the UI as
+# this can cause the loss of data since Blender does not
+# preserve any information during script restart.
+#
+# As of 2018-01-19 this tool isn't available via UI, also it
+# doesn't work well. (TW)
+#
+class RfB_OT_VIEW3D_CameraApertureType(bpy.types.Operator):
+    bl_idname = "rfb.camera_aperture_type"
+    bl_label = "Toggle Camera Aperture Type"
+    bl_description = "Toggle camera aperture type (Shutter | Radius)."
 
     def execute(self, context):
-
-        bpy.ops.object.select_all(action='DESELECT')
-        bpy.data.objects[self.cam_name].select = True
-        bpy.context.scene.objects.active = bpy.data.objects[self.cam_name]
-        bpy.context.scene.camera = bpy.data.objects[self.cam_name]
-
-        return {'FINISHED'}
+        scn = context.scene
+        cam = bpy.data.scenes[scn.name].camera
+        cur = cam.data.cycles.aperture_type
+        cam.data.cycles.aperture_type = 'RADIUS' if cur == 'FSTOP' else 'FSTOP'
+        print(cam.data.cycles.aperture_type)
+        return {"FINISHED"}

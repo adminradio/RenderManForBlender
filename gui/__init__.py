@@ -23,7 +23,7 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-__ALL__ = [
+__all__ = [
     "RfB_HT_IMAGE_SmartControl",
     "RfB_HT_INFO_SmartControl",
     "RfB_HT_NODE_SmartControl",
@@ -80,12 +80,73 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from . utils import rfb_panels
 from . utils import rfb_menu_func
 
 from . RfB_UL_ObjectGroup import RfB_UL_ObjectGroup
 from . RfB_UL_LIGHTS_Linking import RfB_UL_LIGHTS_Linking
 from . RfB_UL_LIGHTS_LinkingObjects import RfB_UL_LIGHTS_LinkingObjects
+
+
+def rfb_panels():
+    rfb_panels_true = []
+    rfb_panels_false = {
+        'DATA_PT_area',
+        'DATA_PT_camera_dof',
+        'DATA_PT_falloff_curve',
+        'DATA_PT_lamp',
+        'DATA_PT_preview',
+        'DATA_PT_shadow',
+        # 'DATA_PT_spot',
+        'DATA_PT_sunsky',
+        # 'MATERIAL_PT_context_material',
+        'MATERIAL_PT_diffuse',
+        'MATERIAL_PT_flare',
+        'MATERIAL_PT_halo',
+        'MATERIAL_PT_mirror',
+        'MATERIAL_PT_options',
+        'MATERIAL_PT_pipeline',
+        'MATERIAL_PT_preview',
+        'MATERIAL_PT_shading',
+        'MATERIAL_PT_shadow',
+        'MATERIAL_PT_specular',
+        'MATERIAL_PT_sss',
+        'MATERIAL_PT_strand',
+        'MATERIAL_PT_transp',
+        'MATERIAL_PT_volume_density',
+        'MATERIAL_PT_volume_integration',
+        'MATERIAL_PT_volume_lighting',
+        'MATERIAL_PT_volume_options',
+        'MATERIAL_PT_volume_shading',
+        'MATERIAL_PT_volume_transp',
+        'RENDERLAYER_PT_layer_options',
+        'RENDERLAYER_PT_layer_passes',
+        'RENDERLAYER_PT_views',
+        'RENDER_PT_antialiasing',
+        'RENDER_PT_bake',
+        'RENDER_PT_motion_blur',
+        'RENDER_PT_performance',
+        'RENDER_PT_freestyle',
+        # 'RENDER_PT_post_processing',
+        'RENDER_PT_shading',
+        'RENDER_PT_render',
+        'RENDER_PT_stamp',
+        'SCENE_PT_simplify',
+        'TEXTURE_PT_context_texture',
+        'WORLD_PT_ambient_occlusion',
+        'WORLD_PT_environment_lighting',
+        'WORLD_PT_gather',
+        'WORLD_PT_indirect_lighting',
+        'WORLD_PT_mist',
+        'WORLD_PT_preview',
+        'WORLD_PT_world',
+    }
+
+    for t in bpy.types.Panel.__subclasses__():
+        if hasattr(t, 'COMPAT_ENGINES') and 'BLENDER_RENDER' in t.COMPAT_ENGINES:
+            if t.__name__ not in rfb_panels_false:
+                rfb_panels_true.append(t)
+
+    return rfb_panels_true
 
 
 def register():

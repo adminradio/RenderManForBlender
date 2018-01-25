@@ -44,9 +44,9 @@ import bpy
 #
 from .. import engine
 
-from .. utils import user_path
-from .. utils import find_local_queue
-from .. utils import find_tractor_spool
+from .. rfb.utils import user_path
+from .. rfb.utils import find_local_queue
+from .. rfb.utils import find_tractor_spool
 
 from .. import rfb
 

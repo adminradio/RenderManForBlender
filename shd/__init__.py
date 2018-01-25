@@ -23,20 +23,10 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-import os
-import subprocess
 import bpy
 import re
 import sys
 from collections import OrderedDict
-
-from . utils import init_env
-from . utils import get_path_list
-from . utils import path_list_convert
-from . utils import path_win_to_unixy
-from . utils import user_path
-from . utils import get_sequence_path
-from . utils import args_files_in_path
 
 from bpy.props import *
 
@@ -229,6 +219,7 @@ def update_conditional_visops(node):
             except:
                 print("RfB: Error in conditional visop")
 
+
 def update_func_with_inputs(self, context):
     # check if this prop is set on an input
     node = self.node if hasattr(self, 'node') else self
@@ -236,7 +227,7 @@ def update_func_with_inputs(self, context):
     if node.renderman_node_type == 'lightfilter' and context and hasattr(context, 'lamp'):
         context.lamp.renderman.update_filter_shape()
 
-    from . import engine
+    from .. import engine
     if engine.is_ipr_running():
         engine.ipr.issue_shader_edits(node=node)
 
@@ -273,7 +264,7 @@ def update_func(self, context):
     if node.renderman_node_type == 'lightfilter' and context and hasattr(context, 'lamp'):
         context.lamp.renderman.update_filter_shape()
 
-    from . import engine
+    from .. import engine
     if engine.is_ipr_running():
         engine.ipr.issue_shader_edits(node=node)
 
@@ -678,6 +669,7 @@ def generate_txmake_options(parent_name):
                                                                description=optionObject["help"])
     return txmake.index, optionsMeta, optionsProps
 
+
 # map types in args files to socket types
 socket_map = {
     'float': 'RendermanNodeSocketFloat',
@@ -760,9 +752,8 @@ def find_enable_param(params):
         if prop_name.startswith('enable'):
             return prop_name
 
+
 # add input sockets
-
-
 def node_add_inputs(node, node_name, prop_names, first_level=True, label_prefix='', remove=False):
     for name in prop_names:
         meta = node.prop_meta[name]

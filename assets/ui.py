@@ -27,7 +27,6 @@ import bpy
 from bpy.types import Panel
 from bpy.props import StringProperty
 
-from .. import utils
 
 from . properties import RendermanAssetGroup
 from . properties import RendermanAsset
@@ -35,6 +34,7 @@ from . properties import RendermanAsset
 from . import assets
 from .. gui import icons
 from .. import rfb
+from .. rfb import utils
 from .. gui.RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 

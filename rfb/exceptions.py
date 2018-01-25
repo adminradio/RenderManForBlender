@@ -27,7 +27,7 @@
 # import sys
 
 # # RenderMan for Blender imports
-# from .. utils import stdmsg
+# from .. rfb.utils import stdmsg
 
 # sys.excepthook = (
 #     lambda e, e_msg, e_tb:

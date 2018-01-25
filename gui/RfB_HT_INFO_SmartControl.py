@@ -42,24 +42,24 @@ class RfB_HT_INFO_SmartControl(bpy.types.Header):
     def draw(self, context):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
+
+        rm = context.scene.renderman
+
         layout = self.layout
+        layout.enabled = True if bpy.context.scene.camera else False
+        txt = "Animation" if rm.external_animation else "Current Frame"
 
         row = layout.row(align=True)
         iid = icons.iconid("render")
-        row.operator("render.render", text="Render", icon_value=iid)
+        row.operator("render.render", text=txt, icon_value=iid)
 
         iid = icons.iconid("render_spool")
+
         if context.scene.renderman.enable_external_rendering:
-            row.operator("rfb.file_spool_render",
-                         text="Spool",
-                         icon_value=iid)
+            row.operator("rfb.file_spool_render", text=txt, icon_value=iid)
         if engine.ipr:
             iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="IPR",
-                         icon_value=iid)
+            row.operator('rfb.tool_ipr', text="IPR", icon_value=iid)
         else:
             iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="IPR",
-                         icon_value=iid)
+            row.operator('rfb.tool_ipr', text="IPR", icon_value=iid)

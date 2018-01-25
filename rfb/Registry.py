@@ -43,10 +43,9 @@ import bpy
 from . exceptions import RegistryKeyNotFound
 from . exceptions import RegistryKeyAlreadyUsed
 
-from .. import utils
-from .. utils import stdmsg
-from .. utils import stdadd
-from .. utils import slugify
+from . utils import stdmsg
+from . utils import stdadd
+from . utils import slugify
 
 
 class Registry():
@@ -123,13 +122,12 @@ class Registry():
     def add(cls, ident, value):
         key = ident.upper()
         if key in cls._env.keys():
+            q = "'" if type(value) == str else ""  # noqa
             raise RegistryKeyAlreadyUsed(
-                #
-                # FIXME: only string values have to be in quotes.
-                #
-                "Use <set('{}', '{}')> to set this key explicitly (and you "
+                "Use <set('{}', {}{}{})> to set this key explicitly (and you "
                 "know what's going on). Nothing changed - current operation"
-                "canced".format(key, value))
+                "canceled.".format(key, q, value, q)
+            )
         else:
             cls._env[key] = value
             stdmsg("Key '{}' added as '{}' in registry with "
@@ -149,7 +147,8 @@ class Registry():
         except KeyError:
             raise RegistryKeyNotFound(
                 "Use <add('{}', value)> first to add one explicitly. Nothing "
-                "changed - current operation canceled.".format(key))
+                "changed - current operation canceled.".format(key)
+            )
 
     @classmethod
     def set(cls, ident, value):
@@ -157,9 +156,12 @@ class Registry():
         if key in cls._env.keys():
             cls._env[key] = value
         else:
+            q = "'" if type(value) == str else ""  # noqa
             raise RegistryKeyNotFound(
-                "Use <add('{}', value)> first to add one explicitly. Nothing "
-                "changed - current operation canceled.".format(key))
+                "Use <add('{}', {}{}{})> to set this key explicitly (and you "
+                "know what's going on). Nothing changed - current operation"
+                "canceled.".format(key, q, value, q)
+            )
 
     @classmethod
     def display(cls, title="Current registry values:"):
@@ -170,4 +172,4 @@ class Registry():
             display_v = slugify(v)
             stdadd("{}= {}".format(display_k, display_v))
         stdadd("")
-        stdadd("Registry initialised, looks good so far.")
+        stdadd("Registry initialised.")

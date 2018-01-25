@@ -28,27 +28,36 @@
 #
 # Blender imports
 #
+import blf
 from bgl import *
 
+dpi = 72
 
-def vp_border(self, vp):
+
+def text_dpi(val):
+    global dpi
+    dpi = val
+
+
+def border(self, vp):
     w = vp.width
     h = vp.height
-    l = 6  # noqa
-    a = l // 2  # noqa
-
-    glEnable(GL_BLEND)
-    # glEnable(GL_LINE_SMOOTH)
     #
     # TODO:   Color and linewidth should go into Userprefs.
     # DATE:   2018-01-23
     # AUTHOR: Timm Wimmers
     # STATUS: -unassigned-
     #
-    glColor4f(0.870, 0.325, 0.375, 0.750)
+    l = 6  # noqa
+    a = l // 2  # noqa
+    c = (0.870, 0.325, 0.375, 0.750)
+
+    glEnable(GL_BLEND)
+    glColor4f(*c)
     glLineWidth(l)
 
-    # bottom left, bottom right, top right, top left
+    # to avoid nasty corners we draw four indiividual lines
+    # instead of a single quad vertex group:
     glBegin(GL_LINE_STRIP)
     glVertex2i(0, a)
     glVertex2i(w, a)
@@ -66,4 +75,67 @@ def vp_border(self, vp):
     glVertex2i(w - a, h - l)
     glEnd()
     glDisable(GL_BLEND)
-    # glDisable(GL_LINE_SMOOTH)
+
+
+def hline(x, y, l, c=None, lw=None):
+    line(x, y, x + l, y, c, lw)
+
+
+def vline(x, y, l, c=None, lw=None):
+    line(x, y, x, y + l, c, lw)
+
+
+def line(x1, y1, x2, y2, c=None, lw=None):
+    # horizontal or vertical lines don't need smooth drawing
+    if not x1 == x2 or y1 == y2:
+        glEnable(GL_LINE_SMOOTH)
+    else:
+        glDisable(GL_LINE_SMOOTH)
+
+    if lw:
+        glLineWidth(lw)
+
+    if c:
+        glColor4f(*c)
+
+    glEnable(GL_BLEND)
+    glBegin(GL_LINES)
+    glVertex2f(x1, y1)
+    glVertex2f(x2, y2)
+    glEnd()
+    if lw:
+        glLineWidth(1)
+
+
+def text(txt, x, y, f=0, h="LEFT", v="BASELINE", s=12, c=(1, 1, 1, 1)):
+    _txt = str(txt)
+    blf.size(font, s, int(dpi))
+    glColor4f(*c)
+
+    if h == "LEFT" and v == "BASELINE":
+        blf.position(font, x, y, 0)
+    else:
+        _w, _h = blf.dimensions(font, _txt)
+        _x, _y = x, y
+        if h == "RIGHT":
+            _x -= _w
+        elif h == "CENTER":
+            _x -= _w * 0.5
+        if v == "CENTER":
+            _y -= blf.dimensions(font, "x")[1] * 0.75
+
+        blf.position(font, _x, _y, 0)
+
+    blf.draw(font, _txt)
+
+
+def ngon(verts, c=None):
+    if c:
+        glColor4f(*c)
+    glEnable(GL_BLEND)
+    glEnable(GL_POLYGON_SMOOTH)
+    glBegin(GL_POLYGON)
+    for x, y in verts:
+        glVertex2f(x, y)
+    glEnd()
+    glDisable(GL_BLEND)

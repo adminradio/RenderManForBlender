@@ -984,7 +984,7 @@ def parseNodeGraph(nt, Asset):
 
     graph = BlenderGraph()
     graph.AddNode(out)
-    from ..nodes import gather_nodes
+    from .. nds import gather_nodes
     nodes_to_convert = gather_nodes(out)
 
     for node in nodes_to_convert:

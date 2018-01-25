@@ -100,8 +100,8 @@ def remove_handlers():
 
 def load_addon():
     # if rmantree is ok load the stuff
-    from . utils import guess_rmantree
-    from . utils import throw_error
+    from . rfb.utils import guess_rmantree
+    from . rfb.utils import throw_error
     from . import preferences
 
     #
@@ -117,7 +117,7 @@ def load_addon():
         #
         from . import gui
         from . import ops
-        from . import nodes
+        from . import nds
         from . import properties
 
         from . gui import RfB_HT_IMAGE_SmartControl
@@ -189,6 +189,7 @@ def load_addon():
         from . ops import RfB_OT_OBJECT_ExportRIB
         from . ops import RfB_OT_OBJECT_MakeEmissive
         from . ops import RfB_OT_OBJECT_SelectCamera
+        from . ops import RfB_OT_OBJECT_SelectActiveCamera
         from . ops import RfB_OT_OBJECT_SelectLight
         from . ops import RfB_OT_OUTPUT_ToggleChannel
         from . ops import RfB_OT_RENDER_AddPreset
@@ -197,20 +198,19 @@ def load_addon():
         from . ops import RfB_OT_TOOL_StartIPR
         from . ops import RfB_OT_TOOL_StartIT
         from . ops import RfB_OT_TOOL_StartLQ
+        from . ops import RfB_OT_VIEW3D_ViewNumpad0
+        from . ops import RfB_OT_VIEW3D_CameraApertureType
 
         #
         # need this now rather than at beginning to make
         # sure preferences are loaded
-        #
-        # FIXME: Beginning of what? Mmmh, looks ugly to me. Even the functions
-        #        on top are complaining undefined 'engine'. (TW)
         #
         from . import engine
         properties.register()
         ops.register()
         gui.register()
         add_handlers(None)
-        nodes.register()
+        nds.register()
     else:
         #
         # display loading error
@@ -235,7 +235,7 @@ def unregister():
     properties.unregister()
     ops.unregister()
     gui.unregister()
-    nodes.unregister()
+    nds.unregister()
     preferences.unregister()
     from . import assets
     assets.unregister()

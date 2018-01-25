@@ -42,7 +42,7 @@ from . RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_idname = "renderman_ui_panel"
-    bl_label = "Quick Tools"
+    bl_label = "Render Control"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = rfb.reg.get('RFB_TABNAME')
@@ -59,16 +59,18 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         if scene.render.engine != "PRMAN_RENDER":
             return
 
-        # ######################################################################
         # RENDER AND SPOOL LAYOUT (lay: current layout aka section)
-        # ----------------------------------------------------------------------
+        # ######################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
 
         opr = "render.render"
-        txt = "Render Frame"
-        iid = icons.iconid("render")
-        row.operator(opr, text=txt, icon_value=iid)
+        txt = "Render Animation" if rm.external_animation else "Render Frame"
+        iid = icons.iconid("batch_render") if rm.external_animation else icons.iconid("render")
+        ani = True if rm.external_animation else False
+        sub = row.row(align=True)
+        sub.enabled = True if bpy.context.scene.camera else False
+        sub.operator(opr, text=txt, icon_value=iid).animation = ani
 
         prp = "rm_render"
         icn = 'TRIA_DOWN' if scene.rm_render else 'TRIA_RIGHT'
@@ -113,9 +115,12 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             sb1 = row.row()
             sb1.enabled = rm.enable_external_rendering
 
+            sb2 = sb1.row()
+            sb2.enabled = True if bpy.context.scene.camera else False
+
             opr = "rfb.file_spool_render"
             txt = "Spool Animation" if rm.external_animation else "Spool Frame"
-            sb1.operator(opr, text=txt)
+            sb2.operator(opr, text=txt)
 
             # Toggle: External?
             sb2 = row.row(align=True)
@@ -168,9 +173,8 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # ui open - slightly more space on root layout
             layout.separator()
 
-        # ######################################################################
         # IPR LAYOUT
-        # ----------------------------------------------------------------------
+        # ######################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
         icn = 'TRIA_DOWN' if scene.rm_ipr else 'TRIA_RIGHT'
@@ -187,7 +191,9 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         # Header: Start IPR isn't running
         else:
             iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr', text="Start IPR", icon_value=iid)
+            sub = row.row(align=True)
+            sub.enabled = True if bpy.context.scene.camera else False
+            sub.operator('rfb.tool_ipr', text="Start IPR", icon_value=iid)
 
             iid = icons.iconid("start_it")
             row.operator("rfb.tool_it", text="", icon_value=iid)
@@ -213,9 +219,8 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # the frames
             layout.separator()
 
-        # ######################################################################
         # CAMERA LAYOUT
-        # ----------------------------------------------------------------------
+        # ######################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
 
@@ -235,8 +240,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # camera list menu
             row = sub.row()
             mnu = "rfb_mt_scene_cameras"
-            txt = "Camera List"
-            row.menu(mnu, text=txt)
+            row.menu(mnu)
 
             obj = bpy.context.object
             if obj and obj.type == 'CAMERA':
@@ -244,16 +248,25 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
                 # camera tools
                 sb1 = row.row(align=True)
-                sb1.prop(obj, "name", text="", icon_value=iid)
-                sb1.prop(obj, "hide", icon_only=True)
-
-                prp = "hide_render"
-                icn = 'RESTRICT_RENDER_OFF'
-                sb1.prop(obj, prp, icon_only=True, icon=icn)
 
                 opr = "rfb.object_delete_camera"
                 icn = 'PANEL_CLOSE'
                 sb1.operator(opr, text="", icon=icn)
+                cam = bpy.data.scenes[scene.name].camera
+                sb1.prop(cam, "name", text="", icon_value=iid)
+
+                opr = "rfb.view_numpad0"
+                view = context.space_data.region_3d.view_perspective
+                if view == 'CAMERA':
+                    sb1.operator(opr, text="", icon='VIEW3D')
+                else:
+                    iid = icons.iconid('camview_on')
+                    sb1.operator(opr, text="", icon_value=iid)
+
+                opr = "wm.context_toggle"
+                iid = icons.toggle('camlock', context.space_data.lock_camera)
+                pth = "space_data.lock_camera"
+                sb1.operator(opr, text="", icon_value=iid).data_path = pth
 
                 # depth of field
                 row = sub.row(align=True)
@@ -268,17 +281,37 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 # AUTHOR: Timm Wimmers
                 # STATUS: assigned to self
                 #
-                prp = "aperture_type"
-                row.prop(context.object.data.cycles, prp, text="")
+                opr = "rfb.camera_aperture_type"
+                val = context.object.data.cycles.aperture_type
+                iid = (
+                    icons.iconid('shutter_off')
+                    if val == 'FSTOP'
+                    else icons.iconid('radius')
+                )
+                row.operator(opr, text="", icon_value=iid)
+                # prp = "aperture_type"
+                # row.prop(context.object.data.cycles, prp, text="")
             else:
-                cms = [
+                cams = [
                     obj for obj in bpy.context.scene.objects
                     if obj.type == "CAMERA"
                 ]
-                txt = "No camera Selected." if cms else \
-                      "Scene contains no camera."
-                sub.label("")
-                sub.label(txt)
+
+                if cams:
+                    active = ""
+                    try:
+                        active = bpy.data.scenes[scene.name].camera.name
+                    except AttributeError:
+                        bpy.data.scenes[scene.name].camera = cams[0]
+                    txt = "Active camera: {}".format(cams[0].name)
+                    sub.label(txt)
+                    opr = "rfb.object_select_active_camera"
+                    txt = "Select"
+                    icn = 'RESTRICT_SELECT_OFF'
+                    sub.operator(opr, text=txt, icon=icn)
+                else:
+                    sub.label("")
+                    sub.label("Current scene contains no camera!")
             layout.separator()
             # layout.separator()
 
@@ -457,7 +490,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             row = sub.row(align=True)
 
             if lamp_sun:
-                mnu = "rfb_mt_scene_lights_day"
+                mnu = "rfb_mt_scene_lightsday"
                 txt = "DayLight List"
                 icn = 'LAMP_SUN'
                 row.menu(mnu, text=txt, icon=icn)

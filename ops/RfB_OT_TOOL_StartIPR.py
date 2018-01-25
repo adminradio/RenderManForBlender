@@ -46,30 +46,7 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
     is_running = False
 
     def draw(self, context):
-        w = context.region.width
-        # h = context.region.height
-        gfx.vp_border(self, context.region)
-        #
-        # Draw text area that RenderMan is running.
-        #
-        #
-        #
-        # TODO:   Implement GL drawing of viewport frame like Boxcutter,
-        #         HardOPS & Co.
-        # DATE:   2018-01-17
-        # AUTHOR: Timm Wimmers
-        # STATUS: -unassigned-
-        #
-        pos_x = w / 2 - 100
-        pos_y = 20
-        blf.enable(0, blf.SHADOW)
-        blf.shadow_offset(0, 1, -1)
-        blf.shadow(0, 5, 0.0, 0.0, 0.0, 0.8)
-        blf.size(0, 32, 36)
-        blf.position(0, pos_x, pos_y, 0)
-        bgl.glColor4f(1.0, 0.0, 0.0, 1.0)
-        blf.draw(0, "%s" % ('RenderMan Interactive Mode Running'))
-        blf.disable(0, blf.SHADOW)
+        gfx.border(self, context.region)
 
     def invoke(self, context, event=None):
 

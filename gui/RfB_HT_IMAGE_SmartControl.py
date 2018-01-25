@@ -43,7 +43,9 @@ class RfB_HT_IMAGE_SmartControl(bpy.types.Header):
     def draw(self, context):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
+
         layout = self.layout
+        layout.enabled = True if bpy.context.scene.camera else False
 
         row = layout.row(align=True)
         iid = icons.iconid("render")

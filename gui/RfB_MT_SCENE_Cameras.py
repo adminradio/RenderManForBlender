@@ -28,24 +28,36 @@
 #
 import bpy
 
+#
+# RenderManForBlender Imports
+#
+from . import icons
+
 
 class RfB_MT_SCENE_Cameras(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_cameras"
-    bl_label = "Scene Cameras"
+    bl_label = "Switch Active Camera"
+    bl_description = "Select and switch active (render) camera."
+    opr = "rfb.object_select_camera"
+    iida = icons.iconid('cameraactive')
+    iide = icons.iconid('empty')
 
     def draw(self, context):
-        layout = self.layout
-        # col = layout.column(align=True)
-
-        cameras = [
-            obj for obj in bpy.context.scene.objects if obj.type == "CAMERA"]
-
-        if len(cameras):
-            for cam in cameras:
+        menu = self.layout
+        cams = [
+            obj for obj in bpy.context.scene.objects
+            if obj.type == "CAMERA"
+        ]
+        if cams:
+            for cam in cams:
                 name = cam.name
-                op = layout.operator(
-                    "rfb.object_select_camera", text=name, icon='CAMERA_DATA')
-                op.camera_name = name
-
+                try:
+                    active = bpy.data.scenes[context.scene.name].camera.name
+                    iid = self.iida if active == name else self.iide
+                except AttributeError:
+                    iid = self.iide
+                menu.enabled = not cam.hide
+                op = menu.operator(self.opr, text=name, icon_value=iid)
+                op.cam_name = name
         else:
-            layout.label("No Camera in the Scene")
+            menu.label("No camera in scene!")

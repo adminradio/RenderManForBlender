@@ -23,25 +23,25 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 import bpy
-import bpy_types
-import math
+# import bpy_types
+# import math
 import os
 import time
 
 import subprocess
-from subprocess import Popen
-from subprocess import PIPE
+# from subprocess import Popen
+# from subprocess import PIPE
 
-import mathutils
-from mathutils import Matrix
-from mathutils import Vector
-from mathutils import Quaternion
+# import mathutils
+# from mathutils import Matrix
+# from mathutils import Vector
+# from mathutils import Quaternion
 
-import re
+# import re
 import traceback
 import glob
 
-from . import bl_info
+#  from . import bl_info
 
 # # unused
 # from . utils import bpy_newer_257
@@ -49,23 +49,23 @@ from . import bl_info
 # from . utils import BlenderVersionError
 
 from . import rfb
-from . utils import rib
-from . utils import rib_path
-from . utils import rib_ob_bounds
-from . utils import make_frame_path
-from . utils import init_exporter_env
-from . utils import get_sequence_path
-from . utils import user_path
-from . utils import get_path_list_converted
-from . utils import set_path
-from . utils import path_list_convert
-from . utils import guess_rmantree
-from . utils import set_pythonpath
-from . utils import set_rmantree
-from . utils import get_real_path
-from . utils import find_it_path
-from . utils import debug
-from . utils import get_Selected_Objects
+from . rfb.utils import rib
+from . rfb.utils import rib_path
+from . rfb.utils import rib_ob_bounds
+from . rfb.utils import make_frame_path
+from . rfb.utils import init_exporter_env
+from . rfb.utils import get_sequence_path
+from . rfb.utils import user_path
+from . rfb.utils import get_path_list_converted
+from . rfb.utils import set_path
+from . rfb.utils import path_list_convert
+from . rfb.utils import guess_rmantree
+from . rfb.utils import set_pythonpath
+from . rfb.utils import set_rmantree
+from . rfb.utils import get_real_path
+from . rfb.utils import find_it_path
+from . rfb.utils import debug
+from . rfb.utils import get_Selected_Objects
 
 from random import randint
 import sys
@@ -77,7 +77,7 @@ from .export import write_rib, write_preview_rib, get_texture_list,\
     interactive_initial_rib, update_light_link, delete_light,\
     reset_light_illum, solo_light, mute_lights, issue_light_vis, update_crop_window
 
-from .nodes import get_tex_file_name
+from . nds import get_tex_file_name
 
 # # unused?
 # addon_version = bl_info['version']

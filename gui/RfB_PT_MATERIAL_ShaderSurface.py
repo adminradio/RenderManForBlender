@@ -34,8 +34,8 @@ from bpy.types import Panel
 #
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 
-from .. nodes import panel_node_draw
-from .. nodes import is_renderman_nodetree
+from .. nds import panel_node_draw
+from .. nds import is_renderman_nodetree
 
 
 class RfB_PT_MATERIAL_ShaderSurface(RfB_PT_MIXIN_ShaderTypePolling, Panel):

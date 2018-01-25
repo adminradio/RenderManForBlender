@@ -34,20 +34,20 @@ import bpy
 import bpy.utils.previews
 
 # RenderMan for Blender Imports
-from ... utils import stdmsg
-from ... utils import stdadd
+from ... rfb.utils import stdmsg
+from ... rfb.utils import stdadd
 
 
 def iconid(ident):
     """Return an 'icon_id' which can be used as 'icon_value'"""
-    icon = __collections["main"].get(ident)
+    icon = _collections["main"].get(ident.lower())
     iid = None
 
     if icon:
         iid = icon.icon_id
     else:
         stdmsg("Icon theme: Requested ID '" + ident + "' not found, using 'dev_error'!")
-        iid = __collections["main"].get("dev_error").icon_id
+        iid = _collections["main"].get("dev_error").icon_id
 
     return iid
 
@@ -78,5 +78,5 @@ def __load(theme='default'):
 
 stdmsg("Initialising icon theme:")
 stdadd("")
-__collections = {}
-__collections["main"] = __load()
+_collections = {}
+_collections["main"] = __load()

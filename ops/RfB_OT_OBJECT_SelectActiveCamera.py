@@ -29,17 +29,20 @@
 import bpy
 
 
-class RfB_OT_OBJECT_SelectCamera(bpy.types.Operator):
-    bl_idname = "rfb.object_select_camera"
-    bl_label = "Select Cameras"
+class RfB_OT_OBJECT_SelectActiveCamera(bpy.types.Operator):
+    bl_idname = "rfb.object_select_active_camera"
+    bl_label = "Select active camera"
+    bl_description = "Select current active (render) camera.\nTo change, "\
+                     "select one from the list above, or add a new one."
 
-    cam_name = bpy.props.StringProperty(default="")
+    camera_name = bpy.props.StringProperty(default="")
 
     def execute(self, context):
+        scn = context.scene
+        cam = scn.camera.name
 
         bpy.ops.object.select_all(action='DESELECT')
-        bpy.data.objects[self.cam_name].select = True
-        bpy.context.scene.objects.active = bpy.data.objects[self.cam_name]
-        bpy.context.scene.camera = bpy.data.objects[self.cam_name]
+        bpy.data.objects[cam].select = True
+        scn.objects.active = bpy.data.objects[cam]
 
         return {'FINISHED'}

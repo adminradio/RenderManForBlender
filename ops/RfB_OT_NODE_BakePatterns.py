@@ -39,8 +39,8 @@ import bpy
 # RenderMan for Blender imports
 #
 from .. import engine
-from .. utils import find_local_queue
-from .. utils import find_tractor_spool
+from .. rfb.utils import find_local_queue
+from .. rfb.utils import find_tractor_spool
 from .. rfb import spool
 from .. export import get_texture_list
 

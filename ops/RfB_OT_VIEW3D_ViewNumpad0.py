@@ -1,3 +1,4 @@
+
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
 # Copyright (c) 2015 - 2018 Pixar
@@ -29,17 +30,21 @@
 import bpy
 
 
-class RfB_OT_OBJECT_SelectCamera(bpy.types.Operator):
-    bl_idname = "rfb.object_select_camera"
-    bl_label = "Select Cameras"
-
-    cam_name = bpy.props.StringProperty(default="")
+#
+# #### A T T E N T I O N  #####
+#
+# This operator should not be exposed to the UI as
+# this can cause the loss of data since Blender does not
+# preserve any information during script restart.
+#
+# As of 2018-01-19 this tool isn't available via UI, also it
+# doesn't work well. (TW)
+#
+class RfB_OT_VIEW3D_ViewNumpad0(bpy.types.Operator):
+    bl_idname = "rfb.view_numpad0"
+    bl_label = "Viewport camera view"
+    bl_description = "Switch viewport to active camera view."
 
     def execute(self, context):
-
-        bpy.ops.object.select_all(action='DESELECT')
-        bpy.data.objects[self.cam_name].select = True
-        bpy.context.scene.objects.active = bpy.data.objects[self.cam_name]
-        bpy.context.scene.camera = bpy.data.objects[self.cam_name]
-
-        return {'FINISHED'}
+        bpy.ops.view3d.viewnumpad(type='CAMERA')
+        return {"FINISHED"}

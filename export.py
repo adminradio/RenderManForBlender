@@ -35,25 +35,25 @@ from mathutils import Matrix, Vector, Quaternion, Euler
 
 from . import bl_info
 
-from . utils import rib, rib_path, rib_ob_bounds
-from . utils import make_frame_path
-from . utils import init_env
-from . utils import get_sequence_path
-from . utils import user_path
-from . utils import path_list_convert, get_real_path
-from . utils import get_properties, check_if_archive_dirty
-from . utils import locate_openVDB_cache
-from . utils import debug
-from . utils import find_it_path
-
-from . nodes import export_shader_nodetree
-from . nodes import get_textures
-from . nodes import get_textures_for_node
-from . nodes import get_tex_file_name
-from . nodes import shader_node_rib, get_mat_name
-from . nodes import replace_frame_num
-
 from . import rfb
+from . rfb.utils import rib, rib_path, rib_ob_bounds
+from . rfb.utils import make_frame_path
+from . rfb.utils import init_env
+from . rfb.utils import get_sequence_path
+from . rfb.utils import user_path
+from . rfb.utils import path_list_convert, get_real_path
+from . rfb.utils import get_properties, check_if_archive_dirty
+from . rfb.utils import locate_openVDB_cache
+from . rfb.utils import debug
+from . rfb.utils import find_it_path
+
+from . nds import export_shader_nodetree
+from . nds import get_textures
+from . nds import get_textures_for_node
+from . nds import get_tex_file_name
+from . nds import shader_node_rib, get_mat_name
+from . nds import replace_frame_num
+
 
 addon_version = bl_info['version']
 

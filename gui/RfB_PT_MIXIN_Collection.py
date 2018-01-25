@@ -59,10 +59,7 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
     ):
 
         left, right = split_lr(layout)
-        # TODO: name is empty on light groups and object groups ???
-        # ll.label(name)
-        # FIXME: Removing a group can't be undone!
-        left.label("ATTENTION: Removing a group can't be undone!")
+        left.label(self.bl_label)
 
         op = right.operator(operator, icon="ZOOMOUT", text="")
         op.context = opcontext
@@ -79,19 +76,13 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
 
         row = layout.row()
         row.template_list(
-            "UI_UL_list",
-            "PRMAN",
-            ptr,
-            prop_coll,
-            ptr,
-            collection_index,
-            rows=1
+            "UI_UL_list", self.bl_idname, ptr, prop_coll,
+            ptr, collection_index, rows=1
         )
 
-        if (hasattr(ptr, prop_coll)
-            and len(getattr(ptr, prop_coll)) > 0
-            and getattr(ptr, collection_index) >= 0
-            ):
+        if (hasattr(ptr, prop_coll) and
+            len(getattr(ptr, prop_coll)) > 0 and
+                getattr(ptr, collection_index) >= 0):
 
             item = getattr(ptr, prop_coll)[getattr(ptr, collection_index)]
             self.draw_item(layout, context, item)

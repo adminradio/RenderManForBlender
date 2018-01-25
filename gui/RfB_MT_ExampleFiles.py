@@ -33,7 +33,7 @@ import addon_utils
 # RenderMan for Blender
 #
 from . import icons
-from .. utils import get_Files_in_Directory
+from .. rfb.utils import get_Files_in_Directory
 
 
 class RfB_MT_ExampleFiles(bpy.types.Menu):

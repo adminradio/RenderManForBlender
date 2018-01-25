@@ -36,7 +36,7 @@ from . import icons
 
 class RfB_MT_SCENE_LightsHemi(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_lightshemi"
-    bl_label = "EnvLight List"
+    bl_label = "Select EnvLight"
 
     icn = icons.iconid('envlight')
 

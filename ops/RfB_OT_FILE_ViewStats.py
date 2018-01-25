@@ -36,7 +36,7 @@ import bpy
 #
 # RfB imports
 #
-from .. utils import user_path
+from .. rfb.utils import user_path
 
 
 class RfB_OT_FILE_ViewStats(bpy.types.Operator):

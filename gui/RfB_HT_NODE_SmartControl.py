@@ -31,7 +31,7 @@ import bpy
 #
 # RenderMan for Blender
 #
-from .. nodes import is_renderman_nodetree
+from .. nds import is_renderman_nodetree
 
 
 class RfB_HT_NODE_SmartControl(bpy.types.Header):
@@ -41,7 +41,9 @@ class RfB_HT_NODE_SmartControl(bpy.types.Header):
     def draw(self, context):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
+
         layout = self.layout
+        layout.enabled = True if bpy.context.scene.camera else False
 
         row = layout.row(align=True)
 

@@ -39,9 +39,9 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from .. utils import stdmsg
-from .. utils import stdadd
-from .. utils import guess_rmantree
+from .. rfb.utils import stdmsg
+from .. rfb.utils import stdadd
+from .. rfb.utils import guess_rmantree
 #
 #
 # TODO:   Refactor 'guess_rmantree' into RfB registry.

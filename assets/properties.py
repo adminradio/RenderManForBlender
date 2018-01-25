@@ -30,8 +30,8 @@ from bpy.props import *
 from bpy.types import PropertyGroup
 
 from . import assets
-from .. import utils
 from .. import rfb
+from .. rfb import utils
 
 # This file holds the properties for the asset browser.
 # They will be parsed from the json file

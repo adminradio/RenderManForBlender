@@ -36,16 +36,31 @@ class RfB_OT_OBJECT_DeleteCamera(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
+        scn = context.scene
 
-        type_camera = bpy.context.object.data.type
+        cam_type = bpy.context.object.data.type
+        #
+        # if we  are going to deket an active camera, we should know!
+        #
         bpy.ops.object.delete()
+        print(bpy.data.scenes[scn.name].camera)
 
-        camera = [obj for obj in bpy.context.scene.objects if obj.type ==
-                  "CAMERA" and obj.data.type == type_camera]
+        cams = [
+            obj for obj in bpy.context.scene.objects
+            if obj.type == "CAMERA" and obj.data.type == cam_type
+        ]
 
-        if len(camera):
-            camera[0].select = True
-            bpy.context.scene.objects.active = camera[0]
+        if cams:
+            #
+            # if we deleted an active, we should mark a new one
+            # as active to make sure that there is an active one
+            #
+            try:
+                _tmp = bpy.data.scenes[scn.name].camera.name
+            except AttributeError:
+                bpy.data.scenes[scn.name].camera = cams[0]
+            cams[0].select = True
+            bpy.context.scene.objects.active = cams[0]
             return {"FINISHED"}
 
         else:

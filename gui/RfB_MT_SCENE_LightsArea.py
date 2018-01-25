@@ -32,12 +32,11 @@ import bpy
 # RenderMan for Blender Imports
 #
 from . import icons
-from .. ops import RfB_OT_OBJECT_SelectLight
 
 
 class RfB_MT_SCENE_LightsArea(bpy.types.Menu):
     bl_idname = "rfb_mt_scene_lightsarea"
-    bl_label = "Scene Area Lights"
+    bl_label = "Select AreaLight"
 
     icn = icons.iconid('arealight')
 

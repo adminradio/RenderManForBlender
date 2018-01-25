@@ -69,7 +69,7 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from .. import rfb
+from ... import rfb
 
 
 #

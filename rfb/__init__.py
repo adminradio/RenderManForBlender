@@ -28,8 +28,8 @@
 #
 from . import exceptions
 
-from .. import utils
-from .. utils import stdmsg
+from . import utils
+from . utils import stdmsg
 from . Registry import Registry as reg
 
 #
