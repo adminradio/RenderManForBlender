@@ -30,8 +30,7 @@ from bpy.props import *
 from bpy.types import PropertyGroup
 
 from . import assets
-from .. import rfb
-from .. rfb import utils
+from .. rfb.registry import Registry as rr
 
 # This file holds the properties for the asset browser.
 # They will be parsed from the json file
@@ -81,7 +80,7 @@ class RendermanAssetGroup(PropertyGroup):
     @classmethod
     def get_from_path(cls, lib_path):
         ''' get from abs lib_path '''
-        head = rfb.reg.prefs().assets_library
+        head = rr.prefs().assets_library
         lib_path = os.path.relpath(lib_path, head.path)
         active = head
         for sub_path in lib_path.split(os.sep):
@@ -92,7 +91,7 @@ class RendermanAssetGroup(PropertyGroup):
     # get the active library from the addon pref
     @classmethod
     def get_active_library(cls):
-        active_path = rfb.reg.prefs().active_assets_path
+        active_path = rr.prefs().active_assets_path
         if active_path != '':
             return cls.get_from_path(active_path)
         else:
@@ -116,7 +115,7 @@ class RendermanAssetGroup(PropertyGroup):
         return all_assets
 
     def is_active(self):
-        return self.path == rfb.reg.prefs().active_assets_path
+        return self.path == rr.prefs().active_assets_path
 
 
 def register():
@@ -127,8 +126,7 @@ def register():
         # set sub groups type we have to do this after registered
         sub_groups = CollectionProperty(type=RendermanAssetGroup)
         setattr(RendermanAssetGroup, 'sub_groups', sub_groups)
-
-    except:
+    except Exception:
         pass  # allready registered
 
 

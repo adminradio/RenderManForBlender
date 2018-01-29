@@ -33,8 +33,8 @@ from . properties import RendermanAsset
 
 from . import assets
 from .. gui import icons
-from .. import rfb
-from .. rfb import utils
+from .. rfb import lib
+from .. rfb.registry import Registry as rr
 from .. gui.RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 
@@ -46,7 +46,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_label = "Asset Manager"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = rfb.reg.get('BL_CATEGORY')
+    bl_category = rr.get('RFB_TABNAME')
 
     @classmethod
     def poll(cls, context):
@@ -54,7 +54,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
         return rd.engine == 'PRMAN_RENDER'
 
     # def draw_header(self, context):
-    #     if rfb.reg.prefs().draw_panel_icon:
+    #     if rr.prefs().draw_panel_icon:
     #         iid = icons.iconid("renderman")
     #         self.layout.label(text="", icon_value=iid)
     #     else:
@@ -69,7 +69,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
 
-        assets_library = rfb.reg.prefs().assets_library
+        assets_library = rr.prefs().assets_library
 
         if assets_library.name == '':
             layout.operator("rfb.init_asset_library", text="Set up Library")
@@ -77,7 +77,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
             layout = self.layout
 
             row = layout.row(align=True)
-            row.context_pointer_set('renderman_asset', rfb.reg.prefs().assets_library)
+            row.context_pointer_set('renderman_asset', rr.prefs().assets_library)
             row.menu('renderman_assets_menu', text="Select Library")
             row.operator("rfb.init_asset_library", text="", icon="FILE_REFRESH")
             active = RendermanAssetGroup.get_active_library()

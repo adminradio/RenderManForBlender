@@ -48,19 +48,19 @@ from .. shd import node_add_outputs
 from .. shd import socket_map
 from .. shd import txmake_options, update_conditional_visops
 
-from .. rfb.utils import args_files_in_path
-from .. rfb.utils import debug
-from .. rfb.utils import readOSO
-from .. rfb.utils import rib
-from .. rfb.utils import user_path
+from .. rfb.lib import args_files_in_path
+from .. rfb.lib.echo import debug
+from .. rfb.lib import readOSO
+from .. rfb.lib import rib
+from .. rfb.lib import user_path
 
 
 from .. gui import icons
 
 # from . import ops
-from .. ops import RfB_OT_NODE_RefreshOSL
+# from .. ops import RfB_OT_NODE_RefreshOSL
 
-from .. import rfb
+from .. rfb.registry import Registry as rr
 from . utils.PropertyLookup import PropertyLookup
 
 # FIXME: A candidate for RfB registry?
@@ -96,7 +96,7 @@ class RendermanSocket:
             return getattr(node, self.name)
 
     def draw_color(self, context, node):
-        return rfb.reg.get('BXDF')
+        return rr.get('BXDF')
 
     def draw_value(self, context, layout, node):
         layout.prop(node, self.identifier)
@@ -115,7 +115,7 @@ class RendermanSocket:
 class RendermanSocketInterface:
 
     def draw_color(self, context):
-        return rfb.reg.get('BXDF')
+        return rr.get('BXDF')
     #
     # TODO:   Add 'page' name in front of socket name if page is empty?
     #         Open for discussion.
@@ -151,7 +151,7 @@ class RendermanNodeSocketFloat(
     renderman_type = StringProperty(default='float')
 
     def draw_color(self, context, node):
-        return rfb.reg.get('FLOAT')
+        return rr.get('FLOAT')
 
 
 class RendermanNodeSocketInterfaceFloat(
@@ -166,7 +166,7 @@ class RendermanNodeSocketInterfaceFloat(
     default_value = FloatProperty()
 
     def draw_color(self, context):
-        return rfb.reg.get('FLOAT')
+        return rr.get('FLOAT')
 
 
 class RendermanNodeSocketInt(
@@ -181,7 +181,7 @@ class RendermanNodeSocketInt(
     renderman_type = StringProperty(default='int')
 
     def draw_color(self, context, node):
-        return rfb.reg.get('INT')
+        return rr.get('INT')
 
 
 class RendermanNodeSocketInterfaceInt(
@@ -196,7 +196,7 @@ class RendermanNodeSocketInterfaceInt(
     default_value = IntProperty()
 
     def draw_color(self, context):
-        return rfb.reg.get('INT')
+        return rr.get('INT')
 
 
 class RendermanNodeSocketString(
@@ -247,7 +247,7 @@ class RendermanNodeSocketColor(
     renderman_type = StringProperty(default='color')
 
     def draw_color(self, context, node):
-        return rfb.reg.get('RGB')
+        return rr.get('RGB')
 
 
 class RendermanNodeSocketInterfaceColor(
@@ -263,7 +263,7 @@ class RendermanNodeSocketInterfaceColor(
                                         subtype="COLOR")
 
     def draw_color(self, context):
-        return rfb.reg.get('RGB')
+        return rr.get('RGB')
 
 
 class RendermanNodeSocketVector(
@@ -280,7 +280,7 @@ class RendermanNodeSocketVector(
     renderman_type = StringProperty(default='vector')
 
     def draw_color(self, context, node):
-        return rfb.reg.get('VECTOR')
+        return rr.get('VECTOR')
 
 
 class RendermanNodeSocketInterfaceVector(
@@ -297,7 +297,7 @@ class RendermanNodeSocketInterfaceVector(
                                         subtype="EULER")
 
     def draw_color(self, context):
-        return rfb.reg.get('VECTOR')
+        return rr.get('VECTOR')
 
 
 # Custom socket type for connecting shaders
@@ -2415,7 +2415,7 @@ def register():
         bpy.utils.register_class(cls)
 
     user_preferences = bpy.context.user_preferences
-    pref_id = rfb.reg.get('RFB_PREFS')
+    pref_id = rr.get('RFB_PREFS')
     prefs = user_preferences.addons[pref_id].preferences
 
     categories = {}

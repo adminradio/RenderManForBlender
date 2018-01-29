@@ -39,8 +39,8 @@ import bpy
 # RenderMan for Blender imports
 #
 from .. import engine
-from .. rfb.utils import find_local_queue
-from .. rfb.utils import find_tractor_spool
+from .. rfb.lib import find_local_queue
+from .. rfb.lib import find_tractor_spool
 from .. rfb import spool
 from .. export import get_texture_list
 
@@ -56,12 +56,11 @@ class RfB_OT_NODE_BakePatterns(bpy.types.Operator):
         try:
             rpass.gen_rib(convert_textures=False)
         except Exception as err:
-            self.report({'ERROR'}, 'Rib gen error: ' + traceback.format_exc())
+            self.report({'ERROR'}, 'RIB generation error: ' + traceback.format_exc())
 
     def execute(self, context):
         if engine.ipr:
-            self.report(
-                {"ERROR"}, 'Please stop IPR before baking')
+            self.report({"ERROR"}, 'Please stop IPR before baking.')
             return {'FINISHED'}
 
         scene = context.scene
@@ -72,8 +71,8 @@ class RfB_OT_NODE_BakePatterns(bpy.types.Operator):
         if not os.path.exists(rpass.paths['texture_output']):
             os.mkdir(rpass.paths['texture_output'])
 
-        self.report(
-            {'INFO'}, 'RenderMan External Rendering generating rib for frame %d' % scene.frame_current)
+        txt = 'Generating RIB for frame {:04d}'.format(scene.frame_current)
+        self.report({'INFO'}, txt)
 
         self.gen_rib_frame(rpass)
 
@@ -91,9 +90,8 @@ class RfB_OT_NODE_BakePatterns(bpy.types.Operator):
         alf_file = spool.render(str(rm_version), to_render, [rib_names], denoise_files, denoise_aov_files, frame_begin, frame_end, denoise, context, job_texture_cmds=job_tex_cmds, frame_texture_cmds=frame_tex_cmds, rpass=rpass, bake=True)
         exe = find_tractor_spool() if rm.queuing_system == 'tractor' else find_local_queue()
 
-        self.report(
-            {'INFO'},
-            'RenderMan Baking spooling to %s.' % rm.queuing_system)
+        txt = 'Baking patterns to textures. Spool to <{}>.'.format(rm.queuing_system)
+        self.report({'INFO'}, txt)
 
         subprocess.Popen([exe, alf_file])
 

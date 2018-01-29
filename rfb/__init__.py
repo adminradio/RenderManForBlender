@@ -23,18 +23,4 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# RenderMan for Blender imports
-#
-from . import exceptions
-
-from . import utils
-from . utils import stdmsg
-from . Registry import Registry as reg
-
-#
-# Tell'm that we are starting ...
-#
-stdmsg("Initializing runtime environment ...")
-
-reg.display("Populating registry:")
+# <pep8-80 compliant>

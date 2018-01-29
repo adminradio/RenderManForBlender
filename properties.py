@@ -30,8 +30,8 @@ import xml.etree.ElementTree as ET
 import time
 from mathutils import Vector
 
-from . rfb.utils import guess_rmantree
-from . rfb.utils import args_files_in_path
+from . rfb.lib import guess_rmantree
+from . rfb.lib import args_files_in_path
 from . shd import class_generate_properties
 
 from bpy.props import BoolProperty

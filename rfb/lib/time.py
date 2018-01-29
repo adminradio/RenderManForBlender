@@ -23,21 +23,42 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# # Python imports
-# import sys
+# <pep8-80 compliant>
 
-# # RenderMan for Blender imports
-# from .. rfb.utils import stdmsg
+#
+# Python Imports
+#
 
-# sys.excepthook = (
-#     lambda e, e_msg, e_tb:
-#     stdmsg("{}: {}".format(e.__name__, e_msg))
-# )
+#
+# Blender Imports
+#
+
+#
+# RenderManForBlender Imports
+#
 
 
-class RegistryKeyNotFound(Exception):
-    pass
+def pretty(_s_):
+    """Make time values human readable."""
+    #
+    # Example output with @laptime decorator
+    #
+    # RfB - Lap time: 9999.9999 ms | f() = function_name
+    # RfB - Lap time:   59.9999 s  | f() = function_name
+    # RfB - Lap time:  00:01:59 h  | f() = function_name
+    #
+    if _s_ < 10.0:
+        return "{: >9.4f} ms".format(_s_ * 1000)
+    elif _s_ < 60.0:
+        return "{: >9.4f} s ".format(_s_)
+    else:
+        return "{: >9} h ".format(hhmmss(_s_))
 
 
-class RegistryKeyAlreadyUsed(Exception):
-    pass
+def hhmmss(_s_):
+    """Return number of seconds as day time. Turns over at 86400 sec."""
+    hh = _s_ // (60 * 60) % 24
+    ss = _s_ % (60 * 60)
+    mm = ss // 60
+    ss %= 60
+    return "{:0>2}:{:0>2}:{:0>2}".format(hh, mm, ss)

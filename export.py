@@ -35,17 +35,17 @@ from mathutils import Matrix, Vector, Quaternion, Euler
 
 from . import bl_info
 
-from . import rfb
-from . rfb.utils import rib, rib_path, rib_ob_bounds
-from . rfb.utils import make_frame_path
-from . rfb.utils import init_env
-from . rfb.utils import get_sequence_path
-from . rfb.utils import user_path
-from . rfb.utils import path_list_convert, get_real_path
-from . rfb.utils import get_properties, check_if_archive_dirty
-from . rfb.utils import locate_openVDB_cache
-from . rfb.utils import debug
-from . rfb.utils import find_it_path
+from . rfb.registry import Registry as rr
+from . rfb.lib import rib, rib_path, rib_ob_bounds
+from . rfb.lib import make_frame_path
+from . rfb.lib import init_env
+from . rfb.lib import get_sequence_path
+from . rfb.lib import user_path
+from . rfb.lib import path_list_convert, get_real_path
+from . rfb.lib import get_properties, check_if_archive_dirty
+from . rfb.lib import locate_openVDB_cache
+from . rfb.lib.echo import debug
+from . rfb.lib import find_it_path
 
 from . nds import export_shader_nodetree
 from . nds import get_textures
@@ -3021,7 +3021,7 @@ def export_samplefilters(ri, rpass, scene):
     rm = scene.renderman
     filter_names = []
     display_driver = rpass.display_driver
-    addon_prefs = rfb.reg.prefs()
+    addon_prefs = rr.prefs()
     for sf in rm.sample_filters:
         params = property_group_to_params(sf.get_filter_node())
         ri.SampleFilter(sf.get_filter_name(), sf.name, params)
@@ -3152,7 +3152,7 @@ def export_display(ri, rpass, scene):
 
     display_driver = rpass.display_driver
     rpass.output_files = []
-    addon_prefs = rfb.reg.prefs()
+    addon_prefs = rr.prefs()
     main_display = user_path(
         addon_prefs.path_display_driver_image, scene=scene, display_driver=rpass.display_driver)
     debug("info", "Main_display: " + main_display)

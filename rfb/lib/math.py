@@ -24,19 +24,17 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# RenderMan for Blender imports
+# Python Imports
 #
-from . import icons
-from .. rfb.registry import Registry as rr
+
+#
+# Blender Imports
+#
+
+#
+# RenderManForBlender Imports
+#
 
 
-class RfB_PT_MIXIN_PanelIcon():
-    """Mixin for RfB_PT_MIXIN_Panel, implements the root panel icon."""
-    iid = icons.iconid('renderman')
-
-    # override
-    def draw_header(self, context):
-        if rr.prefs().draw_panel_icon:
-            self.layout.label(text='', icon_value=self.iid)
-        else:
-            pass
+def clamp(val, low, high):
+    return max(low, min(high, val))

@@ -55,8 +55,6 @@ import mathutils
 # from mathutils import Matrix
 # from mathutils import Vector
 
-from datetime import datetime
-
 from extensions_framework import util as efutil
 
 
@@ -69,76 +67,36 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from ... import rfb
+from .. registry import Registry as rr
+from . math import clamp
+from . echo import debug
+from . echo import stdmsg
 
+from . import rman
+
+
+print(rr.prefs())
+
+version, commands = rman.select()
+major, minor = version.split('.')
 
 #
-# Developer Options (candidate for user prefs?)
+# Developer options are candidates for user prefs!
 #
-EnableDebugging = False
+DEBUG = rr.get('RFB_DEBUG')
+INFOS = rr.get('RFB_INFOS')
 
+if DEBUG or INFOS:
+    stdmsg("Current selected RenderMan version: "
+           "Major={}, Minor={}".format(major, minor))
 
-def stdmsg(msg):
-    _echo(msg, extend=False)
+    for item in commands.keys():
+        stdmsg("{: <10} -> '{}'".format(item, commands[item]))
 
-
-def stdadd(msg=""):
-    _echo(msg, extend=True)
-
-
-def _echo(msg, extend=False):
-    pre = (
-        "                      ...   "
-        if extend
-        else "\n[{}] RfB - ".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    )
-    print('{}{}'.format(pre, msg))
-
-
-def slugify(string, length=40, offset=-11):
-    """Shorten a string by removing the mid part of it."""
-    #
-    # TODO:   be sure that offset doesn't go to a negative
-    #         value of len(string).
-    # DATE:   2018-01-17
-    # AUTHOR: Timm Wimmers
-    # STATUS: -unassigned-
-    #
-    strlen = len(string)
-    if strlen <= length:
-        return string
-    else:
-
-        l_end = int(length / 2 + offset)
-        r_start = int(strlen - (length / 2) + offset)
-        slug_l = string[:l_end]
-        slug_r = string[r_start:]
-
-        return "{}...{}".format(slug_l, slug_r)
-
-
-def fix_filename(name):  # could reuse for other presets
-    for char in " !@#$%^&*(){}:\";'[]<>,.\\/?":
-        name = name.replace(char, '_')
-    return name.strip()
-
-# # FIXME: unused ?
-# class BlenderVersionError(Exception):
-#     pass
-
-# # FIXME: unused ?
-# def bpy_newer_257():
-#     if (bpy.app.version[1] < 57 or (bpy.app.version[1] == 57 and
-#                                     bpy.app.version[2] == 0)):
-#         raise BlenderVersionError
-
-
-def clamp(i, low, high):
-    if i < low:
-        i = low
-    if i > high:
-        i = high
-    return i
+#
+# FIXME: Could be removed if refactorung is finished
+#
+EnableDebugging = True if DEBUG else False
 
 
 def throw_error(msg):
@@ -267,25 +225,25 @@ def readOSO(filePath):
     return prop_names, shader_meta
 
 
-def debug(warningLevel, *output):
+# def debug(warningLevel, *output):
 
-    if warningLevel == 'warning' or warningLevel == 'error' or \
-            warningLevel == 'osl':
-        if(warningLevel == "warning"):
-            print("WARNING: ", output)
-        elif(warningLevel == "error"):
-            print("ERROR: ", output)
-        elif(warningLevel == "osl"):
-            for item in output:
-                print("OSL INFO: ", item)
-    else:
-        if EnableDebugging:
-            if(warningLevel == "info"):
-                print("INFO: ", output)
-            else:
-                print("DEBUG: ", output)
-        else:
-            pass
+#     if warningLevel == 'warning' or warningLevel == 'error' or \
+#             warningLevel == 'osl':
+#         if(warningLevel == "warning"):
+#             print("WARNING: ", output)
+#         elif(warningLevel == "error"):
+#             print("ERROR: ", output)
+#         elif(warningLevel == "osl"):
+#             for item in output:
+#                 print("OSL INFO: ", item)
+#     else:
+#         if EnableDebugging:
+#             if(warningLevel == "info"):
+#                 print("INFO: ", output)
+#             else:
+#                 print("DEBUG: ", output)
+#         else:
+#             pass
 
 
 def get_Selected_Objects(scene):
@@ -328,7 +286,7 @@ def args_files_in_path(prefs, idblock, shader_type='', threaded=True):
         # STATUS: assigned to self
         #
         # QUICKFIX: because of moving this from 'utils.py' to 'utils/__init__.py'
-        if 'Windows' in rfb.reg.get('OS'):
+        if 'Windows' in rr.get('OS'):
             path = path.replace("\\utils", "")
         else:
             path = path.replace("/utils", "")
@@ -622,17 +580,12 @@ def get_rman_version(rmantree):
         return 0, 0, ''
 
 
-# def get_addon_prefs():
-#     return rfb.reg.prefs()
-
-
 def guess_rmantree():
-    # prefs = rfb.reg.prefs()
-    rmantree_method = rfb.reg.prefs().rmantree_method
-    choice = rfb.reg.prefs().rmantree_choice
+    rmantree_method = rr.prefs().rmantree_method
+    choice = rr.prefs().rmantree_choice
 
     if rmantree_method == 'MANUAL':
-        rmantree = rfb.reg.prefs().path_rmantree
+        rmantree = rr.prefs().path_rmantree
     elif rmantree_method == 'ENV' or choice == 'NEWEST':
         rmantree = rmantree_from_env()
     else:

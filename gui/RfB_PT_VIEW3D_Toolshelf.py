@@ -33,7 +33,7 @@ from bpy.types import Panel
 # RenderMan for Blender Imports
 #
 from . import icons
-from .. import rfb
+from .. rfb.registry import Registry as rr
 from .. import engine
 
 from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets
@@ -45,7 +45,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_label = "Render Control"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = rfb.reg.get('RFB_TABNAME')
+    bl_category = rr.get('RFB_TABNAME')
 
     @classmethod
     def poll(cls, context):

@@ -34,8 +34,8 @@ import bpy
 import bpy.utils.previews
 
 # RenderMan for Blender Imports
-from ... rfb.utils import stdmsg
-from ... rfb.utils import stdadd
+from ... rfb.lib.echo import stdmsg
+from ... rfb.lib.deco import laptime
 
 
 def iconid(ident):
@@ -46,13 +46,15 @@ def iconid(ident):
     if icon:
         iid = icon.icon_id
     else:
-        stdmsg("Icon theme: Requested ID '" + ident + "' not found, using 'dev_error'!")
+        stdmsg("Icons: Requested ID {} not found."
+               "Using 'dev_error' instead!").format(ident.lower())
         iid = _collections["main"].get("dev_error").icon_id
 
     return iid
 
 
 def toggle(prefix, b):
+    """Return an 'icon_id' with on or off suffix (depending on boolean)."""
     suffix = "_on" if b else '_off'
     ident = "{}{}".format(prefix, suffix)
     return iconid(ident)
@@ -62,8 +64,6 @@ def toggle(prefix, b):
 # 'theme' is a preperation for theming support. (TW)
 #
 def __load(theme='default'):
-    stdadd("Loading icons into collection ...")
-
     prvcoll = bpy.utils.previews.new()
     basedir = os.path.join(os.path.dirname(__file__), "themes", theme)
 
@@ -72,11 +72,9 @@ def __load(theme='default'):
             ident = os.path.splitext(f)[0].lower()
             prvcoll.load(ident, os.path.join(basedir, f), 'IMAGE')
 
-    stdadd("Done!")
     return prvcoll
 
 
-stdmsg("Initialising icon theme:")
-stdadd("")
+stdmsg("Icons: Loading into preview collection.")
 _collections = {}
 _collections["main"] = __load()

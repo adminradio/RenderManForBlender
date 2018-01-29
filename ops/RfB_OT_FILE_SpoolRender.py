@@ -44,9 +44,9 @@ import bpy
 #
 from .. import engine
 
-from .. rfb.utils import user_path
-from .. rfb.utils import find_local_queue
-from .. rfb.utils import find_tractor_spool
+from .. rfb.lib import user_path
+from .. rfb.lib import find_local_queue
+from .. rfb.lib import find_tractor_spool
 
 from .. import rfb
 
@@ -105,8 +105,8 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
 
     def execute(self, context):
         if engine.ipr:
-            self.report(
-                {"ERROR"}, "Please stop IPR before rendering externally")
+            txt = "RfB: RENDER - Please stop IPR before rendering externally."
+            self.report({"ERROR"}, txt)
             return {'FINISHED'}
 
         scene = context.scene
@@ -144,10 +144,9 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
             for frame in range(scene.frame_start, scene.frame_end + 1):
                 rpass.update_frame_num(frame)
                 if do_rib:
-                    self.report(
-                        {'INFO'},
-                        "RenderMan External Rendering generating rib"
-                        "for frame %d" % scene.frame_current)
+                    frm = scene.frame_current
+                    txt = ("RfB: RENDER - RIB for frame {:3d}".format(frm))
+                    self.report({'INFO'}, txt)
                     self.gen_rib_frame(rpass, do_objects)
                 rib_names.append(rpass.paths['rib_output'])
                 if rm.convert_textures:
@@ -161,10 +160,9 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
 
         else:
             if do_rib:
-                self.report(
-                    {'INFO'},
-                    "RenderMan External Rendering generating rib"
-                    "for frame %d" % scene.frame_current)
+                frm = scene.frame_current
+                txt = ("RfB: RIBGEN - for frame {:3d}".format(frm))
+                self.report({'INFO'}, txt)
                 self.gen_rib_frame(rpass, do_objects)
             rib_names.append(rpass.paths['rib_output'])
             if rm.convert_textures:
@@ -217,11 +215,8 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                     if rm.queuing_system == 'tractor'
                     else find_local_queue()
                 )
-                self.report(
-                    {'INFO'},
-                    "RenderMan External Rendering spooling "
-                    "to %s." % rm.queuing_system
-                )
+                txt = "RfB: RENDER - spool to <{}>.".format(rm.queuing_system)
+                self.report({'INFO'}, txt)
                 subprocess.Popen([exe, alf_file])
         rpass = None
         return {'FINISHED'}

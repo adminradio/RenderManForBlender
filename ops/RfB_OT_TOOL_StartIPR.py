@@ -37,6 +37,8 @@ from .. import rfb
 from .. import engine
 from .. gui import gfx
 
+from .. rfb.registry import Registry as rr
+
 
 class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
     bl_idname = "rfb.tool_ipr"
@@ -56,7 +58,7 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
 
             engine.ipr.start_interactive()
 
-            if rfb.reg.prefs().draw_ipr_text:
+            if rr.prefs().draw_ipr_text:
                 engine.ipr_handle = (
                     bpy.types.SpaceView3D.draw_handler_add(
                         self.draw, (context,), 'WINDOW', 'POST_PIXEL'
@@ -86,7 +88,7 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
             # AUTHOR: Timm Wimmers
             # STATUS: -unassigned-
             #
-            if rfb.reg.prefs().draw_ipr_text:
+            if rr.prefs().draw_ipr_text:
                 bpy.types.SpaceView3D.draw_handler_remove(
                     engine.ipr_handle, 'WINDOW'
                 )

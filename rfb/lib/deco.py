@@ -24,19 +24,51 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# RenderMan for Blender imports
+# Python Imports
 #
-from . import icons
-from .. rfb.registry import Registry as rr
+
+#
+# Blender Imports
+#
+
+#
+# RenderManForBlender Imports
+#
+
+import time
+import functools
+
+from . time import pretty
+from . echo import stdmsg
+
+from .. registry import Registry as rr
 
 
-class RfB_PT_MIXIN_PanelIcon():
-    """Mixin for RfB_PT_MIXIN_Panel, implements the root panel icon."""
-    iid = icons.iconid('renderman')
+_ids_ = set()
 
-    # override
-    def draw_header(self, context):
-        if rr.prefs().draw_panel_icon:
-            self.layout.label(text='', icon_value=self.iid)
-        else:
-            pass
+
+def nonrecursive(f):
+    @functools.wraps(f)
+    def _w_(*args, **kwargs):
+        _id_ = id(f)
+        if _id_ not in _ids_:
+            _ids_.add(_id_)
+            r = f(*args, **kwargs)
+            _ids_.remove(_id_)
+            return r
+    return _w_
+
+
+def laptime(f):
+    if not rr.get('RFB_TIME_IT'):
+        return f
+
+    @functools.wraps(f)
+    def _w_(*args, **kwargs):
+        s = time.clock()
+        r = f(*args, **kwargs)
+        e = time.clock()
+        t = e - s
+        stdmsg("Lap time: {} | f() = '{}'".format(pretty(t), f.__name__))
+        return r
+    return _w_

@@ -26,7 +26,7 @@
 import os
 import bpy
 import bpy.utils.previews
-from .. import rfb
+from .. rfb.registry import Registry as rr
 
 asset_previews = bpy.utils.previews.new()
 
@@ -42,7 +42,7 @@ def load_previews(lib):
     global asset_previews
     enum_items = []
 
-    lib_dir = assets_library = rfb.reg.prefs().assets_library.path
+    lib_dir = assets_library = rr.prefs().assets_library.path
 
     items = get_assets_for_lib(lib)
     items = sorted(items, key=lambda item: item.label)

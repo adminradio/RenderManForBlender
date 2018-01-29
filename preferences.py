@@ -36,9 +36,9 @@ from bpy.props import IntProperty
 from bpy.props import PointerProperty
 from bpy.props import EnumProperty
 
-from . rfb.utils import get_installed_rendermans
-from . rfb.utils import rmantree_from_env
-from . rfb.utils import guess_rmantree
+from . rfb.lib import get_installed_rendermans
+from . rfb.lib import rmantree_from_env
+from . rfb.lib import guess_rmantree
 
 from . assets.properties import RendermanAssetGroup
 

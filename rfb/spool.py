@@ -26,8 +26,9 @@
 import bpy
 import os
 import time
-from . import Registry as reg
-from . utils import user_path
+from . lib import user_path
+
+from . registry import Registry as rr
 
 
 def end_block(f, indent_level):
@@ -70,7 +71,7 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    addon = reg.get('RFB_PREFS')
+    addon = rr.get('RFB_PREFS')
     prefs = bpy.context.user_preferences.addons[addon].preferences
 
     out_dir = prefs.env_vars.out

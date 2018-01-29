@@ -24,19 +24,37 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# RenderMan for Blender imports
+# Python Imports
 #
-from . import icons
-from .. rfb.registry import Registry as rr
+import os
+
+#
+# Blender Imports
+#
+import bpy
+
+#
+# RenderManForBlender Imports
+#
 
 
-class RfB_PT_MIXIN_PanelIcon():
-    """Mixin for RfB_PT_MIXIN_Panel, implements the root panel icon."""
-    iid = icons.iconid('renderman')
+def fixname(name):
+    for chr in " !@#$%^&*(){}:\";'[]<>,.\\/?":
+        name = name.replace(chr, '_')
+    return name.strip()
 
-    # override
-    def draw_header(self, context):
-        if rr.prefs().draw_panel_icon:
-            self.layout.label(text='', icon_value=self.iid)
-        else:
-            pass
+
+def save_presets(ctx, props, pathFromPresetDir, name):
+    fn = fixname(name)
+    tp = os.path.join("presets", pathFromPresetDir)
+    tp = bpy.utils.user_resource('SCRIPTS', tp, create=True)
+    if not tp:
+        ctx.report({'WARNING'}, "Failed to create presets path!")
+        return {'CANCELLED'}
+
+    fp = os.path.join(tp, fn) + ".py"
+
+    with open(fp, 'w') as f:
+        f.write("import bpy\n")
+        for item in props:
+            f.write("{}\n".format(item))

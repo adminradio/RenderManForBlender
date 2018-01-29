@@ -26,6 +26,13 @@
 import bpy
 import sys
 
+#
+# Event Handlers
+#
+from . rfb.evt import events
+from . rfb.evt import handlers
+
+
 bl_info = {
     "name": "RenderMan For Blender",
     "author": "Pixar",
@@ -34,7 +41,8 @@ bl_info = {
     "location": "Info Header, Render Engine Menu",
     "description": "RenderMan 21.5 Integration",
     "warning": "",
-    "category": "Render"}
+    "category": "Render",
+}
 
 
 class PRManRender(bpy.types.RenderEngine):
@@ -100,8 +108,8 @@ def remove_handlers():
 
 def load_addon():
     # if rmantree is ok load the stuff
-    from . rfb.utils import guess_rmantree
-    from . rfb.utils import throw_error
+    from . rfb.lib import guess_rmantree
+    from . rfb.lib import throw_error
     from . import preferences
 
     #
@@ -226,12 +234,14 @@ def register():
     load_addon()
     from . import assets
     assets.register()
+    handlers.register()
     bpy.utils.register_module(__name__)
 
 
 def unregister():
     from . import preferences
     remove_handlers()
+    handlers.unregister()
     properties.unregister()
     ops.unregister()
     gui.unregister()

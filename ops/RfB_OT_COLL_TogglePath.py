@@ -37,7 +37,7 @@ from bpy.props import BoolProperty
 #
 # RenderMan for Blender Imports
 #
-from .. rfb.utils import getattr_recursive
+from .. rfb.lib import getattr_recursive
 
 
 class RfB_OT_COLL_TogglePath(bpy.types.Operator):

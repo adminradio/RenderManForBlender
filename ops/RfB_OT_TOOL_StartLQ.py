@@ -39,10 +39,10 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from .. rfb.utils import stdmsg
-from .. rfb.utils import stdadd
-from .. rfb.utils import slugify
-from .. rfb.utils import guess_rmantree
+from .. rfb.lib.echo import stdmsg
+from .. rfb.lib.echo import stdadd
+from .. rfb.lib.echo import slugify
+from .. rfb.lib import guess_rmantree
 #
 #
 # TODO:   Refactor 'guess_rmantree' into RfB registry.

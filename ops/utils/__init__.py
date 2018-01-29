@@ -37,7 +37,7 @@ import bpy
 # RenderMan for Blender Imports
 #
 from . RenderPresets import RenderPresets
-from ... rfb.utils import fix_filename
+from ... rfb.lib.file import fixname
 
 #
 # Menus
@@ -49,7 +49,7 @@ compile_shader_menu_func = (
 
 
 def quick_add_presets(presetList, pathFromPresetDir, name):
-    filename = fix_filename(name)
+    filename = fixname(name)
     target_path = os.path.join("presets", pathFromPresetDir)
     target_path = bpy.utils.user_resource('SCRIPTS',
                                           target_path,

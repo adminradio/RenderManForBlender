@@ -50,5 +50,4 @@ class RfB_OT_VIEW3D_CameraApertureType(bpy.types.Operator):
         cam = bpy.data.scenes[scn.name].camera
         cur = cam.data.cycles.aperture_type
         cam.data.cycles.aperture_type = 'RADIUS' if cur == 'FSTOP' else 'FSTOP'
-        print(cam.data.cycles.aperture_type)
         return {"FINISHED"}

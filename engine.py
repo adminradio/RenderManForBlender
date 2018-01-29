@@ -48,26 +48,29 @@ import glob
 # # unused
 # from . utils import BlenderVersionError
 
-from . import rfb
-from . rfb.utils import rib
-from . rfb.utils import rib_path
-from . rfb.utils import rib_ob_bounds
-from . rfb.utils import make_frame_path
-from . rfb.utils import init_exporter_env
-from . rfb.utils import get_sequence_path
-from . rfb.utils import user_path
-from . rfb.utils import get_path_list_converted
-from . rfb.utils import set_path
-from . rfb.utils import path_list_convert
-from . rfb.utils import guess_rmantree
-from . rfb.utils import set_pythonpath
-from . rfb.utils import set_rmantree
-from . rfb.utils import get_real_path
-from . rfb.utils import find_it_path
-from . rfb.utils import debug
-from . rfb.utils import get_Selected_Objects
 
-from random import randint
+# from . rfb.lib import rib
+# from . rfb.lib import rib_path
+# from . rfb.lib import rib_ob_bounds
+# from . rfb.lib import make_frame_path
+from . rfb.lib import init_exporter_env
+# from . rfb.lib import get_sequence_path
+from . rfb.lib import user_path
+from . rfb.lib import get_path_list_converted
+from . rfb.lib import set_path
+from . rfb.lib import path_list_convert
+from . rfb.lib import guess_rmantree
+from . rfb.lib import set_pythonpath
+from . rfb.lib import set_rmantree
+from . rfb.lib import get_real_path
+from . rfb.lib import find_it_path
+from . rfb.lib import get_Selected_Objects
+from . rfb.registry import Registry as rr
+
+from . rfb.lib.echo import debug
+from . rfb.lib.time import pretty
+
+# from random import randint
 import sys
 from bpy.app.handlers import persistent
 
@@ -87,6 +90,7 @@ ipr_handle = None
 
 
 def init_prman():
+    global prman_inited
     # set pythonpath before importing prman
     set_rmantree(guess_rmantree())
     set_pythonpath(os.path.join(guess_rmantree(), 'bin'))
@@ -95,6 +99,7 @@ def init_prman():
     global prman
     import prman
     prman_inited = True
+
 
 ipr = None
 
@@ -254,7 +259,7 @@ class RPass:
         if not os.path.exists(self.paths['export_dir']):
             os.makedirs(self.paths['export_dir'])
 
-        addon_prefs = rfb.reg.prefs()
+        addon_prefs = rr.prefs()
         self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
                                                 scene=scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(
@@ -284,7 +289,7 @@ class RPass:
         self.scene.frame_set(num)
         self.paths['rib_output'] = user_path(self.scene.renderman.path_rib_output,
                                              scene=self.scene)
-        addon_prefs = rfb.reg.prefs()
+        addon_prefs = rr.prefs()
         self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
                                                 scene=self.scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(
@@ -467,10 +472,8 @@ class RPass:
                         if self.display_driver not in ['it']:
                             update_image()
                         t2 = time.time()
-                        engine.report({"INFO"}, "RenderMan: Done Rendering." +
-                                      " (elapsed time: " +
-                                      format_seconds_to_hhmmss(t2 - t1) + ")")
-
+                        txt = "RfB: RENDER - done in {}.".format(pretty(t2 - t1))
+                        engine.report({"INFO"},  txt)
                         break
 
                     # user exit
@@ -478,8 +481,8 @@ class RPass:
                         try:
                             process.kill()
                             isProblem = True
-                            engine.report({"INFO"},
-                                          "RenderMan: Rendering Cancelled.")
+                            txt = "RfB: RENDER - cancelled!"
+                            engine.report({"INFO"}, txt)
                         except:
                             pass
                         break
@@ -504,14 +507,18 @@ class RPass:
             base, ext = render_output.rsplit('.', 1)
             denoise_options = []
             # denoise data has the name .denoise.exr
-            denoise_options = ["-t%d" %
-                               self.rm.threads] if self.rm.threads != 0 else []
+            denoise_options = (
+                ["-t%d" % self.rm.threads]
+                if self.rm.threads != 0
+                else []
+            )
             denoise_data, filtered_name = self.get_denoise_names()
             if os.path.exists(denoise_data):
                 try:
                     # denoise to _filtered
-                    cmd = [os.path.join(self.paths['rmantree'], 'bin',
-                                        'denoise')] + denoise_options + [denoise_data]
+                    cmd = [
+                        os.path.join(self.paths['rmantree'], 'bin', 'denoise')
+                    ] + denoise_options + [denoise_data]
 
                     engine.update_stats("", ("RenderMan: Denoising image"))
                     t1 = time.time()
@@ -520,20 +527,17 @@ class RPass:
                                                stderr=subprocess.PIPE,
                                                env=environ)
                     process.wait()
-                    t2 = time.time()
+                    dur = time.time() - t1
                     if os.path.exists(filtered_name):
-                        engine.report({"INFO"}, "RenderMan: Done Denoising." +
-                                      " (elapsed time: " +
-                                      format_seconds_to_hhmmss(t2 - t1) + ")")
+                        txt = " RfB: DENOISE - done in {}.".format(pretty(dur))
+                        engine.report({"INFO"}, txt)
+
                         if self.display_driver != 'it':
                             render = self.scene.render
-                            image_scale = 100.0 / \
-                                self.scene.render.resolution_percentage
-                            result = engine.begin_result(0, 0,
-                                                         render.resolution_x *
-                                                         image_scale,
-                                                         render.resolution_y *
-                                                         image_scale)
+                            scalar = 100.0 / render.resolution_percentage
+                            sx = render.resolution_x * scalar
+                            sy = render.resolution_y * scalar
+                            result = engine.begin_result(0, 0, sx, sy)
                             lay = result.layers[0]
                             # possible the image wont load early on.
                             try:
@@ -553,7 +557,7 @@ class RPass:
                                                        env=environ)
                             process.wait()
                     else:
-                        engine.report({"ERROR"}, "RenderMan: Error Denoising.")
+                        engine.report({"ERROR"}, "RfB: DENOISE - error!")
                 except:
                     engine.report({"ERROR"},
                                   "Problem launching denoise from %s." %
@@ -791,22 +795,28 @@ class RPass:
     def gen_rib(self, do_objects=True, engine=None, convert_textures=True):
         rm = self.scene.renderman
         if self.scene.camera is None:
-            debug('error', "ERROR no Camera.  \
-                    Cannot generate rib.")
+            debug('error', "ERROR no Camera. Cannot generate rib.")
             return
-        time_start = time.time()
+
+        t1 = time.time()
         if convert_textures:
             self.convert_textures(get_texture_list(self.scene))
 
         if engine:
             engine.report({"INFO"}, "Texture generation took %s" %
-                          format_seconds_to_hhmmss(time.time() - time_start))
+                          format_seconds_to_hhmmss(time.time() - t1))
         self.scene.frame_set(self.scene.frame_current)
-        time_start = time.time()
-        rib_options = {"string format": "binary"} if rm.rib_format == "binary" else {
-            "string format": "ascii", "string asciistyle": "indented,wide"}
+        t1 = time.time()
+
+        rib_options = (
+            {"string format": "binary"}
+            if rm.rib_format == "binary"
+            else {"string format": "ascii", "string asciistyle": "indented,wide"}
+        )
+
         if rm.rib_compression == "gzip":
             rib_options["string compression"] = "gzip"
+
         self.ri.Option("rib", rib_options)
         self.ri.Begin(self.paths['rib_output'])
 
@@ -818,8 +828,9 @@ class RPass:
         write_rib(self, self.scene, self.ri, visible_objects, engine, do_objects)
         self.ri.End()
         if engine:
-            engine.report({"INFO"}, "RIB generation took %s" %
-                          format_seconds_to_hhmmss(time.time() - time_start))
+            t2 = time.time()
+            txt = "RfB: RIBGEN - generation took {}.".format(pretty(t2 - t1))
+            engine.report({"INFO"}, txt)
 
     def gen_preview_rib(self):
         previewdir = os.path.join(self.paths['export_dir'], "preview")
