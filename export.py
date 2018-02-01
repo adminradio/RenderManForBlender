@@ -25,27 +25,28 @@
 
 import bpy
 import math
-import mathutils
+# import mathutils
 import os
-import sys
+# import sys
 import time
 import traceback
-import platform
+# import platform
 from mathutils import Matrix, Vector, Quaternion, Euler
 
 from . import bl_info
 
 from . rfb.registry import Registry as rr
 from . rfb.lib import rib, rib_path, rib_ob_bounds
-from . rfb.lib import make_frame_path
-from . rfb.lib import init_env
+from . rfb.lib.tmpl import hashnum
+# from . rfb.lib import init_env
 from . rfb.lib import get_sequence_path
-from . rfb.lib import user_path
+from . rfb.lib.path import user_path
 from . rfb.lib import path_list_convert, get_real_path
-from . rfb.lib import get_properties, check_if_archive_dirty
+# from . rfb.lib import get_properties
+from . rfb.lib import check_if_archive_dirty
 from . rfb.lib import locate_openVDB_cache
 from . rfb.lib.echo import debug
-from . rfb.lib import find_it_path
+# from . rfb.lib import find_it_path
 
 from . nds import export_shader_nodetree
 from . nds import get_textures
@@ -62,11 +63,14 @@ GLOBAL_ZERO_PADDING = 5
 # Objects that can be exported as a polymesh via Blender to_mesh() method.
 # ['MESH','CURVE','FONT']
 SUPPORTED_INSTANCE_TYPES = ['MESH', 'CURVE', 'FONT', 'SURFACE']
-SUPPORTED_DUPLI_TYPES = ['FACES', 'VERTS', 'GROUP']    # Supported dupli types.
+SUPPORTED_DUPLI_TYPES = ['FACES', 'VERTS', 'GROUP']
+
 # These object types can have materials.
 MATERIAL_TYPES = ['MESH', 'CURVE', 'FONT']
+
 # Objects without to_mesh() conversion capabilities.
 EXCLUDED_OBJECT_TYPES = ['LAMP', 'CAMERA', 'ARMATURE']
+
 # Only these light types affect volumes.
 VOLUMETRIC_LIGHT_TYPES = ['SPOT', 'AREA', 'POINT']
 MATERIAL_PREFIX = "mat_"
@@ -464,7 +468,7 @@ def get_mesh_uv(mesh, name="", flipvmode='NONE'):
         # renderman expects UVs flipped vertically from blender
         # best to do this in pattern, provided here as additional option
         if flipvmode == 'UV':
-            uvs.append(1.0-uvloop.uv.y)
+            uvs.append(1.0 - uvloop.uv.y)
         elif flipvmode == 'TILE':
             uvs.append(math.ceil(uvloop.uv.y) - uvloop.uv.y + math.floor(uvloop.uv.y))
         elif flipvmode == 'NONE':
@@ -3125,25 +3129,25 @@ def export_display(ri, rpass, scene):
     elif rm.bucket_shape == 'SPIRAL':
         settings = scene.render
 
-        if rm.bucket_sprial_x <= settings.resolution_x and rm.bucket_sprial_y <= settings.resolution_y:
-            if rm.bucket_sprial_x == -1 and rm.bucket_sprial_y == -1:
+        if rm.bucket_spiral_x <= settings.resolution_x and rm.bucket_spiral_y <= settings.resolution_y:
+            if rm.bucket_spiral_x == -1 and rm.bucket_spiral_y == -1:
                 ri.Option(
                     "bucket", {"string order": [rm.bucket_shape.lower()]})
-            elif rm.bucket_sprial_x == -1:
+            elif rm.bucket_spiral_x == -1:
                 halfX = settings.resolution_x / 2
                 debug("info", halfX)
                 ri.Option("bucket", {"string order": [rm.bucket_shape.lower()],
                                      "orderorigin": [int(halfX),
-                                                     rm.bucket_sprial_y]})
-            elif rm.bucket_sprial_y == -1:
+                                                     rm.bucket_spiral_y]})
+            elif rm.bucket_spiral_y == -1:
                 halfY = settings.resolution_y / 2
                 ri.Option("bucket", {"string order": [rm.bucket_shape.lower()],
-                                     "orderorigin": [rm.bucket_sprial_y,
+                                     "orderorigin": [rm.bucket_spiral_y,
                                                      int(halfY)]})
             else:
                 ri.Option("bucket", {"string order": [rm.bucket_shape.lower()],
-                                     "orderorigin": [rm.bucket_sprial_x,
-                                                     rm.bucket_sprial_y]})
+                                     "orderorigin": [rm.bucket_spiral_x,
+                                                     rm.bucket_spiral_y]})
         else:
             debug("info", "OUTSLIDE LOOP")
             ri.Option("bucket", {"string order": [rm.bucket_shape.lower()]})
@@ -3623,7 +3627,7 @@ def write_archive_RIB(rpass, scene, ri, object, overridePath, exportMats, export
 
 def anim_archive_path(filepath, frame):
     if filepath.find("#") != -1:
-        ribpath = make_frame_path(filepath, fr)
+        ribpath = hashnum(filepath, fr)
     else:
         ribpath = os.path.splitext(filepath)[0] + "." + str(frame).zfill(4) + \
             os.path.splitext(filepath)[1]

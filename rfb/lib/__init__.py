@@ -48,12 +48,8 @@ import fnmatch
 import platform
 
 import subprocess
-# from subprocess import Popen
-# from subprocess import PIPE
 
 import mathutils
-# from mathutils import Matrix
-# from mathutils import Vector
 
 from extensions_framework import util as efutil
 
@@ -70,15 +66,9 @@ import bpy
 from .. registry import Registry as rr
 from . math import clamp
 from . echo import debug
-from . echo import stdmsg
 
 from . import rman
-
-
-print(rr.prefs())
-
-version, commands = rman.select()
-major, minor = version.split('.')
+from . import tmpl
 
 #
 # Developer options are candidates for user prefs!
@@ -86,22 +76,9 @@ major, minor = version.split('.')
 DEBUG = rr.get('RFB_DEBUG')
 INFOS = rr.get('RFB_INFOS')
 
-if DEBUG or INFOS:
-    stdmsg("Current selected RenderMan version: "
-           "Major={}, Minor={}".format(major, minor))
-
-    for item in commands.keys():
-        stdmsg("{: <10} -> '{}'".format(item, commands[item]))
-
-#
-# FIXME: Could be removed if refactorung is finished
-#
-EnableDebugging = True if DEBUG else False
-
 
 def throw_error(msg):
     raise ImportError(msg)
-    # print(msg)
 
 
 def getattr_recursive(ptr, attrstring):
@@ -225,27 +202,6 @@ def readOSO(filePath):
     return prop_names, shader_meta
 
 
-# def debug(warningLevel, *output):
-
-#     if warningLevel == 'warning' or warningLevel == 'error' or \
-#             warningLevel == 'osl':
-#         if(warningLevel == "warning"):
-#             print("WARNING: ", output)
-#         elif(warningLevel == "error"):
-#             print("ERROR: ", output)
-#         elif(warningLevel == "osl"):
-#             for item in output:
-#                 print("OSL INFO: ", item)
-#     else:
-#         if EnableDebugging:
-#             if(warningLevel == "info"):
-#                 print("INFO: ", output)
-#             else:
-#                 print("DEBUG: ", output)
-#         else:
-#             pass
-
-
 def get_Selected_Objects(scene):
     objectNames = []
     for obj in scene.objects:
@@ -326,7 +282,9 @@ def get_path_list(rm, type):
 
 
 def get_real_path(path):
-    return os.path.realpath(efutil.filesystem_path(path))
+    p = os.path.realpath(efutil.filesystem_path(path))
+    print("get_real_path(): " + p)
+    return p
 
 
 #
@@ -372,19 +330,6 @@ def path_win_to_unixy(winpath, escape_slashes=False):
     return winpath
 
 
-#
-# convert ### to frame number
-#
-def make_frame_path(path, frame):
-    def repl(matchobj):
-        hashes = len(matchobj.group(1))
-        return str(frame).zfill(hashes)
-
-    path = re.sub('(#+)', repl, path)
-
-    return path
-
-
 def get_sequence_path(path, blender_frame, anim):
     if not anim.animated_sequence:
         return path
@@ -393,70 +338,7 @@ def get_sequence_path(path, blender_frame, anim):
 
     # hold
     frame = clamp(frame, anim.sequence_in, anim.sequence_out)
-    return make_frame_path(path, frame)
-
-
-def user_path(path, scene=None, ob=None, display_driver=None, layer_name=None, pass_name=None):
-    '''
-    # bit more complicated system to allow accessing scene or object attributes.
-    # let's stay simple for now...
-    def repl(matchobj):
-        data, attr = matchobj.group(1).split('.')
-        if data == 'scene' and scene != None:
-            if hasattr(scene, attr):
-                return str(getattr(scene, attr))
-        elif data == 'ob' and ob != None:
-            if hasattr(ob, attr):
-                return str(getattr(ob, attr))
-        else:
-            return matchobj.group(0)
-
-    path = re.sub(r'\{([0-9a-zA-Z_]+\.[0-9a-zA-Z_]+)\}', repl, path)
-    '''
-
-    # first env vars, in case they contain special blender variables
-    # recursively expand these (max 10), in case there are vars in vars
-    for i in range(10):
-        path = os.path.expandvars(path)
-        if '$' not in path:
-            break
-
-    unsaved = True if not bpy.data.filepath else False
-    # first builtin special blender variables
-    if unsaved:
-        path = path.replace('{blend}', 'untitled')
-    else:
-        blendpath = os.path.splitext(os.path.split(bpy.data.filepath)[1])[0]
-        path = path.replace('{blend}', blendpath)
-    if scene is not None:
-        path = path.replace('{scene}', scene.name)
-
-    if display_driver is not None:
-        if display_driver == "tiff":
-            path = path.replace('{file_type}', display_driver[-4:])
-        else:
-            path = path.replace('{file_type}', display_driver[-3:])
-
-    if ob is not None:
-        path = path.replace('{object}', ob.name)
-
-    if layer_name is not None:
-        path = path.replace('{layer}', layer_name)
-
-    if pass_name is not None:
-        path = path.replace('{pass}', pass_name)
-
-    # convert ### to frame number
-    if scene is not None:
-        path = make_frame_path(path, scene.frame_current)
-
-    # convert blender style // to absolute path
-    if unsaved:
-        path = bpy.path.abspath(path, start=bpy.app.tempdir)
-    else:
-        path = bpy.path.abspath(path)
-
-    return path
+    return tmpl.hashnum(path, frame)
 
 
 #
@@ -510,21 +392,6 @@ def get_properties(prop_group):
     return props
 
 
-def get_global_worldspace(vec, ob):
-    wmatx = ob.matrix_world.to_4x4().inverted()
-    vec = vec * wmatx
-    return vec
-
-
-def get_local_worldspace(vec, ob):
-    lmatx = ob.matrix_local.to_4x4().inverted()
-    vec = vec * lmatx
-    return vec
-
-
-#
-# ------------- Environment Variables -------------
-#
 def rmantree_from_env():
     RMANTREE = ''
 
@@ -557,9 +424,6 @@ def check_valid_rmantree(rmantree):
     return False
 
 
-#
-# return the major, minor rman version
-#
 def get_rman_version(rmantree):
     try:
         prman = 'prman.exe' if platform.system() == 'Windows' else 'prman'
@@ -581,11 +445,11 @@ def get_rman_version(rmantree):
 
 
 def guess_rmantree():
-    rmantree_method = rr.prefs().rmantree_method
-    choice = rr.prefs().rmantree_choice
+    rmantree_method = rman.prefs().rmantree_method
+    choice = rman.prefs().rmantree_choice
 
     if rmantree_method == 'MANUAL':
-        rmantree = rr.prefs().path_rmantree
+        rmantree = rman.prefs().path_rmantree
     elif rmantree_method == 'ENV' or choice == 'NEWEST':
         rmantree = rmantree_from_env()
     else:
@@ -611,13 +475,16 @@ def guess_rmantree():
 
     # check rmantree valid
     if version[0] == 0:
-        throw_error(
-            "Error loading addon.  RMANTREE %s is not valid.  Correct RMANTREE setting in addon preferences." % rmantree)
+        throw_error("Error loading addon.  RMANTREE {} is not "
+                    "valid. Correct RMANTREE setting in addon "
+                    "preferences.".format(rmantree))
         return None
 
     # check that it's >= 21
     if version[0] < 21:
-        throw_error("Error loading addon using RMANTREE=%s.  RMANTREE must be version 21.0 or greater.  Correct RMANTREE setting in addon preferences." % rmantree)
+        throw_error("Error loading addon using RMANTREE={}. RMANTREE "
+                    "must be version 21.0 or greater.  Correct RMANTREE "
+                    "setting in addon preferences.".format(rmantree))
         return None
 
     return rmantree
@@ -651,9 +518,6 @@ def get_installed_rendermans():
     return rendermans
 
 
-#
-# return true if an archive is older than the timestamp
-#
 def check_if_archive_dirty(update_time, archive_filename):
     if update_time > 0 and os.path.exists(archive_filename) \
             and os.path.getmtime(archive_filename) >= update_time:
@@ -735,9 +599,6 @@ def find_tractor_spool():
             return None
 
 
-#
-# Default exporter specific env vars
-#
 def init_exporter_env(prefs):
     if 'OUT' not in os.environ.keys():
         os.environ['OUT'] = prefs.env_vars.out

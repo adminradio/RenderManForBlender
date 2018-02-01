@@ -23,43 +23,22 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-#
-# Python imports
-#
-import os
+# <pep8-80 compliant>
 
 #
-# Blender imports
+# Python Imports
+#
+
+#
+# Blender Imports
 #
 import bpy
+from bpy.props import StringProperty
 
 #
-# RfB imports
+# RenderManForBlender Imports
 #
-from .. rfb.lib.path import user_path
 
 
-class RfB_OT_FILE_ViewStats(bpy.types.Operator):
-    bl_idname = 'rfb.file_view_stats'
-    bl_label = "View Frame Statistics"
-    bl_description = "View current frame statistics in Browser (extern)."
-
-    def execute(self, context):
-        scene = context.scene
-        rm = scene.renderman
-
-        out_path = os.path.dirname(
-            user_path(rm.path_rib_output, scene=scene)
-        )
-
-        # Create something similiar to:
-        # file://stats/path/stats.NNNN.xml
-        #
-        uri = os.path.join(
-            "file://",
-            out_path,
-            "stats.%04d.xml" % scene.frame_current
-        )
-
-        bpy.ops.wm.url_open(url=uri)
-        return {'FINISHED'}
+class RfB_PreferencePath(bpy.types.PropertyGroup):
+    name = StringProperty(name="", subtype='DIR_PATH')

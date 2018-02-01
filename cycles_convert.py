@@ -27,6 +27,8 @@ import bpy
 converted_nodes = {}
 report = None
 
+from . nds import types
+
 
 def convert_cycles_node(nt, node, location=None):
     node_type = node.bl_idname
@@ -117,9 +119,13 @@ def convert_cycles_input(nt, socket, rman_node, param_name):
                 nt.links.new(node.outputs[socket.links[
                              0].from_socket.name], input)
             else:
-                from . nds import is_same_type
+                # from . nds import is_same_type
+                # for output in node.outputs:
+                #     if is_same_type(input, output):
+                #         nt.links.new(output, input)
+                #         break
                 for output in node.outputs:
-                    if is_same_type(input, output):
+                    if types.samesame(input, output):
                         nt.links.new(output, input)
                         break
                 else:
@@ -282,6 +288,7 @@ def convert_ramp_node(nt, cycles_node, rman_node):
         new_e.color = e.color
 
     return
+
 
 math_map = {
     'ADD': 'floatInput1 + floatInput2',

@@ -88,17 +88,17 @@ def debug(lvl, *argv):
             lvl == 'osl'):
 
         if(lvl == 'warning'):
-            stdmsg("WRN: {}".format(argv))
+            stdmsg("WARNING: {}".format(argv))
         elif(lvl == "error"):
-            stdmsg("ERR: ", argv)
+            stdmsg("ERROR: ", argv)
         elif(lvl == "osl"):
             for item in argv:
-                stdmsg("OSL: {}".format(argv))
+                stdmsg("OSLINFO: {}".format(argv))
     else:
         if rr.get('RFB_DEBUG'):
             if(lvl == 'info'):
-                stdmsg("INF: {}".format(argv))
+                stdmsg("INFO: {}".format(argv))
             else:
-                stdmsg("DBG: {}".format(argv))
+                stdmsg("DEBUG: {}".format(argv))
         else:
             pass

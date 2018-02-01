@@ -23,47 +23,55 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Python Imports
 #
 import os
+import platform
 
 #
 # Blender Imports
 #
 import bpy
+from bpy.props import StringProperty
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
-from . RenderPresets import RenderPresets
-from ... rfb.lib.file import fixname
-
-#
-# Menus
-#
-compile_shader_menu_func = (
-    lambda self,
-    context: self.layout.operator(TEXT_OT_compile_shader.bl_idname)
-)
 
 
-def quick_add_presets(presetList, pathFromPresetDir, name):
-    filename = fixname(name)
-    target_path = os.path.join("presets", pathFromPresetDir)
-    target_path = bpy.utils.user_resource('SCRIPTS',
-                                          target_path,
-                                          create=True)
-    if not target_path:
-        self.report(
-            {'WARNING'},
-            "Failed to create presets path")
-        return {'CANCELLED'}
+class RfB_EnvVarSettings(bpy.types.PropertyGroup):
+    if platform.system() == "Windows":
+        temp = os.environ.get('TEMP')
+        out = StringProperty(
+            name="OUT (Output Root)",
+            description="Default RIB export path root",
+            subtype='DIR_PATH',
+            default=os.path.join(temp, 'rfb', '{blend}'))
 
-    filepath = os.path.join(target_path, filename) + ".py"
-    file_preset = open(filepath, 'w')
-    file_preset.write("import bpy\n")
+    else:
+        out = StringProperty(
+            name="OUT (Output Root)",
+            description="Default RIB export path root",
+            subtype='DIR_PATH',
+            default='/tmp/rfb/{blend}')
 
-    for item in presetList:
-        file_preset.write(str(item) + "\n")
-    file_preset.close()
+    shd = StringProperty(
+        name="SHD (Shadow Maps)",
+        description="SHD environment variable",
+        subtype='DIR_PATH',
+        default=os.path.join('$OUT', 'shadowmaps'))
+
+    ptc = StringProperty(
+        name="PTC (Point Clouds)",
+        description="PTC environment variable",
+        subtype='DIR_PATH',
+        default=os.path.join('$OUT', 'pointclouds'))
+
+    arc = StringProperty(
+        name="ARC (Archives)",
+        description="ARC environment variable",
+        subtype='DIR_PATH',
+        default=os.path.join('$OUT', 'archives'))

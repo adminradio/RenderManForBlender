@@ -32,13 +32,12 @@ from bpy.props import StringProperty, EnumProperty, BoolProperty
 
 from . properties import RendermanAssetGroup
 from . properties import RendermanAsset
-# from . import assets
 from .. rfb.registry import Registry as rr
-# from .. rfb import lib
 
+
+#
 # update the tree structure from disk file
-
-
+#
 def refresh_assets_libraries(disk_lib, asset_library):
     dirs = os.listdir(disk_lib)
     for dir in dirs:
@@ -97,8 +96,6 @@ class init_asset_library(bpy.types.Operator):
         refresh_assets_libraries(assets_path, assets_library)
         bpy.ops.wm.save_userpref()
         return {'FINISHED'}
-
-# if the library isn't present copy it from rmantree to the path in addon prefs
 
 
 class load_asset_to_scene(bpy.types.Operator):

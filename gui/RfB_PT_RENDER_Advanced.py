@@ -80,8 +80,8 @@ class RfB_PT_RENDER_Advanced(RfB_PT_MIXIN_Panel, Panel):
         col.prop(rm, "bucket_shape")
         if rm.bucket_shape == 'SPIRAL':
             row = col.row(align=True)
-            row.prop(rm, "bucket_sprial_x", text="X")
-            row.prop(rm, "bucket_sprial_y", text="Y")
+            row.prop(rm, "bucket_spiral_x", text="X")
+            row.prop(rm, "bucket_spiral_y", text="Y")
 
         layout.separator()
         col = layout.column()

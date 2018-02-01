@@ -38,6 +38,7 @@ from pathlib import Path
 #
 # Blender Imports
 #
+import bpy
 
 #
 # RenderManForBlender Imports
@@ -45,14 +46,14 @@ from pathlib import Path
 from . deco import laptime
 
 
+def prefs():
+    return bpy.context.user_preferences.addons[__package__.split('.')[0]].preferences
+
+
 @laptime
 def available():
-    root = ""
-    locs = {}  # forward declare return value 1
-    cmds = {}  # forward declare return value 2
-
-    ext = ".exe" if platform.system() == "Windows" else ""
-    prg = ["it", "sho", "prman", "txmake", "denoise", "oslinfo", "LocalQueue"]
+    root = ""  # forward declare root of default installation path
+    locs = {}  # forward declare return value of install location(s)
 
     if platform.system() == "Windows":
         root = Path(os.environ["PROGRAMFILES"])
@@ -72,38 +73,56 @@ def available():
                     vstr = d.split('-')[1]
                     locs[vstr] = d
     else:
-        msg = ("RenderManForBlender - No valid installation found under \"{}\", "
+        msg = ("RenderManForBlender - No valid installation found under '{}', "
                "please correct your RMANTREE environment.".format(root))
         raise FileNotFoundError(msg)
 
-    for item in prg:
-        #
-        # for conistency make all keys lower case
-        #
-        cmds[item.lower()] = "{}{}".format(item, ext)
-
-    return locs, cmds
+    return locs
 
 
 @laptime
-def select(ident='RMANTREE'):
+def select(choice='RMANTREE'):
+    sufx = ".exe" if platform.system() == "Windows" else ""
     path = None
-    version = None
+    vstr = None
+    cmds = {}
+    prgs = [
+        "it",
+        "sho",
+        "prman",
+        "txmake",
+        "denoise",
+        "oslinfo",
+        "LocalQueue",
+    ]
+
+    for item in prgs:
+        #
+        # for conistency make all keys lower case, add empty suffix
+        # on Linux and macOS, add '.exe' on Windows
+        #
+        cmds[item.lower()] = "{}{}".format(item, sufx)
     #
     # get all installed from default installation directory
     #
-    _locs, _cmds = available()
+    # Defaults are:
+    #   - Windows:  %PROGRAMFILES%
+    #   - Linux:    /opt/pixar
+    #   - macOS:    /Applications/Pixar
+    #
+    _locs = available()
 
     #
     # default (or explicitly requested)
     #
-    if ident == 'RMANTREE':
+    if choice == "RMANTREE":
         try:
-            _d_ = Path(os.environ['RMANTREE'])
-            if _d_.exists():
-                path = _d_
+            _d_ = Path(os.environ["RMANTREE"])
+            path = _d_ if _d_.exists() else None
         except KeyError:
-            ident = 'NEWEST'
+            choice = "NEWEST"
+    elif choice == "MANUAL":
+        path = prefs().path_rmantree
     #
     # A specific version or 'NEWEST' was requested.
     #
@@ -113,7 +132,7 @@ def select(ident='RMANTREE'):
             # Falls back to 'NEWEST' if not found, or since 'NEWEST' was
             # requested anyway
             #
-            path = _locs[ident]
+            path = _locs[choice]
         except KeyError:
             try:
                 path = _locs[
@@ -127,15 +146,49 @@ def select(ident='RMANTREE'):
     # Validation
     #
     abs_cmds = {}
-    for item in _cmds.items():
-        _p_ = Path("{}/bin/{}".format(path, item[1]))
+    for item in cmds.keys():
+        _p_ = Path("{}/bin/{}".format(path, cmds[item]))
         if _p_.exists():
-            abs_cmds[item[0]] = _p_
+            abs_cmds[item] = _p_
         else:
-            msg = ("RenderManForBlender - Utility could not be found: \"{}\". "
+            msg = ("RenderManForBlender - Utility could not be found: '{}'.\n"
                    "Since selected RMANTREE looks valid, try reinstalling "
                    "RenderMan with an official installer.".format(_p_))
             raise FileNotFoundError(msg)
 
-    version = str(path).split('-')[-1]
-    return version, abs_cmds
+    vstr = str(path).split('-')[-1]
+
+    # RMANTREE, VERSION, COMMANDS
+    return path, vstr, abs_cmds
+
+
+VERSION = None
+COMMANDS = None
+RMANTREE = None
+
+
+def init(choice='RMANTREE'):
+    global VERSION
+    global COMMANDS
+    global RMANTREE
+
+    RMANTREE, VERSION, COMMANDS = select(choice)
+
+
+def guess():
+    if RMANTREE is None:
+        #
+        # not initialised yet, do so
+        #
+        method = prefs().rmantree_method
+        choice = prefs().rmantree_choice
+
+        if method == 'MANUAL':
+            init('MANUAL')
+        elif method == 'ENV':
+            init()
+        else:
+            # specific version or 'RMANTREE'
+            init(choice)
+
+    return RMANTREE, VERSION, COMMANDS

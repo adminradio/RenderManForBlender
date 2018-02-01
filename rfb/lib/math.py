@@ -38,3 +38,17 @@
 
 def clamp(val, low, high):
     return max(low, min(high, val))
+
+
+# unused?
+def get_global_worldspace(vec, ob):
+    wmatx = ob.matrix_world.to_4x4().inverted()
+    vec = vec * wmatx
+    return vec
+
+
+#unused?
+def get_local_worldspace(vec, ob):
+    lmatx = ob.matrix_local.to_4x4().inverted()
+    vec = vec * lmatx
+    return vec

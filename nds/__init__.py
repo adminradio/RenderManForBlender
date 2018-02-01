@@ -52,10 +52,12 @@ from .. rfb.lib import args_files_in_path
 from .. rfb.lib.echo import debug
 from .. rfb.lib import readOSO
 from .. rfb.lib import rib
-from .. rfb.lib import user_path
+
+from .. rfb.lib.path import user_path
 
 
 from .. gui import icons
+from . import types
 
 # from . import ops
 # from .. ops import RfB_OT_NODE_RefreshOSL
@@ -116,13 +118,7 @@ class RendermanSocketInterface:
 
     def draw_color(self, context):
         return rr.get('BXDF')
-    #
-    # TODO:   Add 'page' name in front of socket name if page is empty?
-    #         Open for discussion.
-    # DATE:   2017-12-29
-    # AUTHOR: Timm Wimmers
-    # STATUS: -unassigned-
-    #
+
     def draw(self, context, layout):
         layout.label(self.name)
 
@@ -439,8 +435,10 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                 # or hidden or an empty 'page'
                 #
                 if ('widget' in prop_meta and prop_meta['widget'] == 'null'
-                    or 'hidden' in prop_meta and prop_meta['hidden']
-                    or PropertyLookup.is_emptypage(prop_id)):
+                    or
+                    'hidden' in prop_meta and prop_meta['hidden']
+                    or
+                    PropertyLookup.is_emptypage(prop_id)):
                     continue
 
                 if prop_name not in self.inputs:
@@ -696,8 +694,6 @@ class RendermanLightNode(RendermanShadingNode):
 
 def generate_node_type(prefs, name, args):
     """Generate a node type dynamically from pattern."""
-
-
     nodetype = args.find("shaderType/tag").attrib['value']
     typename = '%s%sNode' % (name, nodetype.capitalize())
     nodedict = {'bxdf': RendermanBxdfNode,
@@ -813,7 +809,7 @@ def panel_node_draw(layout, context, id_data, output_type, input_name):
     if not node:
         layout.label(text="No output node")
     else:
-        input = find_node_input(node, input_name)
+        # input = find_node_input(node, input_name)
         # layout.template_node_view(ntree, node, input)
         draw_nodes_properties_ui(layout, context, ntree)
 
@@ -1169,8 +1165,6 @@ class NODE_OT_add_bxdf(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new bxdfs,
     connected to a given input socket.
     """
-
-
     bl_idname = 'node.add_bxdf'
     bl_label = 'Add Bxdf Node'
     bl_description = 'Connect a Bxdf to this socket'
@@ -1182,8 +1176,6 @@ class NODE_OT_add_displacement(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
-
     bl_idname = 'node.add_displacement'
     bl_label = 'Add Displacement Node'
     bl_description = 'Connect a Displacement shader to this socket'
@@ -1195,8 +1187,6 @@ class NODE_OT_add_light(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
-
     bl_idname = 'node.add_light'
     bl_label = 'Add Light Node'
     bl_description = 'Connect a Light shader to this socket'
@@ -1208,7 +1198,6 @@ class NODE_OT_add_pattern(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
     bl_idname = 'node.add_pattern'
     bl_label = 'Add Pattern Node'
     bl_description = 'Connect a Pattern to this socket'
@@ -1220,7 +1209,6 @@ class NODE_OT_add_layer(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
     bl_idname = 'node.add_layer'
     bl_label = 'Add Layer Node'
     bl_description = 'Connect a PxrLayer'
@@ -1232,7 +1220,6 @@ class NODE_OT_add_manifold(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
     bl_idname = 'node.add_manifold'
     bl_label = 'Add Manifold Node'
     bl_description = 'Connect a Manifold'
@@ -1244,7 +1231,6 @@ class NODE_OT_add_bump(bpy.types.Operator, Add_Node):
     For generating cycles-style ui menus to add new nodes,
     connected to a given input socket.
     """
-
     bl_idname = 'node.add_bump'
     bl_label = 'Add Bump Node'
     bl_description = 'Connect a bump node'
@@ -1798,8 +1784,11 @@ def get_socket_type(node, socket):
 def do_convert_socket(from_socket, to_socket):
     if not to_socket:
         return False
-    return (is_float_type(from_socket) and is_float3_type(to_socket)) or \
-           (is_float3_type(from_socket) and is_float_type(to_socket))
+    return (
+        (types.isfloat(from_socket) and types.isfloat3(to_socket))
+        or
+        (types.isfloat3(from_socket) and types.isfloat(to_socket))
+    )
 
 
 def build_output_param_str(mat_name, from_node, from_socket, convert_socket=False):
@@ -1808,7 +1797,7 @@ def build_output_param_str(mat_name, from_node, from_socket, convert_socket=Fals
 
     # replace with the convert node's output
     if convert_socket:
-        if is_float_type(from_socket):
+        if types.isfloat(from_socket):
             return "convert_%s.%s:resultRGB" % (from_node_name, from_sock_name)
         else:
             return "convert_%s.%s:resultF" % (from_node_name, from_sock_name)
@@ -2060,6 +2049,8 @@ def shader_node_rib(ri, node, mat_name, disp_bound=0.0, portal=False):
 
 
 def replace_frame_num(prop):
+    # shouldn't this be bpy.context.scene? scenes[0] selects everytime the
+    # first scene, even if the user is working on anoter scene...???
     frame_num = bpy.data.scenes[0].frame_current
     prop = prop.replace('$f4', str(frame_num).zfill(4))
     prop = prop.replace('$F4', str(frame_num).zfill(4))
@@ -2078,46 +2069,6 @@ def get_tex_file_name(prop):
         return prop
 
 
-def is_same_type(socket1, socket2):
-    return (
-        (type(socket1) == type(socket2))
-        or (is_float_type(socket1) and is_float_type(socket2))
-        or (is_float3_type(socket1) and is_float3_type(socket2))
-    )
-
-
-def is_float_type(socket):
-    # this is a renderman node
-    if isinstance(socket, dict):
-        return socket['renderman_type'] in ['int', 'float']
-    elif hasattr(socket.node, 'plugin_name'):
-        prop_meta = (
-            getattr(socket.node, 'output_meta', [])
-            if socket.is_output
-            else getattr(socket.node, 'prop_meta', [])
-        )
-        if socket.name in prop_meta:
-            return prop_meta[socket.name]['renderman_type'] in ['int', 'float']
-    else:
-        return socket.type in ['INT', 'VALUE']
-
-
-def is_float3_type(socket):
-    # this is a renderman node
-    if isinstance(socket, dict):
-        return socket['renderman_type'] in ['int', 'float']
-    elif hasattr(socket.node, 'plugin_name'):
-        prop_meta = (
-            getattr(socket.node, 'output_meta', [])
-            if socket.is_output
-            else getattr(socket.node, 'prop_meta', [])
-        )
-        if socket.name in prop_meta:
-            return prop_meta[socket.name]['renderman_type'] in ['color', 'vector', 'normal']
-    else:
-        return socket.type in ['RGBA', 'VECTOR']
-
-
 # walk the tree for nodes to export
 def gather_nodes(node):
     nodes = []
@@ -2129,12 +2080,12 @@ def gather_nodes(node):
                     nodes.append(sub_node)
 
             # if this is a float -> color inset a tofloat3
-            if is_float_type(link.from_socket) and is_float3_type(socket):
+            if types.isfloat(link.from_socket) and types.isfloat3(socket):
                 convert_node = ('PxrToFloat3', link.from_node,
                                 link.from_socket)
                 if convert_node not in nodes:
                     nodes.append(convert_node)
-            elif is_float3_type(link.from_socket) and is_float_type(socket):
+            elif types.isfloat3(link.from_socket) and types.isfloat(socket):
                 convert_node = ('PxrToFloat', link.from_node, link.from_socket)
                 if convert_node not in nodes:
                     nodes.append(convert_node)
@@ -2379,8 +2330,7 @@ pattern_node_categories_map = {
 
 # Node Chatagorization List
 def GetPatternCategory(name):
-    for cat_name, node_names \
-    in pattern_node_categories_map.items():
+    for cat_name, node_names in pattern_node_categories_map.items():
         if name in node_names:
             return cat_name
     else:
@@ -2415,7 +2365,7 @@ def register():
         bpy.utils.register_class(cls)
 
     user_preferences = bpy.context.user_preferences
-    pref_id = rr.get('RFB_PREFS')
+    pref_id = __package__.split(".")[0]
     prefs = user_preferences.addons[pref_id].preferences
 
     categories = {}

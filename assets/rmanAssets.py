@@ -79,7 +79,7 @@ def flatten(l, ltypes=(list, tuple)):
 #
 # @param      l     the list containing the values. We support nested lists.
 #
-# @return      string containing space-delimited values.
+# @return     string containing space-delimited values.
 #
 def buildRibArrayValues(l):
     av = str(flatten(l)).replace(',', '')[1:-1]
@@ -483,7 +483,7 @@ class RmanShadingNode:
                             g_rmanShadingNodePaths.append(argspath)
                         else:
                             g_rmanShadingNodePaths.append(thispath)
-                
+
                 else:
                     print('RmanShadingNode: Could not find '
                           'standardrixpluginpath in rendermn.ini !')

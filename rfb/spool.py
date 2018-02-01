@@ -26,7 +26,7 @@
 import bpy
 import os
 import time
-from . lib import user_path
+from . lib.path import user_path
 
 from . registry import Registry as rr
 
@@ -71,8 +71,7 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    addon = rr.get('RFB_PREFS')
-    prefs = bpy.context.user_preferences.addons[addon].preferences
+    prefs = rr.prefs()
 
     out_dir = prefs.env_vars.out
     cdir = user_path(out_dir)

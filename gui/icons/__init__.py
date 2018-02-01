@@ -35,7 +35,6 @@ import bpy.utils.previews
 
 # RenderMan for Blender Imports
 from ... rfb.lib.echo import stdmsg
-from ... rfb.lib.deco import laptime
 
 
 def iconid(ident):

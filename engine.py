@@ -22,43 +22,36 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-import bpy
-# import bpy_types
-# import math
+
+#
+# Python Imports
+#
 import os
+import sys
 import time
-
-import subprocess
-# from subprocess import Popen
-# from subprocess import PIPE
-
-# import mathutils
-# from mathutils import Matrix
-# from mathutils import Vector
-# from mathutils import Quaternion
-
-# import re
-import traceback
 import glob
+import traceback
+import subprocess
 
-#  from . import bl_info
+#
+# Blender Imports
+#
+import bpy
 
-# # unused
-# from . utils import bpy_newer_257
-# # unused
-# from . utils import BlenderVersionError
-
-
+#
+# RenderManForBlender Imports
+#
+from . import bl_info
 # from . rfb.lib import rib
 # from . rfb.lib import rib_path
 # from . rfb.lib import rib_ob_bounds
 # from . rfb.lib import make_frame_path
 from . rfb.lib import init_exporter_env
 # from . rfb.lib import get_sequence_path
-from . rfb.lib import user_path
+from . rfb.lib.path import user_path
 from . rfb.lib import get_path_list_converted
 from . rfb.lib import set_path
-from . rfb.lib import path_list_convert
+# from . rfb.lib import path_list_convert
 from . rfb.lib import guess_rmantree
 from . rfb.lib import set_pythonpath
 from . rfb.lib import set_rmantree
@@ -70,20 +63,28 @@ from . rfb.registry import Registry as rr
 from . rfb.lib.echo import debug
 from . rfb.lib.time import pretty
 
-# from random import randint
-import sys
-from bpy.app.handlers import persistent
+# from bpy.app.handlers import persistent
 
 # global dictionaries
-from .export import write_rib, write_preview_rib, get_texture_list,\
-    issue_shader_edits, get_texture_list_preview, issue_transform_edits,\
-    interactive_initial_rib, update_light_link, delete_light,\
-    reset_light_illum, solo_light, mute_lights, issue_light_vis, update_crop_window
+from . export import write_rib
+from . export import write_preview_rib
+from . export import get_texture_list
+from . export import issue_shader_edits
+from . export import get_texture_list_preview
+from . export import issue_transform_edits
+from . export import interactive_initial_rib
+from . export import update_light_link
+from . export import delete_light
+from . export import reset_light_illum
+from . export import solo_light
+from . export import mute_lights
+from . export import issue_light_vis
+from . export import update_crop_window
 
 from . nds import get_tex_file_name
 
 # # unused?
-# addon_version = bl_info['version']
+addon_version = bl_info['version']
 
 prman_inited = False
 ipr_handle = None
@@ -151,6 +152,7 @@ def reset(engine, data, scene):
     engine.render_pass.set_scene(scene)
     engine.render_pass.update_frame_num(scene.frame_current)
 
+
 def update(engine, data, scene):
     engine.render_pass.update_time = int(time.time())
     if engine.is_preview:
@@ -179,21 +181,18 @@ def update_interactive(engine, context):
 # update the timestamp on an object
 # note that this only logs the active object.  So it might not work say
 # if a script updates objects.  We would need to iterate through all objects
-@persistent
+# @persistent
+from . rfb.evt.handlers import event_handler
+
+
+@event_handler('SCENE_POST')
 def update_timestamp(scene):
     active = scene.objects.active
     if active and (active.is_updated_data or (active.data and active.data.is_updated)):
         # mark object for update
         now = int(time.time())
         active.renderman.update_timestamp = now
-
-
-def format_seconds_to_hhmmss(seconds):
-    hours = seconds // (60 * 60)
-    seconds %= (60 * 60)
-    minutes = seconds // 60
-    seconds %= 60
-    return "%02i:%02i:%02i" % (hours, minutes, seconds)
+        print("Update: {}".format(now))
 
 
 class RPass:
@@ -216,7 +215,7 @@ class RPass:
         self.initialize_paths(scene)
         self.rm = scene.renderman
         self.external_render = external_render
-        self.bake=bake
+        self.bake = bake
         self.do_render = (scene.renderman.output_action == 'EXPORT_RENDER')
         self.is_interactive = interactive
         self.is_interactive_ready = False
@@ -264,25 +263,33 @@ class RPass:
                                                 scene=scene, display_driver=self.display_driver)
         self.paths['aov_output'] = user_path(
             addon_prefs.path_aov_image, scene=scene, display_driver=self.display_driver)
+
         debug("info", self.paths)
+
         self.paths['shader'] = [user_path(rm.out_dir, scene=scene)] +\
             get_path_list_converted(rm, 'shader')
+
         self.paths['rixplugin'] = get_path_list_converted(rm, 'rixplugin')
         self.paths['texture'] = [self.paths['texture_output']]
 
         temp_archive_name = rm.path_object_archive_static
+
         static_archive_dir = os.path.dirname(user_path(temp_archive_name,
                                                        scene=scene))
+
         temp_archive_name = rm.path_object_archive_animated
         frame_archive_dir = os.path.dirname(user_path(temp_archive_name,
                                                       scene=scene))
+
         self.paths['static_archives'] = static_archive_dir
         self.paths['frame_archives'] = frame_archive_dir
 
         if not os.path.exists(self.paths['static_archives']):
             os.makedirs(self.paths['static_archives'])
+
         if not os.path.exists(self.paths['frame_archives']):
             os.makedirs(self.paths['frame_archives'])
+
         self.paths['archive'] = os.path.dirname(static_archive_dir)
 
     def update_frame_num(self, num):
@@ -473,7 +480,7 @@ class RPass:
                             update_image()
                         t2 = time.time()
                         txt = "RfB: RENDER - done in {}.".format(pretty(t2 - t1))
-                        engine.report({"INFO"},  txt)
+                        engine.report({"INFO"}, txt)
                         break
 
                     # user exit
@@ -619,8 +626,12 @@ class RPass:
         self.light_filter_map = {}
         self.current_solo_light = None
         self.muted_lights = []
-        self.crop_window = (self.scene.render.border_min_x, self.scene.render.border_max_x,
-                      1.0 - self.scene.render.border_min_y, 1.0 - self.scene.render.border_max_y)
+        self.crop_window = (
+            self.scene.render.border_min_x,
+            self.scene.render.border_max_x,
+            1.0 - self.scene.render.border_min_y,
+            1.0 - self.scene.render.border_max_y
+        )
         for obj in self.scene.objects:
             if obj.type == 'LAMP' and obj.name not in self.lights:
                 # add the filters to the filter ma
@@ -724,7 +735,7 @@ class RPass:
                 if active not in self.material_dict[mat_slot.material]:
                     self.material_dict[mat_slot.material].append(active)
                     issue_shader_edits(self, self.ri, prman,
-                                        nt=mat_slot.material.node_tree, ob=active)
+                                       nt=mat_slot.material.node_tree, ob=active)
 
     def update_illuminates(self):
         update_illuminates(self, self.ri, prman)
@@ -803,8 +814,7 @@ class RPass:
             self.convert_textures(get_texture_list(self.scene))
 
         if engine:
-            engine.report({"INFO"}, "Texture generation took %s" %
-                          format_seconds_to_hhmmss(time.time() - t1))
+            engine.report({"INFO"}, "Texture generation took %s" % pretty(time.time() - t1))
         self.scene.frame_set(self.scene.frame_current)
         t1 = time.time()
 

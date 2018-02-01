@@ -1,6 +1,6 @@
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
-# Copyright (c) 2015 - 2017 Pixar
+# Copyright (c) 2015 - 2018 Pixar
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,15 +23,21 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
+#
+# Blender Imports
+#
 import bpy
-import sys
 
 #
-# Event Handlers
+# RenderManForBlender Imports
 #
-from . rfb.evt import events
 from . rfb.evt import handlers
-
 
 bl_info = {
     "name": "RenderMan For Blender",
@@ -59,179 +65,126 @@ class PRManRender(bpy.types.RenderEngine):
     def __del__(self):
         if hasattr(self, "render_pass"):
             if self.render_pass is not None:
-                engine.free(self)
+                engine.free(self)  # noqa
 
     # main scene render
     def update(self, data, scene):
-        if(engine.ipr):
+        if(engine.ipr):  # noqa
             return
         if self.is_preview:
             if not self.render_pass:
-                engine.create(self, data, scene)
+                engine.create(self, data, scene)  # noqa
         else:
             if not self.render_pass:
-                engine.create(self, data, scene)
+                engine.create(self, data, scene)  # noqa
             else:
-                engine.reset(self, data, scene)
+                engine.reset(self, data, scene)  # noqa
 
-        engine.update(self, data, scene)
+        engine.update(self, data, scene)  # noqa
 
     def render(self, scene):
         if self.render_pass is not None:
-            engine.render(self)
-
-
-# # these handlers are for marking files as dirty for ribgen
-def add_handlers(scene):
-    if (engine.update_timestamp
-            not in bpy.app.handlers.scene_update_post):
-
-        bpy.app.handlers.scene_update_post.append(engine.update_timestamp)
-
-    if (properties.initial_groups
-            not in bpy.app.handlers.scene_update_post):
-
-        bpy.app.handlers.load_post.append(properties.initial_groups)
-
-
-def remove_handlers():
-    if (properties.initial_groups
-            in bpy.app.handlers.scene_update_post):
-
-        bpy.app.handlers.scene_update_post.remove(properties.initial_groups)
-
-    if (engine.update_timestamp
-            in bpy.app.handlers.scene_update_post):
-
-        bpy.app.handlers.scene_update_post.remove(engine.update_timestamp)
-
-
-def load_addon():
-    # if rmantree is ok load the stuff
-    from . rfb.lib import guess_rmantree
-    from . rfb.lib import throw_error
-    from . import preferences
-
-    #
-    # TODO:   Refactor guess_rmantree() to RfB Registry
-    # DATE:   2018-01-17
-    # AUTHOR: Timm Wimmers
-    # STATUS: -unassigned-
-    #
-    if guess_rmantree():
-        #
-        # else display an error, tell user to correct
-        # and don't load anything else
-        #
-        from . import gui
-        from . import ops
-        from . import nds
-        from . import properties
-
-        from . gui import RfB_HT_IMAGE_SmartControl
-        from . gui import RfB_HT_INFO_SmartControl
-        from . gui import RfB_HT_NODE_SmartControl
-        from . gui import RfB_HT_VIEW3D_SmartControl
-        from . gui import RfB_MT_RENDER_Presets
-        from . gui import RfB_MT_SCENE_Cameras
-        from . gui import RfB_MT_SCENE_LightsArea
-        from . gui import RfB_MT_SCENE_LightsDay
-        from . gui import RfB_MT_SCENE_LightsHemi
-        from . gui import RfB_PT_DATA_Camera
-        from . gui import RfB_PT_DATA_Lamp
-        from . gui import RfB_PT_DATA_Light
-        from . gui import RfB_PT_DATA_LightFilters
-        from . gui import RfB_PT_DATA_World
-        from . gui import RfB_PT_LAYER_LayerOptions
-        from . gui import RfB_PT_LAYER_RenderPasses
-        from . gui import RfB_PT_MATERIAL_Displacement
-        from . gui import RfB_PT_MATERIAL_Preview
-        from . gui import RfB_PT_MATERIAL_ShaderLight
-        from . gui import RfB_PT_MATERIAL_ShaderSurface
-        from . gui import RfB_PT_MESH_PrimVars
-        from . gui import RfB_PT_MIXIN_Collection
-        from . gui import RfB_PT_OBJECT_Geometry
-        from . gui import RfB_PT_OBJECT_MatteID
-        from . gui import RfB_PT_OBJECT_Raytracing
-        from . gui import RfB_PT_OBJECT_RIBInjection
-        from . gui import RfB_PT_OBJECT_ShadingVisibility
-        from . gui import RfB_PT_PARTICLE_PrimVars
-        from . gui import RfB_PT_PARTICLE_Render
-        from . gui import RfB_PT_RENDER_Advanced
-        from . gui import RfB_PT_RENDER_Baking
-        from . gui import RfB_PT_RENDER_MotionBlur
-        from . gui import RfB_PT_RENDER_PreviewSampling
-        from . gui import RfB_PT_RENDER_Render
-        from . gui import RfB_PT_RENDER_Sampling
-        from . gui import RfB_PT_RENDER_Spooling
-        from . gui import RfB_PT_SCENE_DisplayFilters
-        from . gui import RfB_PT_SCENE_LightLinking
-        from . gui import RfB_PT_SCENE_LigthGroups
-        from . gui import RfB_PT_SCENE_ObjectGroups
-        from . gui import RfB_PT_SCENE_RIBInjection
-        from . gui import RfB_PT_SCENE_SampleFilters
-        from . gui import RfB_PT_VIEW3D_Toolshelf
-
-        from . ops import RfB_OT_COLL_TogglePath
-        from . ops import RfB_OT_FILE_OpenLastRIB
-        from . ops import RfB_OT_FILE_SpoolRender
-        from . ops import RfB_OT_FILE_ViewStats
-        from . ops import RfB_OT_ITEM_MovetoGroup
-        from . ops import RfB_OT_ITEM_RemoveGroup
-        from . ops import RfB_OT_ITEM_ToggleLightlink
-        from . ops import RfB_OT_LIST_AddMultilayer
-        from . ops import RfB_OT_MATERIAL_AddBXDF
-        from . ops import RfB_OT_MATERIAL_NewBXDF
-        from . ops import RfB_OT_NODE_AddNodetree
-        from . ops import RfB_OT_NODE_BakePatterns
-        from . ops import RfB_OT_NODE_CyclesConvertall
-        from . ops import RfB_OT_NODE_RefreshOSL
-        from . ops import RfB_OT_OBJECT_AddCamera
-        from . ops import RfB_OT_OBJECT_AddFilterLight
-        from . ops import RfB_OT_OBJECT_AddLightArea
-        from . ops import RfB_OT_OBJECT_AddLightDay
-        from . ops import RfB_OT_OBJECT_AddLightHemi
-        from . ops import RfB_OT_OBJECT_DeleteCamera
-        from . ops import RfB_OT_OBJECT_DeleteLight
-        from . ops import RfB_OT_OBJECT_EnableSubdiv
-        from . ops import RfB_OT_OBJECT_ExportRIB
-        from . ops import RfB_OT_OBJECT_MakeEmissive
-        from . ops import RfB_OT_OBJECT_SelectCamera
-        from . ops import RfB_OT_OBJECT_SelectActiveCamera
-        from . ops import RfB_OT_OBJECT_SelectLight
-        from . ops import RfB_OT_OUTPUT_ToggleChannel
-        from . ops import RfB_OT_RENDER_AddPreset
-        from . ops import RfB_OT_RPASS_AddRenderman
-        from . ops import RfB_OT_TOOL_Restart
-        from . ops import RfB_OT_TOOL_StartIPR
-        from . ops import RfB_OT_TOOL_StartIT
-        from . ops import RfB_OT_TOOL_StartLQ
-        from . ops import RfB_OT_VIEW3D_ViewNumpad0
-        from . ops import RfB_OT_VIEW3D_CameraApertureType
-
-        #
-        # need this now rather than at beginning to make
-        # sure preferences are loaded
-        #
-        from . import engine
-        properties.register()
-        ops.register()
-        gui.register()
-        add_handlers(None)
-        nds.register()
-    else:
-        #
-        # display loading error
-        #
-        throw_error(
-            "Error loading addon.  Correct RMANTREE setting in addon preferences.")
+            engine.render(self)  # noqa
 
 
 def register():
-    from . import rfb
     from . import preferences
     preferences.register()
-    load_addon()
+
+    from . import gui
+    from . import ops
+    from . import nds
+    from . import properties
+
+    from . gui import RfB_HT_IMAGE_SmartControl  # noqa
+    from . gui import RfB_HT_INFO_SmartControl  # noqa
+    from . gui import RfB_HT_NODE_SmartControl  # noqa
+    from . gui import RfB_HT_VIEW3D_SmartControl  # noqa
+    from . gui import RfB_MT_RENDER_Presets  # noqa
+    from . gui import RfB_MT_SCENE_Cameras  # noqa
+    from . gui import RfB_MT_SCENE_LightsArea  # noqa
+    from . gui import RfB_MT_SCENE_LightsDay  # noqa
+    from . gui import RfB_MT_SCENE_LightsHemi  # noqa
+    from . gui import RfB_PT_DATA_Camera  # noqa
+    from . gui import RfB_PT_DATA_Lamp  # noqa
+    from . gui import RfB_PT_DATA_Light  # noqa
+    from . gui import RfB_PT_DATA_LightFilters  # noqa
+    from . gui import RfB_PT_DATA_World  # noqa
+    from . gui import RfB_PT_LAYER_LayerOptions  # noqa
+    from . gui import RfB_PT_LAYER_RenderPasses  # noqa
+    from . gui import RfB_PT_MATERIAL_Displacement  # noqa
+    from . gui import RfB_PT_MATERIAL_Preview  # noqa
+    from . gui import RfB_PT_MATERIAL_ShaderLight  # noqa
+    from . gui import RfB_PT_MATERIAL_ShaderSurface  # noqa
+    from . gui import RfB_PT_MESH_PrimVars  # noqa
+    from . gui import RfB_PT_MIXIN_Collection  # noqa
+    from . gui import RfB_PT_OBJECT_Geometry  # noqa
+    from . gui import RfB_PT_OBJECT_MatteID  # noqa
+    from . gui import RfB_PT_OBJECT_Raytracing  # noqa
+    from . gui import RfB_PT_OBJECT_RIBInjection  # noqa
+    from . gui import RfB_PT_OBJECT_ShadingVisibility  # noqa
+    from . gui import RfB_PT_PARTICLE_PrimVars  # noqa
+    from . gui import RfB_PT_PARTICLE_Render  # noqa
+    from . gui import RfB_PT_RENDER_Advanced  # noqa
+    from . gui import RfB_PT_RENDER_Baking  # noqa
+    from . gui import RfB_PT_RENDER_MotionBlur  # noqa
+    from . gui import RfB_PT_RENDER_PreviewSampling  # noqa
+    from . gui import RfB_PT_RENDER_Render  # noqa
+    from . gui import RfB_PT_RENDER_Sampling  # noqa
+    from . gui import RfB_PT_RENDER_Spooling  # noqa
+    from . gui import RfB_PT_SCENE_DisplayFilters  # noqa
+    from . gui import RfB_PT_SCENE_LightLinking  # noqa
+    from . gui import RfB_PT_SCENE_LigthGroups  # noqa
+    from . gui import RfB_PT_SCENE_ObjectGroups  # noqa
+    from . gui import RfB_PT_SCENE_RIBInjection  # noqa
+    from . gui import RfB_PT_SCENE_SampleFilters  # noqa
+    from . gui import RfB_PT_VIEW3D_Toolshelf  # noqa
+
+    from . ops import RfB_OT_COLL_TogglePath  # noqa
+    from . ops import RfB_OT_FILE_OpenLastRIB  # noqa
+    from . ops import RfB_OT_FILE_SpoolRender  # noqa
+    from . ops import RfB_OT_FILE_ViewStats  # noqa
+    from . ops import RfB_OT_ITEM_MovetoGroup  # noqa
+    from . ops import RfB_OT_ITEM_RemoveGroup  # noqa
+    from . ops import RfB_OT_ITEM_ToggleLightlink  # noqa
+    from . ops import RfB_OT_LIST_AddMultilayer  # noqa
+    from . ops import RfB_OT_MATERIAL_AddBXDF  # noqa
+    from . ops import RfB_OT_MATERIAL_NewBXDF  # noqa
+    from . ops import RfB_OT_NODE_AddNodetree  # noqa
+    from . ops import RfB_OT_NODE_BakePatterns  # noqa
+    from . ops import RfB_OT_NODE_CyclesConvertall  # noqa
+    from . ops import RfB_OT_NODE_RefreshOSL  # noqa
+    from . ops import RfB_OT_OBJECT_AddCamera  # noqa
+    from . ops import RfB_OT_OBJECT_AddFilterLight  # noqa
+    from . ops import RfB_OT_OBJECT_AddLightArea  # noqa
+    from . ops import RfB_OT_OBJECT_AddLightDay  # noqa
+    from . ops import RfB_OT_OBJECT_AddLightHemi  # noqa
+    from . ops import RfB_OT_OBJECT_DeleteCamera  # noqa
+    from . ops import RfB_OT_OBJECT_DeleteLight  # noqa
+    from . ops import RfB_OT_OBJECT_EnableSubdiv  # noqa
+    from . ops import RfB_OT_OBJECT_ExportRIB  # noqa
+    from . ops import RfB_OT_OBJECT_MakeEmissive  # noqa
+    from . ops import RfB_OT_OBJECT_SelectCamera  # noqa
+    from . ops import RfB_OT_OBJECT_SelectActiveCamera  # noqa
+    from . ops import RfB_OT_OBJECT_SelectLight  # noqa
+    from . ops import RfB_OT_OUTPUT_ToggleChannel  # noqa
+    from . ops import RfB_OT_RENDER_AddPreset  # noqa
+    from . ops import RfB_OT_RPASS_AddRenderman  # noqa
+    from . ops import RfB_OT_TOOL_Restart  # noqa
+    from . ops import RfB_OT_TOOL_StartIPR  # noqa
+    from . ops import RfB_OT_TOOL_StartIT  # noqa
+    from . ops import RfB_OT_TOOL_StartLQ  # noqa
+    from . ops import RfB_OT_VIEW3D_ViewNumpad0  # noqa
+    from . ops import RfB_OT_VIEW3D_CameraApertureType  # noqa
+    #
+    # need this now rather than at beginning to make
+    # sure preferences are loaded
+    #
+    from . import engine  # noqa
+    properties.register()
+    ops.register()
+    gui.register()
+    nds.register()
     from . import assets
     assets.register()
     handlers.register()
@@ -239,14 +192,13 @@ def register():
 
 
 def unregister():
-    from . import preferences
-    remove_handlers()
     handlers.unregister()
-    properties.unregister()
-    ops.unregister()
-    gui.unregister()
-    nds.unregister()
-    preferences.unregister()
     from . import assets
     assets.unregister()
+    nds.unregister()  # noqa
+    gui.unregister()  # noqa
+    ops.unregister()  # noqa
+    properties.unregister()  # noqa
+    from . import preferences
+    preferences.unregister()
     bpy.utils.unregister_module(__name__)

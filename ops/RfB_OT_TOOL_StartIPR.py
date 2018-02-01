@@ -58,7 +58,7 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
 
             engine.ipr.start_interactive()
 
-            if rr.prefs().draw_ipr_text:
+            if rr.prefs().draw_ipr:
                 engine.ipr_handle = (
                     bpy.types.SpaceView3D.draw_handler_add(
                         self.draw, (context,), 'WINDOW', 'POST_PIXEL'
@@ -88,7 +88,7 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
             # AUTHOR: Timm Wimmers
             # STATUS: -unassigned-
             #
-            if rr.prefs().draw_ipr_text:
+            if rr.prefs().draw_ipr:
                 bpy.types.SpaceView3D.draw_handler_remove(
                     engine.ipr_handle, 'WINDOW'
                 )

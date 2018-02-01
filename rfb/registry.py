@@ -89,7 +89,7 @@ class Registry():
 
     @classmethod
     def prefs(cls):
-        addon = bpy.context.user_preferences.addons[cls._env['RFB_PREFS']]
+        addon = bpy.context.user_preferences.addons[__package__.split(".")[0]]
         return addon.preferences
 
     @classmethod

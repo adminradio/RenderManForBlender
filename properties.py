@@ -454,9 +454,12 @@ class RendermanSampleFilterSettings(bpy.types.PropertyGroup):
 class RendermanSceneSettings(bpy.types.PropertyGroup):
     display_filters = CollectionProperty(
         type=RendermanDisplayFilterSettings, name='Display Filters')
+
     display_filters_index = IntProperty(min=-1, default=-1)
+
     sample_filters = CollectionProperty(
         type=RendermanSampleFilterSettings, name='Sample Filters')
+
     sample_filters_index = IntProperty(min=-1, default=-1)
 
     light_groups = CollectionProperty(type=RendermanGroup,
@@ -466,7 +469,9 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
     ll = CollectionProperty(type=LightLinking,
                             name='Light Links')
 
+    #
     # we need these in case object/light selector changes
+    #
     def reset_ll_light_index(self, context):
         self.ll_light_index = -1
 
@@ -474,7 +479,9 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         self.ll_object_index = -1
 
     ll_light_index = IntProperty(min=-1, default=-1)
+
     ll_object_index = IntProperty(min=-1, default=-1)
+
     ll_light_type = EnumProperty(
         name="Select by",
         description="Select by",
@@ -498,6 +505,7 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         name="Pixel Samples X",
         description="Number of AA samples to take in X dimension",
         min=0, max=16, default=2)
+
     pixelsamples_y = IntProperty(
         name="Pixel Samples Y",
         description="Number of AA samples to take in Y dimension",
@@ -512,10 +520,12 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
                ('triangle', 'Triangle', ''),
                ('catmull-rom', 'Catmull-Rom', '')],
         default='gaussian')
+
     pixelfilter_x = IntProperty(
         name="Filter Size X",
         description="Size of the pixel filter in X dimension",
         min=0, max=16, default=2)
+
     pixelfilter_y = IntProperty(
         name="Filter Size Y",
         description="Size of the pixel filter in Y dimension",
@@ -523,18 +533,27 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
 
     pixel_variance = FloatProperty(
         name="Pixel Variance",
-        description="If a pixel changes by less than this amount when updated, it will not receive further samples in adaptive mode.  Lower values lead to increased render times and higher quality images",
-        min=0, max=1, default=.01)
+        min=0.0,
+        max=1.0,
+        default=0.01,
+        description="If a pixel changes by less than this amount when "
+                    "updated, it will not receive further samples in "
+                    "adaptive mode.  Lower values lead to increased render "
+                    "times and higher quality images"
+        )
 
     dark_falloff = FloatProperty(
         name="Dark Falloff",
-        description="Deprioritizes adaptive sampling in dark areas. Raising this can potentially reduce render times but may increase noise in dark areas",
+        description="Deprioritizes adaptive sampling in dark areas. Raising "
+                    "this can potentially reduce render times but may "
+                    "increase noise in dark areas",
         min=0, max=1, default=.025)
 
     min_samples = IntProperty(
         name="Min Samples",
         description="The minimum number of camera samples per pixel.  If this is set to '0' then the min samples will be the square root of the max_samples",
         min=0, default=4)
+
     max_samples = IntProperty(
         name="Max Samples",
         description="The maximum number of camera samples per pixel.  This should be set in 'power of two' numbers (1, 2, 4, 8, 16, etc)",
@@ -557,12 +576,12 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
                ('RANDOM', 'Random', 'Renders buckets in a random order WARNING: Inefficient memory footprint')],
         default='SPIRAL')
 
-    bucket_sprial_x = IntProperty(
+    bucket_spiral_x = IntProperty(
         name="X",
         description="X coordinate of bucket spiral start",
         min=-1, default=-1)
 
-    bucket_sprial_y = IntProperty(
+    bucket_spiral_y = IntProperty(
         name="Y",
         description="Y coordinate of bucket spiral start",
         min=-1, default=-1)
@@ -698,7 +717,7 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         default=os.path.join('$ARC', '####', '{object}.rib'))
 
     path_texture_output = StringProperty(
-        name="Teture Output Path",
+        name="Texture Output Path",
         description="Path to generated .tex files",
         subtype='FILE_PATH',
         default=os.path.join('$OUT', 'textures'))
@@ -731,26 +750,37 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
 
     geo_cache_size = IntProperty(
         name="Tesselation Cache Size (MB)",
-        description="Maximum number of megabytes to devote to tesselation cache for tracing geometry",
+        description="Maximum number of megabytes to devote to tesselation "
+                    "cache for tracing geometry",
         default=2048
     )
 
     opacity_cache_size = IntProperty(
         name="Opacity Cache Size (MB)",
-        description="Maximum number of megabytes to devote to caching opacity and presence values.  0 turns this off",
+        description="Maximum number of megabytes to devote to caching opacity "
+                    "and presence values.  0 turns this off",
         default=1000
     )
 
     output_action = EnumProperty(
         name="Action",
         description="Action to take when rendering",
-        items=[('EXPORT_RENDER', 'Export RIB and Render', 'Generate RIB file and render it with the renderer'),
-               ('EXPORT', 'Export RIB Only', 'Generate RIB file only')],
+        items=[(
+               'EXPORT_RENDER',
+               'Export RIB and Render',
+               'Generate RIB file and render it with the renderer'
+               ),
+               (
+               'EXPORT',
+               'Export RIB Only',
+               'Generate RIB file only'
+               )],
         default='EXPORT_RENDER')
 
     lazy_rib_gen = BoolProperty(
         name="Cache Rib Generation",
-        description="On unchanged objects, don't re-emit rib.  Will result in faster spooling of renders",
+        description="On unchanged objects, don't re-emit rib.  Will result in "
+                    "faster spooling of renders",
         default=True)
 
     always_generate_textures = BoolProperty(
@@ -2537,7 +2567,10 @@ def register_plugin_types():
         register_plugin_to_parent(ntype, name, args_xml, plugin_type, parent)
 
 
-@persistent
+from . rfb.evt.handlers import event_handler
+
+
+@event_handler('SCENE_POST')
 def initial_groups(scene):
     scene = bpy.context.scene
     if 'collector' not in scene.renderman.object_groups.keys():
@@ -2550,32 +2583,33 @@ def initial_groups(scene):
 
 # collection of property group classes that need to be registered on
 # module startup
-classes = [RendermanPath,
-           RendermanInlineRIB,
-           RendermanGroup,
-           LightLinking,
-           RendermanMeshPrimVar,
-           RendermanParticlePrimVar,
-           RendermanMaterialSettings,
-           RendermanAnimSequenceSettings,
-           RendermanTextureSettings,
-           RendermanLightFilter,
-           RendermanLightSettings,
-           RendermanParticleSettings,
-           RendermanPluginSettings,
-           RendermanWorldSettings,
-           RendermanAOV,
-           RendermanRenderLayerSettings,
-           RendermanCameraSettings,
-           RendermanDisplayFilterSettings,
-           RendermanSampleFilterSettings,
-           RendermanSceneSettings,
-           RendermanMeshGeometrySettings,
-           RendermanCurveGeometrySettings,
-           OpenVDBChannel,
-           RendermanObjectSettings,
-           Tab_CollectionGroup
-           ]
+classes = [
+    RendermanPath,
+    RendermanInlineRIB,
+    RendermanGroup,
+    LightLinking,
+    RendermanMeshPrimVar,
+    RendermanParticlePrimVar,
+    RendermanMaterialSettings,
+    RendermanAnimSequenceSettings,
+    RendermanTextureSettings,
+    RendermanLightFilter,
+    RendermanLightSettings,
+    RendermanParticleSettings,
+    RendermanPluginSettings,
+    RendermanWorldSettings,
+    RendermanAOV,
+    RendermanRenderLayerSettings,
+    RendermanCameraSettings,
+    RendermanDisplayFilterSettings,
+    RendermanSampleFilterSettings,
+    RendermanSceneSettings,
+    RendermanMeshGeometrySettings,
+    RendermanCurveGeometrySettings,
+    OpenVDBChannel,
+    RendermanObjectSettings,
+    Tab_CollectionGroup
+]
 
 
 def register():

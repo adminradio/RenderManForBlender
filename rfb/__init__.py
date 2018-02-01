@@ -24,3 +24,39 @@
 # ##### END MIT LICENSE BLOCK #####
 
 # <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
+# #
+# # Blender Imports
+# #
+# import bpy
+
+# #
+# # RenderManForBlender Imports
+# #
+# from . import RfB_PreferencePath
+# from . import RfB_EnvVarSettings
+# from . import RfB_Preferences
+
+
+# def register():
+#     try:
+#         from .. assets import properties
+#         properties.register()
+#         bpy.utils.register_class(RfB_PreferencePath)
+#         bpy.utils.register_class(RfB_EnvVarSettings)
+#         bpy.utils.register_class(RfB_Preferences)
+#     except Exception:
+#         #
+#         # already registered
+#         #
+#         pass
+
+
+# def unregister():
+#     bpy.utils.unregister_class(RfB_Preferences)
+#     bpy.utils.unregister_class(RfB_EnvVarSettings)
+#     bpy.utils.unregister_class(RfB_PreferencePath)

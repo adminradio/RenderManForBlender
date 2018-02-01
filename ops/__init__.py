@@ -22,50 +22,124 @@
 #
 #
 # ##### END MIT LICENSE BLOCK #####
-__ALL__ = [
-    "RfB_OT_RPASS_AddRenderman",
-    "RfB_OT_COLL_TogglePath",
-    "RfB_OT_FILE_OpenLastRIB",
-    "RfB_OT_FILE_SpoolRender",
-    "RfB_OT_FILE_ViewStats",
-    "RfB_OT_ITEM_MovetoGroup",
-    "RfB_OT_ITEM_RemoveGroup",
-    "RfB_OT_ITEM_ToggleLightlink",
-    "RfB_OT_LIST_AddMultilayer",
-    "RfB_OT_MATERIAL_AddBXDF",
-    "RfB_OT_MATERIAL_NewBXDF",
-    "RfB_OT_NODE_AddNodetree",
-    "RfB_OT_NODE_BakePatterns",
-    "RfB_OT_NODE_CyclesConvertall",
-    "RfB_OT_NODE_RefreshOSL",
-    "RfB_OT_OBJECT_AddLightArea",
-    "RfB_OT_OBJECT_AddCamera",
-    "RfB_OT_OBJECT_AddLightDay",
-    "RfB_OT_OBJECT_AddLightHemi",
-    "RfB_OT_OBJECT_AddFilterLight",
-    "RfB_OT_OBJECT_DeleteCamera",
-    "RfB_OT_OBJECT_DeleteLight",
-    "RfB_OT_OBJECT_EnableSubdiv",
-    "RfB_OT_OBJECT_ExportRIB",
-    "RfB_OT_OBJECT_MakeEmissive",
-    "RfB_OT_OBJECT_SelectCamera",
-    "RfB_OT_OBJECT_SelectLight",
-    "RfB_OT_OUTPUT_ToggleChannel",
-    "RfB_OT_RENDER_AddPreset",
-    "RfB_OT_TOOL_StartIPR",
-    "RfB_OT_TOOL_StartIT",
-    "RfB_OT_TOOL_StartLQ",
-    "RfB_OT_TOOL_Restart",
-    "register",
-    "unregister"
-]
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
 import os
 import bpy
 
-from . utils import quick_add_presets
-from . utils import compile_shader_menu_func
-from . utils.RenderPresets import RenderPresets
+#
+# Blender Imports
+#
+
+#
+# RenderManForBlender Imports
+#
+from .. rfb.lib.file import fixname
+
+
+#
+# TODO:   Implement a JSON laoader/saver and store customised preset
+# DATE:   2018-01-12
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#
+# Utility class to contain all default presets
+# this has the added bonus of not using operators for each preset
+#
+class RenderPresets():
+    FinalDenoisePreset = [
+        "rm = bpy.context.scene.renderman",
+        "rm.pixel_variance = 0.01",
+        "rm.min_samples = 32",
+        "rm.max_samples = 256",
+        "rm.max_specular_depth = 6",
+        "rm.max_diffuse_depth = 2",
+        "rm.motion_blur = True",
+        "rm.do_denoise = True",
+        "rm.PxrPathTracer_settings.maxPathLength = 10", ]
+    FinalHighPreset = [
+        "rm = bpy.context.scene.renderman",
+        "rm.pixel_variance = 0.0025",
+        "rm.min_samples = 64",
+        "rm.max_samples = 1024",
+        "rm.max_specular_depth = 6",
+        "rm.max_diffuse_depth = 3",
+        "rm.motion_blur = True",
+        "rm.do_denoise = False",
+        "rm.PxrPathTracer_settings.maxPathLength = 10", ]
+    FinalPreset = [
+        "rm = bpy.context.scene.renderman",
+        "rm.pixel_variance = 0.005",
+        "rm.min_samples = 32",
+        "rm.max_samples = 512",
+        "rm.max_specular_depth = 6",
+        "rm.max_diffuse_depth = 2",
+        "rm.motion_blur = True",
+        "rm.do_denoise = False",
+        "rm.PxrPathTracer_settings.maxPathLength = 10", ]
+    MidPreset = [
+        "rm = bpy.context.scene.renderman",
+        "rm.pixel_variance = 0.05",
+        "rm.min_samples = 0",
+        "rm.max_samples = 64",
+        "rm.max_specular_depth = 6",
+        "rm.max_diffuse_depth = 2",
+        "rm.motion_blur = True",
+        "rm.do_denoise = False",
+        "rm.PxrPathTracer_settings.maxPathLength = 10", ]
+    PreviewPreset = [
+        "rm = bpy.context.scene.renderman",
+        "rm.pixel_variance = 0.1",
+        "rm.min_samples = 0",
+        "rm.max_samples = 16",
+        "rm.max_specular_depth = 2",
+        "rm.max_diffuse_depth = 1",
+        "rm.motion_blur = False",
+        "rm.do_denoise = False",
+        "rm.PxrPathTracer_settings.maxPathLength = 5", ]
+    TractorLocalQueuePreset = [
+        "rm = bpy.context.scene.renderman",
+        "rm.pixel_variance = 0.01",
+        "rm.min_samples = 24",
+        "rm.max_samples = 124",
+        "rm.max_specular_depth = 6",
+        "rm.max_diffuse_depth = 2",
+        "rm.motion_blur = True",
+        "rm.PxrPathTracer_settings.maxPathLength = 10",
+        "rm.enable_external_rendering = True",
+        "rm.external_action = \'spool\'", ]
+
+
+#
+# Menus
+#
+compile_shader_menu_func = (
+    lambda self,
+    context: self.layout.operator(TEXT_OT_compile_shader.bl_idname)
+)
+
+
+def quick_add_presets(presetList, pathFromPresetDir, name):
+    filename = fixname(name)
+    target_path = os.path.join("presets", pathFromPresetDir)
+    target_path = bpy.utils.user_resource('SCRIPTS',
+                                          target_path,
+                                          create=True)
+    if not target_path:
+        self.report({'WARNING'}, "Failed to create presets path")
+        return {'CANCELLED'}
+
+    filepath = os.path.join(target_path, filename) + ".py"
+    file_preset = open(filepath, 'w')
+    file_preset.write("import bpy\n")
+
+    for item in presetList:
+        file_preset.write(str(item) + "\n")
+    file_preset.close()
 
 
 def register():
@@ -106,8 +180,8 @@ def register():
 
 
 def unregister():
-    bpy.types.TEXT_MT_text.remove(utils.compile_shader_menu_func)
-    bpy.types.TEXT_MT_toolbox.remove(utils.compile_shader_menu_func)
+    bpy.types.TEXT_MT_text.remove(compile_shader_menu_func)
+    bpy.types.TEXT_MT_toolbox.remove(compile_shader_menu_func)
     #
     # It should be fine to leave presets registered as they are not in memory.
     #

@@ -25,16 +25,6 @@
 
 # <pep8-80 compliant>
 
-# ########################################################################### #
-# ########################################################################### #
-# #                                                                         # #
-# #                         -= S T U B  -  W I P =-                         # #
-# #                                                                         # #
-# #                   N O T  I M P L E M E N T E D  Y E T                   # #
-# #                                                                         ä #
-# ########################################################################### #
-# ########################################################################### #
-
 #
 # Blender Imports
 #
@@ -232,10 +222,10 @@ def disable(h):
             stdmsg("EventHandler 'SCENE' already unregistered.")
             return
         else:
-            if h_scene_pre in bpy.app.handlers.scene_change_pre:
-                bpy.app.handlers.scene_change_pre.remove(h_scene_pre)
-            if h_scene_post in bpy.app.handlers.scene_change_post:
-                bpy.app.handlers.scene_change_post.remove(h_scene_post)
+            if h_scene_pre in bpy.app.handlers.scene_update_pre:
+                bpy.app.handlers.scene_update_pre.remove(h_scene_pre)
+            if h_scene_post in bpy.app.handlers.scene_update_post:
+                bpy.app.handlers.scene_update_post.remove(h_scene_post)
             scene_enabled = False
         stdmsg("EventHandler 'SCENE' unregistered.")
         return
@@ -350,9 +340,9 @@ def enable(h):
 
 def register():
     enable('LOAD')
-    # enable('SAVE')
+    enable('SAVE')
     enable('FRAME')
-    # enable('SCENE')
+    enable('SCENE')
     enable('RENDER')
 
     global rfb_modified
@@ -361,8 +351,8 @@ def register():
 
 def unregister():
     disable('LOAD')
-    # disable('SAVE')
+    disable('SAVE')
     disable('FRAME')
-    # disable('SCENE')
+    disable('SCENE')
     disable('RENDER')
     pass

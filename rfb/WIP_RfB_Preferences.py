@@ -1,6 +1,6 @@
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
-# Copyright (c) 2015 - 2017 Pixar
+# Copyright (c) 2015 - 2018 Pixar
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,111 +23,98 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
 import os
 import platform
 
+#
+# Blender Imports
+#
 import bpy
+
 from bpy.types import AddonPreferences
-
-from bpy.props import CollectionProperty
-from bpy.props import BoolProperty
-from bpy.props import StringProperty
 from bpy.props import IntProperty
-from bpy.props import PointerProperty
+from bpy.props import BoolProperty
 from bpy.props import EnumProperty
+from bpy.props import StringProperty
+from bpy.props import PointerProperty
+from bpy.props import CollectionProperty
 
-from . rfb.lib import get_installed_rendermans
-from . rfb.lib import rmantree_from_env
-from . rfb.lib import guess_rmantree
-
-from . assets.properties import RendermanAssetGroup
-
-
-class RendermanPreferencePath(bpy.types.PropertyGroup):
-    name = StringProperty(name="", subtype='DIR_PATH')
-
-
-class RendermanEnvVarSettings(bpy.types.PropertyGroup):
-    if platform.system() == "Windows":
-        home = os.environ.get('USERPROFILE')
-        temp = os.environ.get('TEMP')
-        # outpath = os.path.join(home, "Documents", "RenderMan")
-        out = StringProperty(
-            name="OUT (Output Root)",
-            description="Default RIB export path root",
-            subtype='DIR_PATH',
-            default=os.path.join(temp, 'rfb', '{blend}'))
-
-    else:
-        # outpath = os.path.join(os.environ.get('HOME'), "Documents", "RenderMan")
-        out = StringProperty(
-            name="OUT (Output Root)",
-            description="Default RIB export path root",
-            subtype='DIR_PATH',
-            default='/tmp/rfb/{blend}')
-
-    shd = StringProperty(
-        name="SHD (Shadow Maps)",
-        description="SHD environment variable",
-        subtype='DIR_PATH',
-        default=os.path.join('$OUT', 'shadowmaps'))
-
-    ptc = StringProperty(
-        name="PTC (Point Clouds)",
-        description="PTC environment variable",
-        subtype='DIR_PATH',
-        default=os.path.join('$OUT', 'pointclouds'))
-
-    arc = StringProperty(
-        name="ARC (Archives)",
-        description="ARC environment variable",
-        subtype='DIR_PATH',
-        default=os.path.join('$OUT', 'archives'))
+#
+# RenderManForBlender Imports
+#
+from . lib import rman
+from . import RfB_PreferencePath
+from . import RfB_EnvVarSettings
+from .. assets.properties import RendermanAssetGroup
 
 
-class RendermanPreferences(AddonPreferences):
+class RfB_Preferences(AddonPreferences):
     bl_idname = __package__
 
     # find the renderman options installed
     def find_installed_rendermans(self, context):
         options = [('NEWEST', 'Newest Version Installed',
                     'Automatically updates when new version installed.')]
-        for vers, path in get_installed_rendermans():
+
+        for vers, path in rman.available().items():
             options.append((path, vers, path))
         return options
 
-    shader_paths = CollectionProperty(type=RendermanPreferencePath,
-                                      name="Shader Paths")
+    shader_paths = CollectionProperty(
+        type=RfB_PreferencePath,
+        name="Shader Paths"
+    )
 
-    shader_paths_index = IntProperty(min=-1, default=-1)
+    shader_paths_index = IntProperty(
+        min=-1,
+        default=-1
+    )
 
-    texture_paths = CollectionProperty(type=RendermanPreferencePath,
-                                       name="Texture Paths")
-    texture_paths_index = IntProperty(min=-1, default=-1)
+    texture_paths = CollectionProperty(
+        type=RfB_PreferencePath,
+        name="Texture Paths"
+    )
 
-    procedural_paths = CollectionProperty(type=RendermanPreferencePath,
-                                          name="Procedural Paths")
+    texture_paths_index = IntProperty(
+        min=-1,
+        default=-1
+    )
+
+    procedural_paths = CollectionProperty(
+        type=RfB_PreferencePath,
+        name="Procedural Paths"
+    )
 
     procedural_paths_index = IntProperty(min=-1, default=-1)
 
-    archive_paths = CollectionProperty(type=RendermanPreferencePath,
+    archive_paths = CollectionProperty(type=RfB_PreferencePath,
                                        name="Archive Paths")
+
     archive_paths_index = IntProperty(min=-1, default=-1)
 
     use_default_paths = BoolProperty(
         name="Use RenderMan default paths",
-        description="Includes paths for default shaders etc. from RenderMan Pro\
-            Server install",
-        default=True)
+        description="Includes paths for default shaders etc. from selected "
+                    "RenderMan Pro Server installation.",
+        default=True
+    )
+
     use_builtin_paths = BoolProperty(
         name="Use built in paths",
-        description="Includes paths for default shaders etc. from RenderMan\
-            exporter",
-        default=False)
+        description="Includes paths for default shaders etc. from selected "
+                    "RenderMan exporter",
+        default=False
+    )
 
     rmantree_choice = EnumProperty(
         name='RenderMan Version to use',
-        description='Leaving as "Newest" will automatically update when you install a new RenderMan version',
+        description="Leaving as 'Newest' will automatically update when "
+                    "you install a new RenderMan version",
         # default='NEWEST',
         items=find_installed_rendermans
     )
@@ -140,15 +127,19 @@ class RendermanPreferences(AddonPreferences):
             (
                 "DETECT",
                 "Choose From Installed",
-                "Scan for installed RenderMan locations to choose from"
-            ), (
+                "Scan for installed RenderMan locations to choose from."
+            ),
+            (
                 "ENV",
                 "Get From RMANTREE Environment Variable",
-                "This will use the RMANTREE set in the enviornment variables"
-            ), (
+                "This will use the RMANTREE variable from current uers "
+                "environment (falls back to 'NEWEST' if RMANTREE isn't set "
+                "or a valid installation was not found at given value."
+            ),
+            (
                 "MANUAL",
                 "Set Manually",
-                "Manually set the RenderMan installation (for expert users)"
+                "Manually set the RenderMan installation (for expert users)."
             )
         ]
     )
@@ -206,7 +197,7 @@ class RendermanPreferences(AddonPreferences):
         default=os.path.join('$OUT', 'images', '{scene}.{layer}.{pass}.####.{file_type}'))
 
     env_vars = PointerProperty(
-        type=RendermanEnvVarSettings,
+        type=RfB_EnvVarSettings,
         name="Environment Variable Settings")
 
     auto_check_update = bpy.props.BoolProperty(
@@ -227,7 +218,11 @@ class RendermanPreferences(AddonPreferences):
                     "copied from RMANTREE.\nSet this if you want to pull "
                     "in an external library.",
         subtype='FILE_PATH',
-        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'RenderManAssetLibrary'))
+        default=os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)
+            ), 'data', 'RenderManAssetLibrary')
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -236,14 +231,14 @@ class RendermanPreferences(AddonPreferences):
         if self.rmantree_method == 'DETECT':
             layout.prop(self, 'rmantree_choice')
         elif self.rmantree_method == 'ENV':
-            layout.label(text="RMANTREE: %s " % rmantree_from_env())
+            layout.label(text="RMANTREE: %s " % rman.from_env())
         else:
             layout.prop(self, "path_rmantree")
 
-        if guess_rmantree() is None:
-            row = layout.row()
-            row.alert = True
-            row.label('Error in RMANTREE. Reload addon to reset.', icon='ERROR')
+        # if guess_rmantree() is None:
+        #     row = layout.row()
+        #     row.alert = True
+        #     row.label('Error in RMANTREE. Reload addon to reset.', icon='ERROR')
 
         env = self.env_vars
         layout.prop(env, "out")
@@ -255,23 +250,3 @@ class RendermanPreferences(AddonPreferences):
         # layout.prop(env, "shd")
         # layout.prop(env, "ptc")
         # layout.prop(env, "arc")
-
-
-def register():
-    try:
-        from . assets import properties
-        properties.register()
-        bpy.utils.register_class(RendermanPreferencePath)
-        bpy.utils.register_class(RendermanEnvVarSettings)
-        bpy.utils.register_class(RendermanPreferences)
-    except Exception:
-        #
-        # already registered
-        #
-        pass
-
-
-def unregister():
-    bpy.utils.unregister_class(RendermanPreferences)
-    bpy.utils.unregister_class(RendermanEnvVarSettings)
-    bpy.utils.unregister_class(RendermanPreferencePath)
