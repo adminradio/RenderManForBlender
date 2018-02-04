@@ -114,15 +114,6 @@ class RenderPresets():
         "rm.external_action = \'spool\'", ]
 
 
-#
-# Menus
-#
-compile_shader_menu_func = (
-    lambda self,
-    context: self.layout.operator(TEXT_OT_compile_shader.bl_idname)
-)
-
-
 def quick_add_presets(presetList, pathFromPresetDir, name):
     filename = fixname(name)
     target_path = os.path.join("presets", pathFromPresetDir)
@@ -143,11 +134,10 @@ def quick_add_presets(presetList, pathFromPresetDir, name):
 
 
 def register():
-    bpy.types.TEXT_MT_text.append(compile_shader_menu_func)
-    bpy.types.TEXT_MT_toolbox.append(compile_shader_menu_func)
-
+    #
     # Register any default presets here.
     # This includes render based and Material based
+    #
     quick_add_presets(
         RenderPresets.FinalDenoisePreset,
         os.path.join("renderman", "render"),
@@ -180,8 +170,7 @@ def register():
 
 
 def unregister():
-    bpy.types.TEXT_MT_text.remove(compile_shader_menu_func)
-    bpy.types.TEXT_MT_toolbox.remove(compile_shader_menu_func)
     #
     # It should be fine to leave presets registered as they are not in memory.
     #
+    pass

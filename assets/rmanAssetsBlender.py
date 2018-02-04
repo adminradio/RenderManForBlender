@@ -25,17 +25,26 @@
 
 from . import rmanAssets as ra
 from . import rmanAssetsLib as ral
-from .rmanAssets import RmanAsset, TrMode, TrStorage, TrSpace, TrType
+
+from . rmanAssets import TrMode
+from . rmanAssets import TrType
+from . rmanAssets import TrSpace
+from . rmanAssets import TrStorage
+from . rmanAssets import RmanAsset
 import os
 import os.path
 import re
 import sys
-import time
 import bpy as mc  # just a test
 import bpy
 import mathutils
 from math import radians
-from .. import utils
+
+from .. rfb.lib import init_env
+from .. rfb.lib import get_rman_version
+
+from .. rfb.lib.prfs import pref
+
 
 ##
 # @brief      Exception class to tell the world about our miserable failings.
@@ -56,7 +65,7 @@ class RmanAssetBlenderError(Exception):
 #
 class BlenderEnv:
     def getenv(self, key):
-        utils.init_env(None)
+        init_env(None)
         val = os.environ[key] if key in os.environ else None
         return val
 
@@ -71,9 +80,9 @@ class BlenderEnv:
         # print '++++ MayaEnv::GetValue %s' % key
         val = self.getenv(key)
         if val is None:
-            print(key,val)
+            print(key, val)
             raise ra.RmanAssetError('%s is not an registered environment ' +
-                                 'variable !' % key)
+                                    'variable !' % key)
         # print 'MayaEnv.GetValue( %s ) = %s' % (key, repr(val))
         return os.path.expandvars(val)
 
@@ -109,8 +118,8 @@ __defaultCategories = {'Materials', 'LightRigs', 'EnvironmentMaps'}
 # store the list of maya nodes we translate to patterns
 # without telling anyone...
 #
-from .. import nodes
-tmp = nodes.nodetypes
+from .. import nds
+tmp = nds.nodetypes
 g_BlenderToPxrNodes = {}
 g_PxrToBlenderNodes = {}
 
@@ -189,17 +198,18 @@ class BlenderProgress:
         # print 'Progress init: using %s' % self._pbar
 
     def Start(self):
-        self._pbar.progress_begin(0,100)
+        self._pbar.progress_begin(0, 100)
 
     def Update(self, val, msg=None):
         self._pbar.progress_update(val)
 
     def End(self):
-        self._pbar.progress_end(val)
+        self._pbar.progress_end(self._val)  # CHECKME was: ...end(val)
 
 
 def fix_blender_name(name):
     return name.replace(' ', '').replace('.', '')
+
 
 ##
 # @brief    Class representing a node in Maya's DAG
@@ -329,8 +339,8 @@ class BlenderNode:
             if mode == TrMode.k_flat:
                 pass
             elif mode == TrMode.k_hierarchical:
-                raise RmanAssetBlenderError('Hierarchical transforms '
-                                         'not implemented yet !')
+                raise RmanAssetBlenderError(
+                    'Hierarchical transforms not implemented yet !')
             else:
                 raise RmanAssetBlenderError('Unknown transform mode !')
 
@@ -339,9 +349,9 @@ class BlenderNode:
                                                   type='transform')
 
                 if transformNodes is None:
-                    raise RmanAssetBlenderError('This is wrong : '
-                                             'no transfom for this shape: %s' %
-                                             self.name)
+                    raise RmanAssetBlenderError(
+                        'This is wrong : no transfom for this shape: %s' %
+                        self.name)
 
                 # print 'we have valid transform nodes : %s' % transformNodes
                 Tnode = transformNodes[0]
@@ -417,7 +427,7 @@ class BlenderNode:
             ptype = param['type']
             node = self.node
             # safety check
-            if not p_name in node.prop_meta:
+            if p_name not in node.prop_meta:
                 self.AddParam(p_name, {'type': ptype,
                                    'value': param['default']})
                 if p_name not in self.__safeToIgnore and not ptype.startswith('output'):
@@ -1038,7 +1048,7 @@ def exportAsset(nt, atype, infodict, category, renderPreview=True,
     # Compatibility data
     # This will help other application decide if they can use this asset.
     #
-    prmanversion = "%d.%d.%s" % utils.get_rman_version(rmantree)
+    prmanversion = "%d.%d.%s" % get_rman_version(rmantree)
     Asset.setCompatibility(hostName='Blender',
                            hostVersion=bpy.app.version,
                            rendererVersion=prmanversion)
@@ -1267,9 +1277,11 @@ def createNodes(Asset):
         nodeId = node.name()
         nodeType = node.type()
         nodeClass = node.nodeClass()
-        print('%s %s: %s' % (nodeId, nodeType, nodeClass))
+        if pref('rfb_debug'):
+            print('%s %s: %s' % (nodeId, nodeType, nodeClass))
         fmt, vals, ttype = node.transforms()
-        print('+ %s %s: %s' % (fmt, vals, ttype))
+        if pref('rfb_debug'):
+            print('+ %s %s: %s' % (fmt, vals, ttype))
 
     #     nodeName = None
     #     transformName = None
@@ -1487,7 +1499,7 @@ def compatibilityCheck(Asset):
     global g_validNodeTypes
     # the version numbers should always contain at least 1 dot.
     # I'm going to skip the maya stuff
-    prmanversion = "%d.%d.%s" % utils.get_rman_version(rmantree)
+    prmanversion = "%d.%d.%s" % get_rman_version(rmantree)
     compatible = Asset.IsCompatible(rendererVersion=prmanversion,
                                     validNodeTypes=g_validNodeTypes)
     if not compatible:

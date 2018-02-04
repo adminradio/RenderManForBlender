@@ -30,7 +30,7 @@ from bpy.props import *
 from bpy.types import PropertyGroup
 
 from . import assets
-from .. rfb.registry import Registry as rr
+from .. rfb.lib.prfs import pref
 
 # This file holds the properties for the asset browser.
 # They will be parsed from the json file
@@ -58,17 +58,19 @@ class RendermanAsset(PropertyGroup):
 
     name = StringProperty(default='')
     label = StringProperty(default='')
-    #thumbnail = EnumProperty(items=get_enum_items)
+    # thumbnail = EnumProperty(items=get_enum_items)
     thumb_path = StringProperty(subtype='FILE_PATH')
-    path = StringProperty(subtype='FILE_PATH')
     json_path = StringProperty(subtype='FILE_PATH')
+    path = StringProperty(
+        name="Assets Library Path",
+        subtype='DIR_PATH')
 
 
-# forward define asset group
-class RendermanAssetGroup(PropertyGroup):
-    bl_label = "RenderMan Asset Group"
-    bl_idname = 'RendermanAssetGroup'
-    pass
+# # forward define asset group
+# class RendermanAssetGroup(PropertyGroup):
+#     bl_label = "RenderMan Asset Group"
+#     bl_idname = 'RendermanAssetGroup'
+#     pass
 
 # A property group holds assets and sub groups
 
@@ -80,7 +82,7 @@ class RendermanAssetGroup(PropertyGroup):
     @classmethod
     def get_from_path(cls, lib_path):
         ''' get from abs lib_path '''
-        head = rr.prefs().assets_library
+        head = pref('assets_library')
         lib_path = os.path.relpath(lib_path, head.path)
         active = head
         for sub_path in lib_path.split(os.sep):
@@ -91,7 +93,7 @@ class RendermanAssetGroup(PropertyGroup):
     # get the active library from the addon pref
     @classmethod
     def get_active_library(cls):
-        active_path = rr.prefs().active_assets_path
+        active_path = pref('active_assets_path')
         if active_path != '':
             return cls.get_from_path(active_path)
         else:
@@ -115,7 +117,7 @@ class RendermanAssetGroup(PropertyGroup):
         return all_assets
 
     def is_active(self):
-        return self.path == rr.prefs().active_assets_path
+        return self.path == pref('active_assets_path')
 
 
 def register():

@@ -45,10 +45,10 @@ class RfB_MT_SCENE_Cameras(bpy.types.Menu):
     def draw(self, context):
         menu = self.layout
         cams = [
-            obj for obj in bpy.context.scene.objects
-            if obj.type == "CAMERA"
+            obj for obj in bpy.context.scene.objects if obj.type == "CAMERA"
         ]
         if cams:
+            cams.sort(key=lambda cam: cam.name)
             for cam in cams:
                 name = cam.name
                 try:
@@ -56,7 +56,7 @@ class RfB_MT_SCENE_Cameras(bpy.types.Menu):
                     iid = self.iida if active == name else self.iide
                 except AttributeError:
                     iid = self.iide
-                menu.enabled = not cam.hide
+                # menu.enabled = not cam.hide
                 op = menu.operator(self.opr, text=name, icon_value=iid)
                 op.cam_name = name
         else:

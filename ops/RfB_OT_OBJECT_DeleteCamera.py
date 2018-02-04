@@ -32,7 +32,7 @@ import bpy
 class RfB_OT_OBJECT_DeleteCamera(bpy.types.Operator):
     bl_idname = "rfb.object_delete_camera"
     bl_label = "Delete Camera"
-    bl_description = ""
+    bl_description = "Delete this camera (disabled if camera is hidden)."
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
@@ -40,11 +40,9 @@ class RfB_OT_OBJECT_DeleteCamera(bpy.types.Operator):
 
         cam_type = bpy.context.object.data.type
         #
-        # if we  are going to deket an active camera, we should know!
+        # if we  are going to delete an active camera, we should know!
         #
         bpy.ops.object.delete()
-        print(bpy.data.scenes[scn.name].camera)
-
         cams = [
             obj for obj in bpy.context.scene.objects
             if obj.type == "CAMERA" and obj.data.type == cam_type

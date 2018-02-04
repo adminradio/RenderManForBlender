@@ -26,6 +26,7 @@
 #
 # Blender Imports
 #
+import bpy
 from bpy.types import Panel
 
 #
@@ -51,26 +52,26 @@ class RfB_PT_MATERIAL_Preview(RfB_PT_MIXIN_Panel, Panel):
     def draw(self, context):
         layout = self.layout
         mat = context.material
-        row = layout.row()
         if mat:
-            row.template_preview(context.material, show_buttons=1)
-            # if mat.node_tree:
-            #    layout.prop_search(
-            #        mat, "node_tree", bpy.data, "node_groups")
+            row = layout.row()
+            row.template_preview(context.material, show_buttons=False)
 
-        layout.separator()
-        split = layout.split()
+            layout.separator()
+            split = layout.split()
 
-        col = split.column(align=True)
-        col.label("Viewport Color:")
-        col.prop(mat, "diffuse_color", text="")
+            col = split.column(align=True)
+            col.label("Viewport Color:")
+            col.prop(mat, "diffuse_color", text="")
 
-        # col.prop(mat, "alpha")
-        # col.separator()
-        # col.label("Viewport Alpha:")
-        # col.prop(mat.game_settings, "alpha_blend", text="")
+            # col.prop(mat, "alpha")
+            # col.separator()
+            # col.label("Viewport Alpha:")
+            # col.prop(mat.game_settings, "alpha_blend", text="")
 
-        col = split.column(align=True)
-        col.label("Viewport Specular:")
-        col.prop(mat, "specular_color", text="")
-        col.prop(mat, "specular_hardness", text="Hardness")
+            col = split.column(align=True)
+            col.label("Viewport Specular:")
+            col.prop(mat, "specular_color", text="")
+            col.prop(mat, "specular_hardness", text="Hardness")
+        else:
+            box = layout.box().box()
+            box.label("No material assigned to object!", icon='ERROR')

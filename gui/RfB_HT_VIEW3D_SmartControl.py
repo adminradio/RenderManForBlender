@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # blender imports
 #
@@ -58,20 +60,8 @@ class RfB_HT_VIEW3D_SmartControl(bpy.types.Header):
             text="",
             icon_value=self.iid_sunlight
         )
-        row.operator(
-            "render.render",
-            text='',
-            icon_value=self.iid_render
-        )
-        if engine.ipr:
-            row.operator(
-                'rfb.tool_ipr',
-                text='',
-                icon_value=self.iid_ipr_stop
-            )
-        else:
-            row.operator(
-                'rfb.tool_ipr',
-                text='',
-                icon_value=self.iid_ipr_start
-            )
+
+        row.operator("render.render", text='', icon_value=self.iid_render)
+
+        iid = self.iid_ipr_stop if engine.ipr else self.iid_ipr_start
+        row.operator('rfb.tool_ipr', text='', icon_value=iid)

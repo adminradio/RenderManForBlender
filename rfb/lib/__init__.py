@@ -46,12 +46,9 @@ import os
 import sys
 import fnmatch
 import platform
-
-import subprocess
-
 import mathutils
-
-from extensions_framework import util as efutil
+import subprocess
+from pathlib import Path
 
 
 #
@@ -63,7 +60,7 @@ import bpy
 #
 # RenderMan for Blender Imports
 #
-from .. registry import Registry as rr
+from . prfs import pref
 from . math import clamp
 from . echo import debug
 
@@ -73,12 +70,8 @@ from . import tmpl
 #
 # Developer options are candidates for user prefs!
 #
-DEBUG = rr.get('RFB_DEBUG')
-INFOS = rr.get('RFB_INFOS')
-
-
-def throw_error(msg):
-    raise ImportError(msg)
+DEBUG = pref('rfb_debug')
+INFOS = pref('rfb_info')
 
 
 def getattr_recursive(ptr, attrstring):
@@ -86,6 +79,13 @@ def getattr_recursive(ptr, attrstring):
         ptr = getattr(ptr, attr)
 
     return ptr
+
+
+def get_real_path(path):
+    p = str(Path(path).resolve())
+    # p = os.path.realpath(efutil.filesystem_path(path))
+    print("get_real_path(): " + p)
+    return p
 
 
 #
@@ -241,11 +241,11 @@ def args_files_in_path(prefs, idblock, shader_type='', threaded=True):
         # AUTHOR: Timm Wimmers
         # STATUS: assigned to self
         #
-        # QUICKFIX: because of moving this from 'utils.py' to 'utils/__init__.py'
-        if 'Windows' in rr.get('OS'):
-            path = path.replace("\\utils", "")
+        # QUICKFIX: because of moving this from 'utils.py' to 'rfb/lib'
+        if platform.system() == 'Windows':
+            path = path.replace("\\rfb\\lib", "")
         else:
-            path = path.replace("/utils", "")
+            path = path.replace("/rfb/lib", "")
         # QUICKFIX end
         for root, dirnames, filenames in os.walk(path):
             for filename in fnmatch.filter(filenames, '*.args'):
@@ -279,12 +279,6 @@ def get_path_list(rm, type):
             paths.append(bpy.path.abspath(p.name))
 
     return paths
-
-
-def get_real_path(path):
-    p = os.path.realpath(efutil.filesystem_path(path))
-    print("get_real_path(): " + p)
-    return p
 
 
 #
@@ -475,16 +469,21 @@ def guess_rmantree():
 
     # check rmantree valid
     if version[0] == 0:
-        throw_error("Error loading addon.  RMANTREE {} is not "
-                    "valid. Correct RMANTREE setting in addon "
-                    "preferences.".format(rmantree))
+        msg = (
+            "Error loading addon.  RMANTREE {} is not valid. Correct "
+            "RMANTREE setting in addon preferences.".format(rmantree)
+        )
+        raise ImportError(msg)
         return None
 
     # check that it's >= 21
     if version[0] < 21:
-        throw_error("Error loading addon using RMANTREE={}. RMANTREE "
-                    "must be version 21.0 or greater.  Correct RMANTREE "
-                    "setting in addon preferences.".format(rmantree))
+        msg = (
+            "Error loading addon using RMANTREE={}. RMANTREE must be "
+            "version 21.0 or greater.  Correct RMANTREE setting in addon "
+            "preferences.".format(rmantree)
+        )
+        raise ImportError(msg)
         return None
 
     return rmantree

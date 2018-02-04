@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Blender Imports
 #
@@ -32,8 +34,7 @@ from bpy.props import EnumProperty
 #
 # RenderMan for Blender Imports
 #
-# from .. export import EXCLUDED_OBJECT_TYPES
-# FIXME: has to be in export.py or in RfB-Registry?
+
 EXCLUDED_OBJECT_TYPES = ['LAMP', 'CAMERA', 'ARMATURE']
 
 

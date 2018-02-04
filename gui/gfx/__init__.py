@@ -31,6 +31,11 @@
 import blf
 from bgl import *
 
+#
+# RenderManForBlender Imports
+#
+from ... rfb.lib.prfs import pref
+
 dpi = 72
 
 
@@ -42,22 +47,18 @@ def text_dpi(val):
 def border(self, vp):
     w = vp.width
     h = vp.height
-    #
-    # TODO:   Color and linewidth should go into Userprefs.
-    # DATE:   2018-01-23
-    # AUTHOR: Timm Wimmers
-    # STATUS: -unassigned-
-    #
     l = 6  # noqa
     a = l // 2  # noqa
-    c = (0.870, 0.325, 0.375, 0.750)
+    c = pref('rfb_ipr_border')
 
     glEnable(GL_BLEND)
     glColor4f(*c)
     glLineWidth(l)
 
+    #
     # to avoid nasty corners we draw four indiividual lines
     # instead of a single quad vertex group:
+    #
     glBegin(GL_LINE_STRIP)
     glVertex2i(0, a)
     glVertex2i(w, a)

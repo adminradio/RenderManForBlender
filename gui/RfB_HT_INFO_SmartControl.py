@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # blender imports
 #
@@ -47,19 +49,34 @@ class RfB_HT_INFO_SmartControl(bpy.types.Header):
 
         layout = self.layout
         layout.enabled = True if bpy.context.scene.camera else False
-        txt = "Animation" if rm.external_animation else "Current Frame"
 
         row = layout.row(align=True)
+        row.scale_x = 1.25
         iid = icons.iconid("render")
-        row.operator("render.render", text=txt, icon_value=iid)
+        row.operator("render.render", text="", icon_value=iid)
 
-        iid = icons.iconid("render_spool")
+        iid = icons.iconid("batch_render")
+        row.operator("render.render", text="", icon_value=iid).animation = True
 
-        if context.scene.renderman.enable_external_rendering:
-            row.operator("rfb.file_spool_render", text=txt, icon_value=iid)
-        if engine.ipr:
-            iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr', text="IPR", icon_value=iid)
-        else:
-            iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr', text="IPR", icon_value=iid)
+        iid = (
+            icons.iconid("stop_ipr")
+            if engine.ipr
+            else icons.iconid("start_ipr")
+        )
+        row.operator('rfb.tool_ipr', text="", icon_value=iid)
+
+        row = layout.row(align=True)
+
+        prp = "enable_external_rendering"
+        iid = icons.toggle('spool', rm.enable_external_rendering)
+        row.prop(rm, prp, icon_only=True, icon_value=iid)
+
+        row = layout.row(align=True)
+        row.scale_x = 1.25
+        rm = context.scene.renderman
+        if rm.enable_external_rendering:
+            iid = icons.iconid("render_spool")
+            row.operator("rfb.file_spool_render", text="", icon_value=iid)
+            prp = "external_animation"
+            iid = icons.toggle("animation", rm.external_animation)
+            row.prop(rm, prp, icon_only=True, icon_value=iid)

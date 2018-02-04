@@ -30,10 +30,17 @@
 #
 # Blender Imports
 #
+import bpy
 
 #
 # RenderManForBlender Imports
 #
-from . Status import Status
 
-state = Status()
+
+def prefs():
+    addon = bpy.context.user_preferences.addons[__package__.split(".")[0]]
+    return addon.preferences
+
+
+def pref(ident):
+    return getattr(prefs(), ident, None)

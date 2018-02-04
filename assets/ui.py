@@ -32,9 +32,7 @@ from . properties import RendermanAssetGroup
 from . properties import RendermanAsset
 
 from . import assets
-from .. gui import icons
-from .. rfb import lib
-from .. rfb.registry import Registry as rr
+from .. rfb.lib.prfs import pref
 from .. gui.RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 
@@ -46,30 +44,23 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_label = "Asset Manager"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = rr.get('RFB_TABNAME')
+    bl_category = "RenderMan"
 
     @classmethod
     def poll(cls, context):
         rd = context.scene.render
         return rd.engine == 'PRMAN_RENDER'
 
-    # def draw_header(self, context):
-    #     if rr.prefs().draw_panel_icon:
-    #         iid = icons.iconid("renderman")
-    #         self.layout.label(text="", icon_value=iid)
-    #     else:
-    #         pass
-
     # draws the panel
     def draw(self, context):
         scene = context.scene
-        rm = scene.renderman
+        # rm = scene.renderman
         layout = self.layout
 
         if context.scene.render.engine != "PRMAN_RENDER":
             return
 
-        assets_library = rr.prefs().assets_library
+        assets_library = pref('assets_library')
 
         if assets_library.name == '':
             layout.operator("rfb.init_asset_library", text="Set up Library")
@@ -77,7 +68,7 @@ class Renderman_Assets_UI_Panel(RfB_PT_MIXIN_PanelIcon, Panel):
             layout = self.layout
 
             row = layout.row(align=True)
-            row.context_pointer_set('renderman_asset', rr.prefs().assets_library)
+            row.context_pointer_set('renderman_asset', assets_library)
             row.menu('renderman_assets_menu', text="Select Library")
             row.operator("rfb.init_asset_library", text="", icon="FILE_REFRESH")
             active = RendermanAssetGroup.get_active_library()
@@ -141,9 +132,9 @@ def register():
         bpy.utils.register_class(Renderman_Assets_Menu)
         bpy.utils.register_class(Renderman_Assets_UI_Panel)
     except:
-        pass  # allready registered
+        pass  # already registered
 
 
 def unregister():
-    bpy.utils.unregister_class(Renderman_Assets_Menu)
     bpy.utils.unregister_class(Renderman_Assets_UI_Panel)
+    bpy.utils.unregister_class(Renderman_Assets_Menu)

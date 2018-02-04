@@ -1,6 +1,6 @@
 # ##### BEGIN MIT LICENSE BLOCK #####
 #
-# Copyright (c) 2015 - 2017 Pixar
+# Copyright (c) 2015 - 2018 Pixar
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,12 +23,22 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-import bpy
+#
+# Python Imports
+#
 import os
 import time
-from . lib.path import user_path
 
-from . registry import Registry as rr
+#
+# Blender Imports
+#
+import bpy
+
+#
+# RenderManForBlender Imports
+#
+from . lib.prfs import pref
+from . lib.path import user_path
 
 
 def end_block(f, indent_level):
@@ -71,9 +81,7 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    prefs = rr.prefs()
-
-    out_dir = prefs.env_vars.out
+    out_dir = pref('env_vars').out
     cdir = user_path(out_dir)
     scene = context.scene
     rm = scene.renderman

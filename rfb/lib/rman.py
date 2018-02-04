@@ -47,7 +47,8 @@ from . deco import laptime
 
 
 def prefs():
-    return bpy.context.user_preferences.addons[__package__.split('.')[0]].preferences
+    ctx = bpy.context.user_preferences
+    return ctx.addons[__package__.split('.')[0]].preferences
 
 
 @laptime

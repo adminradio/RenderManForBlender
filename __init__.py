@@ -42,10 +42,10 @@ from . rfb.evt import handlers
 bl_info = {
     "name": "RenderMan For Blender",
     "author": "Pixar",
-    "version": (21, 5, 0),
+    "version": (21, 6, 0),
     "blender": (2, 78, 0),
     "location": "Info Header, Render Engine Menu",
-    "description": "RenderMan 21.5 Integration",
+    "description": "RenderMan 21.6 Integration",
     "warning": "",
     "category": "Render",
 }
@@ -67,7 +67,9 @@ class PRManRender(bpy.types.RenderEngine):
             if self.render_pass is not None:
                 engine.free(self)  # noqa
 
+    #
     # main scene render
+    #
     def update(self, data, scene):
         if(engine.ipr):  # noqa
             return
@@ -96,10 +98,15 @@ def register():
     from . import nds
     from . import properties
 
-    from . gui import RfB_HT_IMAGE_SmartControl  # noqa
+    # # #### WIPs ####
+    #
+    # from . gui import RfB_HT_IMAGE_SmartControl  # noqa
+    # from . gui import RfB_HT_NODE_SmartControl  # noqa
+    # from . gui import RfB_HT_VIEW3D_SmartControl  # noqa
+    #
+    # # #### END WIPs ####
+    #
     from . gui import RfB_HT_INFO_SmartControl  # noqa
-    from . gui import RfB_HT_NODE_SmartControl  # noqa
-    from . gui import RfB_HT_VIEW3D_SmartControl  # noqa
     from . gui import RfB_MT_RENDER_Presets  # noqa
     from . gui import RfB_MT_SCENE_Cameras  # noqa
     from . gui import RfB_MT_SCENE_LightsArea  # noqa
@@ -138,6 +145,7 @@ def register():
     from . gui import RfB_PT_SCENE_ObjectGroups  # noqa
     from . gui import RfB_PT_SCENE_RIBInjection  # noqa
     from . gui import RfB_PT_SCENE_SampleFilters  # noqa
+    from . gui import RfB_PT_WORLD_RIBInjection  # noqa
     from . gui import RfB_PT_VIEW3D_Toolshelf  # noqa
 
     from . ops import RfB_OT_COLL_TogglePath  # noqa

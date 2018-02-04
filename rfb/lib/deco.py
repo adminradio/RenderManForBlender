@@ -23,9 +23,13 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Python Imports
 #
+import time
+import functools
 
 #
 # Blender Imports
@@ -34,14 +38,9 @@
 #
 # RenderManForBlender Imports
 #
-
-import time
-import functools
-
+from . prfs import pref
 from . time import pretty
 from . echo import stdmsg
-
-from .. registry import Registry as rr
 
 
 _ids_ = set()
@@ -60,8 +59,9 @@ def nonrecursive(f):
 
 
 def laptime(f):
-    if not rr.get('RFB_TIME_IT'):
-        return f
+    # print(pref('rfb_laptime'))
+    # if not pref('rfb_laptime'):
+    #     return f
 
     @functools.wraps(f)
     def _w_(*args, **kwargs):

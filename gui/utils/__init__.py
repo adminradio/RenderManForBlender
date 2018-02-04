@@ -35,6 +35,13 @@ from .. import icons
 from ... import engine
 
 
+#
+# FIXME:  split_ll() and split_lr() return rows() instead of column()
+#         This is wrong - have to be fixed everywhere!
+# DATE:   2018-02-04
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#
 def split_ll(layout, alignment=True):
     """Split a layout into two colums. Both are left aligned."""
     row = layout.row()

@@ -33,6 +33,8 @@ import glob
 import traceback
 import subprocess
 
+from pathlib import Path
+
 #
 # Blender Imports
 #
@@ -42,28 +44,26 @@ import bpy
 # RenderManForBlender Imports
 #
 from . import bl_info
-# from . rfb.lib import rib
-# from . rfb.lib import rib_path
-# from . rfb.lib import rib_ob_bounds
-# from . rfb.lib import make_frame_path
+
 from . rfb.lib import init_exporter_env
-# from . rfb.lib import get_sequence_path
-from . rfb.lib.path import user_path
 from . rfb.lib import get_path_list_converted
 from . rfb.lib import set_path
-# from . rfb.lib import path_list_convert
 from . rfb.lib import guess_rmantree
 from . rfb.lib import set_pythonpath
 from . rfb.lib import set_rmantree
-from . rfb.lib import get_real_path
 from . rfb.lib import find_it_path
 from . rfb.lib import get_Selected_Objects
-from . rfb.registry import Registry as rr
+
+from . rfb.lib.prfs import pref
+from . rfb.lib.prfs import prefs
+from . rfb.lib.path import user_path
 
 from . rfb.lib.echo import debug
+from . rfb.lib.echo import stdmsg
 from . rfb.lib.time import pretty
+from . rfb.lib.deco import laptime
 
-# from bpy.app.handlers import persistent
+from . rfb.evt.handlers import event_handler
 
 # global dictionaries
 from . export import write_rib
@@ -83,13 +83,13 @@ from . export import update_crop_window
 
 from . nds import get_tex_file_name
 
-# # unused?
 addon_version = bl_info['version']
 
 prman_inited = False
 ipr_handle = None
 
 
+@laptime
 def init_prman():
     global prman_inited
     # set pythonpath before importing prman
@@ -181,8 +181,6 @@ def update_interactive(engine, context):
 # update the timestamp on an object
 # note that this only logs the active object.  So it might not work say
 # if a script updates objects.  We would need to iterate through all objects
-# @persistent
-from . rfb.evt.handlers import event_handler
 
 
 @event_handler('SCENE_POST')
@@ -192,7 +190,6 @@ def update_timestamp(scene):
         # mark object for update
         now = int(time.time())
         active.renderman.update_timestamp = now
-        print("Update: {}".format(now))
 
 
 class RPass:
@@ -210,8 +207,7 @@ class RPass:
             self.display_driver = 'it' if scene.renderman.render_into == 'it' else 'openexr'
 
         # pass addon prefs to init_envs
-        addon = bpy.context.user_preferences.addons[__name__.split('.')[0]]
-        init_exporter_env(addon.preferences)
+        init_exporter_env(prefs())
         self.initialize_paths(scene)
         self.rm = scene.renderman
         self.external_render = external_render
@@ -258,12 +254,14 @@ class RPass:
         if not os.path.exists(self.paths['export_dir']):
             os.makedirs(self.paths['export_dir'])
 
-        addon_prefs = rr.prefs()
-        self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
-                                                scene=scene, display_driver=self.display_driver)
-        self.paths['aov_output'] = user_path(
-            addon_prefs.path_aov_image, scene=scene, display_driver=self.display_driver)
-
+        _p_ = pref('path_display_driver_image')
+        self.paths['render_output'] = (
+            user_path(_p_, scene=scene, display_driver=self.display_driver)
+        )
+        _p_ = pref('path_aov_image')
+        self.paths['aov_output'] = (
+            user_path(_p_, scene=scene, display_driver=self.display_driver)
+        )
         debug("info", self.paths)
 
         self.paths['shader'] = [user_path(rm.out_dir, scene=scene)] +\
@@ -293,14 +291,21 @@ class RPass:
         self.paths['archive'] = os.path.dirname(static_archive_dir)
 
     def update_frame_num(self, num):
-        self.scene.frame_set(num)
-        self.paths['rib_output'] = user_path(self.scene.renderman.path_rib_output,
-                                             scene=self.scene)
-        addon_prefs = rr.prefs()
-        self.paths['render_output'] = user_path(addon_prefs.path_display_driver_image,
-                                                scene=self.scene, display_driver=self.display_driver)
-        self.paths['aov_output'] = user_path(
-            addon_prefs.path_aov_image, scene=self.scene, display_driver=self.display_driver)
+        scn = self.scene
+        drv = self.display_driver
+        rmn = self.scene.renderman
+
+        scn.frame_set(num)
+        self.paths['rib_output'] = user_path(rmn.path_rib_output, scene=scn)
+
+        _p_ = pref('path_display_driver_image')
+        self.paths['render_output'] = (
+            user_path(_p_, scene=scn, display_driver=drv)
+        )
+        _p_ = pref('path_aov_image')
+        self.paths['aov_output'] = (
+            user_path(_p_, scene=scn, display_driver=drv)
+        )
         temp_archive_name = self.scene.renderman.path_object_archive_animated
         frame_archive_dir = os.path.dirname(user_path(temp_archive_name,
                                                       scene=self.scene))
@@ -478,9 +483,9 @@ class RPass:
                     if process.poll() is not None:
                         if self.display_driver not in ['it']:
                             update_image()
-                        t2 = time.time()
-                        txt = "RfB: RENDER - done in {}.".format(pretty(t2 - t1))
-                        engine.report({"INFO"}, txt)
+                        _t_ = pretty(time.time() - t1, sfill=False)
+                        msg = "Render done in {}".format(_t_)
+                        engine.report({"INFO"}, msg)
                         break
 
                     # user exit
@@ -488,8 +493,8 @@ class RPass:
                         try:
                             process.kill()
                             isProblem = True
-                            txt = "RfB: RENDER - cancelled!"
-                            engine.report({"INFO"}, txt)
+                            msg = "Render cancelled!"
+                            engine.report({"INFO"}, msg)
                         except:
                             pass
                         break
@@ -503,11 +508,11 @@ class RPass:
                             prev_mod_time = new_mod_time
 
             else:
-                debug("error", "Export path [" + render_output +
-                      "] does not exist.")
+                msg = "Export path [{}] does not exist.".format(render_output)
+                debug("error", msg)
         else:
-            debug("error",
-                  "Problem launching RenderMan from %s." % prman_executable)
+            msg = "Problem launching [{}].".format(prman_executable)
+            debug("error", msg)
 
         # launch the denoise process if turned on
         if self.rm.do_denoise and not isProblem:
@@ -534,9 +539,9 @@ class RPass:
                                                stderr=subprocess.PIPE,
                                                env=environ)
                     process.wait()
-                    dur = time.time() - t1
                     if os.path.exists(filtered_name):
-                        txt = " RfB: DENOISE - done in {}.".format(pretty(dur))
+                        _t_ = pretty(time.time() - t1, sfill=False)
+                        txt = "Denoise done in {}".format(_t_)
                         engine.report({"INFO"}, txt)
 
                         if self.display_driver != 'it':
@@ -575,7 +580,10 @@ class RPass:
                               denoise_data)
 
         # Load all output images into image editor
-        if self.rm.import_images and self.rm.render_into == 'blender':
+        if (bpy.app.version[1] < 79
+            and self.rm.import_images
+                and self.rm.render_into == 'blender'):
+
             for image in self.output_files:
                 try:
                     bpy.ops.image.open(filepath=image)
@@ -689,14 +697,15 @@ class RPass:
         #         is None)) - and draw a nice gfx overlay.
         # DATE:   2018-01-23
         # AUTHOR: Timm Wimmers
-        # STATUS: assigned to self
+        # STATUS: fixed 2018-02-03 as described above
+        #         Even render controls are disabled, if no camera where found.
         #
         try:
             if cw != self.crop_window:
                 self.crop_window = cw
                 update_crop_window(self.ri, self, prman, cw)
         except AttributeError:
-            print("No Camera in Scene!")
+            stdmsg("Error: No Camera in Scene!")
         finally:
             return
 
@@ -737,6 +746,7 @@ class RPass:
                     issue_shader_edits(self, self.ri, prman,
                                        nt=mat_slot.material.node_tree, ob=active)
 
+    # FIXME: unused?
     def update_illuminates(self):
         update_illuminates(self, self.ri, prman)
 
@@ -806,7 +816,7 @@ class RPass:
     def gen_rib(self, do_objects=True, engine=None, convert_textures=True):
         rm = self.scene.renderman
         if self.scene.camera is None:
-            debug('error', "ERROR no Camera. Cannot generate rib.")
+            stdmsg("ERROR! No camera, cannnot generate RIB.")
             return
 
         t1 = time.time()
@@ -814,7 +824,9 @@ class RPass:
             self.convert_textures(get_texture_list(self.scene))
 
         if engine:
-            engine.report({"INFO"}, "Texture generation took %s" % pretty(time.time() - t1))
+            _t_ = pretty(time.time() - t1)
+            msg = "Texture generation took: {}".format(_t_)
+            engine.report({"INFO"}, msg)
         self.scene.frame_set(self.scene.frame_current)
         t1 = time.time()
 
@@ -838,9 +850,9 @@ class RPass:
         write_rib(self, self.scene, self.ri, visible_objects, engine, do_objects)
         self.ri.End()
         if engine:
-            t2 = time.time()
-            txt = "RfB: RIBGEN - generation took {}.".format(pretty(t2 - t1))
-            engine.report({"INFO"}, txt)
+            _t_ = pretty(time.time() - t1, sfill=False)
+            msg = "RIB generation took: {}".format(_t_)
+            engine.report({"INFO"}, msg)
 
     def gen_preview_rib(self):
         previewdir = os.path.join(self.paths['export_dir'], "preview")
@@ -872,7 +884,7 @@ class RPass:
         # for UDIM textures
         for in_file, out_file, options in temp_texture_list:
             if '_MAPID_' in in_file:
-                in_file = get_real_path(in_file)
+                in_file = str(Path(in_file).resolve())
                 for udim_file in glob.glob(in_file.replace('_MAPID_', '*')):
                     texture_list.append(
                         (udim_file, get_tex_file_name(udim_file), options))
@@ -880,7 +892,7 @@ class RPass:
                 texture_list.append((in_file, out_file, options))
 
         for in_file, out_file, options in texture_list:
-            in_file = get_real_path(in_file)
+            in_file = str(Path(in_file).resolve())
             out_file_path = os.path.join(
                 self.paths['texture_output'], out_file)
 
@@ -888,13 +900,13 @@ class RPass:
                     self.rm.always_generate_textures is False and \
                     os.path.getmtime(in_file) <= \
                     os.path.getmtime(out_file_path):
-                debug("info", "TEXTURE %s EXISTS (or is not dirty)!" %
+                debug("info", "Texture '%s' exist or is not dirty!" %
                       out_file)
             else:
                 cmd = [os.path.join(self.paths['rmantree'], 'bin',
                                     self.paths['path_texture_optimiser'])] + \
                     options + [in_file, out_file_path]
-                debug("info", "TXMAKE STARTED!", cmd)
+                debug("info", "Command 'txmake' started!", cmd)
 
                 Blendcdir = bpy.path.abspath("//")
                 if not Blendcdir:

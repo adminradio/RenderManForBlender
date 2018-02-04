@@ -26,8 +26,8 @@
 #
 # Python Imports
 #
-import sys
 import os
+import sys
 import platform
 import subprocess
 
@@ -42,13 +42,6 @@ import bpy
 from .. rfb.lib.echo import stdmsg
 from .. rfb.lib.echo import stdadd
 from .. rfb.lib import guess_rmantree
-#
-#
-# TODO:   Refactor 'guess_rmantree' into RfB registry.
-# DATE:   2018-01-17
-# AUTHOR: Timm Wimmers
-# STATUS: -unassigned-
-#
 
 
 class RfB_OT_TOOL_StartIT(bpy.types.Operator):

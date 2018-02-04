@@ -23,27 +23,29 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
-# Blender imports
+# Python Imports
+#
+
+#
+# Blender Imports
 #
 import bpy
-import bgl
-import blf
 
 #
-# RenderMan for Bender Imports
+# RenderManForBender Imports
 #
-from .. import rfb
 from .. import engine
 from .. gui import gfx
-
-from .. rfb.registry import Registry as rr
+from .. rfb.lib.prfs import pref
 
 
 class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
     bl_idname = "rfb.tool_ipr"
-    bl_label = "Start/Stop Interactive Rendering"
-    bl_description = "Start/Stop Interactive Rendering, must have 'it' installed"
+    bl_label = "Toggle IPR"
+    bl_description = "Start (blue) or Stop (red) Interactive Rendering."
     rpass = None
     is_running = False
 
@@ -51,14 +53,15 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
         gfx.border(self, context.region)
 
     def invoke(self, context, event=None):
-
-        # IPR is running
-        if not engine.ipr:  # is None:
+        #
+        # IPR isn't running, start it
+        #
+        if engine.ipr is None:
             engine.ipr = engine.RPass(context.scene, interactive=True)
 
             engine.ipr.start_interactive()
 
-            if rr.prefs().draw_ipr:
+            if pref('draw_ipr'):
                 engine.ipr_handle = (
                     bpy.types.SpaceView3D.draw_handler_add(
                         self.draw, (context,), 'WINDOW', 'POST_PIXEL'
@@ -72,26 +75,23 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
             bpy.app.handlers.load_pre.append(
                 self.invoke
             )
-
-        # IPR isn't running
+        #
+        # IPR is running, stop it
+        #
         else:
-
             bpy.app.handlers.scene_update_post.remove(
                 engine.ipr.issue_transform_edits
             )
-            #
-            # The user should not turn this on and off during IPR rendering.
-            #
-            # TODO:   Then we should disabel this property in prefs if IPR
-            #         is running.
-            # DATE:   2018-01-17
-            # AUTHOR: Timm Wimmers
-            # STATUS: -unassigned-
-            #
-            if rr.prefs().draw_ipr:
+            try:
                 bpy.types.SpaceView3D.draw_handler_remove(
                     engine.ipr_handle, 'WINDOW'
                 )
+            except ValueError:
+                #
+                # Draw handler was not enabled in Userprefs, so there is no
+                # one to be removed.
+                #
+                pass
 
             engine.ipr.end_interactive()
 

@@ -29,17 +29,19 @@ import platform
 import bpy
 from bpy.types import AddonPreferences
 
-from bpy.props import CollectionProperty
-from bpy.props import BoolProperty
-from bpy.props import StringProperty
 from bpy.props import IntProperty
-from bpy.props import PointerProperty
+from bpy.props import BoolProperty
 from bpy.props import EnumProperty
+from bpy.props import StringProperty
+from bpy.props import PointerProperty
+from bpy.props import CollectionProperty
+from bpy.props import FloatVectorProperty
 
-from . rfb.lib import get_installed_rendermans
-from . rfb.lib import rmantree_from_env
 from . rfb.lib import guess_rmantree
+from . rfb.lib import rmantree_from_env
+from . rfb.lib import get_installed_rendermans
 
+from . gui.utils import split_ll
 from . assets.properties import RendermanAssetGroup
 
 
@@ -184,14 +186,93 @@ class RendermanPreferences(AddonPreferences):
         default="txmake")
 
     draw_ipr = BoolProperty(
-        name="Indicate running IPR",
+        name="Indicate IPR",
         description="Draw indicator on View3D when IPR is active",
         default=True)
 
     draw_panel_icon = BoolProperty(
-        name="Draw Panel Icon",
-        description="Draw an icon on RenderMan Panels",
+        name="Panel Icons",
+        description="Draw a nice icon on RenderMan Panels (recommended)",
         default=True)
+
+    rfb_info = BoolProperty(
+        name="Infos",
+        description="Echo some useful infos to console (recommended "
+                    "for questions in support forum)",
+        default=True)
+
+    rfb_debug = BoolProperty(
+        name="Debugging",
+        description="Echo debugging infos to console (it's messy!)",
+        default=False)
+
+    rfb_laptime = BoolProperty(
+        name="Time Tasks",
+        description="Echo lap times of some critical tasks to console (not "
+                    "widely implemented yet, may slightly impact performace)",
+        default=False)
+
+    rfb_sc_float = FloatVectorProperty(
+        name="Scalar (Float)",
+        default=(0.994050, 1.000000, 0.530710, 1.000000),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_sc_vector = FloatVectorProperty(
+        name="Vector (XYZ)",
+        default=(0.042977, 0.061914, 0.500000, 1.000000),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_sc_bxdf = FloatVectorProperty(
+        name="Shader (any BxDF)",
+        default=(0.375220, 1.000000, 0.188767, 1.000000),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_sc_color = FloatVectorProperty(
+        name="Color (RGB, RGBA)",
+        default=(0.500000, 0.427215, 0.038179, 1.000000),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_sc_string = FloatVectorProperty(
+        name="String",
+        default=(0.00, 0.00, 1.00, 1.00),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_sc_int = FloatVectorProperty(
+        name="Number (Integer)",
+        default=(0.994050, 1.000000, 0.530710, 1.000000),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_sc_euler = FloatVectorProperty(
+        name="Euler",
+        default=(0.00, 0.50, 0.50, 1.00),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_ipr_border = FloatVectorProperty(
+        name="IPR Indicator",
+        description="Color of IPR indicator (View3D Border)",
+        default=(0.870, 0.325, 0.375, 0.750),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
+
+    rfb_tabname = StringProperty(
+        name="Toolshelf category",
+        description="Name of the RenderMan tab in the toolshelf",
+        default="RenderMan")
 
     path_display_driver_image = StringProperty(
         name="Main Image path",
@@ -222,7 +303,7 @@ class RendermanPreferences(AddonPreferences):
     # both these paths are absolute
     active_assets_path = StringProperty(default='')
     assets_path = StringProperty(
-        name="Path For Asset Library",
+        name="Asset Library Path",
         description="Path for asset files, if not present these will be "
                     "copied from RMANTREE.\nSet this if you want to pull "
                     "in an external library.",
@@ -249,9 +330,46 @@ class RendermanPreferences(AddonPreferences):
         layout.prop(env, "out")
         layout.prop(self, 'path_display_driver_image')
         layout.prop(self, 'path_aov_image')
-        layout.prop(self, 'draw_ipr')
-        layout.prop(self, 'draw_panel_icon')
-        layout.prop(self.assets_library, 'path')
+        # layout.prop(self.assets_library, 'path', text="Assets Library Path")
+        layout.prop(self, 'assets_path')
+        layout.prop(self, 'rfb_tabname')
+        layout.separator()
+        lc, rc = split_ll(layout, alignment=False)
+        lc = lc.column()
+        row = lc.row()
+        row.prop(self, 'draw_ipr')
+        row.prop(self, 'rfb_ipr_border', text="")
+        lc.prop(self, 'draw_panel_icon')
+        lc.prop(self, 'rfb_debug')
+        lc.prop(self, 'rfb_info')
+        #
+        #
+        # FIXME:  Timing with @laptime currently doesn't support user
+        #         preferences (it's none during request), have to
+        #         investigate
+        # DATE:   2018-02-04
+        # AUTHOR: Timm Wimmers
+        # STATUS: -unassigned-
+        #
+        # lc.prop(self, 'rfb_laptime')
+
+        box = rc.box()
+        box.label("Node Tree Socket Colors")
+        box = box.column(align=True)
+        row = box.row()
+        row.prop(self, 'rfb_sc_bxdf')
+        row = box.row()
+        row.prop(self, 'rfb_sc_color')
+        box.separator()
+        row = box.row()
+        row.prop(self, 'rfb_sc_float')
+        row = box.row()
+        row.prop(self, 'rfb_sc_int')
+        row = box.row()
+        row.prop(self, 'rfb_sc_vector')
+        # layout.prop(self, 'rfb_sc_string')
+        # layout.prop(self, 'rfb_sc_euler')
+
         # layout.prop(env, "shd")
         # layout.prop(env, "ptc")
         # layout.prop(env, "arc")

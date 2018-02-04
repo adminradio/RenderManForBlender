@@ -27,7 +27,7 @@
 # RenderMan for Blender imports
 #
 from . import icons
-from .. rfb.registry import Registry as rr
+from .. rfb.lib.prfs import pref
 
 
 class RfB_PT_MIXIN_PanelIcon():
@@ -36,7 +36,7 @@ class RfB_PT_MIXIN_PanelIcon():
 
     # override
     def draw_header(self, context):
-        if rr.prefs().draw_panel_icon:
+        if pref('draw_panel_icon'):
             self.layout.label(text='', icon_value=self.iid)
         else:
             pass

@@ -44,20 +44,22 @@ import bpy
 #
 from .. import engine
 
-from .. rfb.lib.path import user_path
+from .. rfb import spool
+from .. export import get_texture_list
+
 from .. rfb.lib import find_local_queue
 from .. rfb.lib import find_tractor_spool
 
-from .. import rfb
-
-from .. rfb import spool
-from .. export import get_texture_list
+from .. rfb.lib.prfs import pref
+from .. rfb.lib.time import dtnow
+from .. rfb.lib.path import user_path
 
 
 class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
     bl_idname = "rfb.file_spool_render"
     bl_label = "External Render"
-    bl_description = "Launch and external render outside Blender"
+    bl_description = "Spool render task outside of Blender "\
+                     "(animation if enabled)."
     rpass = None
     is_running = False
 
@@ -70,7 +72,6 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                 'RIB generation error: ' + traceback.format_exc())
 
     def gen_denoise_aov_name(self, scene, rpass):
-        addon_prefs = rfb.reg.prefs()
         files = []
         rm = scene.renderman
 
@@ -86,7 +87,7 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                 if rm_rl.denoise_aov:
                     if rm_rl.export_multilayer:
                         dspy_name = user_path(
-                            addon_prefs.path_aov_image,
+                            pref('path_aov_image'),
                             scene=scene,
                             display_driver=rpass.display_driver,
                             layer_name=layer_name,
@@ -97,7 +98,7 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                         for aov in rm_rl.custom_aovs:
                             aov_name = aov.name.replace(' ', '')
                             dspy_name = user_path(
-                                addon_prefs.path_aov_image, scene=scene,
+                                pref('path_aov_image'), scene=scene,
                                 display_driver=rpass.display_driver,
                                 layer_name=layer_name, pass_name=aov_name)
                             files.append(dspy_name)
@@ -161,7 +162,7 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
         else:
             if do_rib:
                 frm = scene.frame_current
-                txt = ("RfB: RIBGEN - for frame {:3d}".format(frm))
+                txt = "{}  - RIBGEN for frame {:3d}".format(dtnow(), frm)
                 self.report({'INFO'}, txt)
                 self.gen_rib_frame(rpass, do_objects)
             rib_names.append(rpass.paths['rib_output'])
@@ -215,7 +216,8 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                     if rm.queuing_system == 'tractor'
                     else find_local_queue()
                 )
-                txt = "RfB: RENDER - spool to <{}>.".format(rm.queuing_system)
+                rmq = rm.queuing_system
+                txt = "{}  - job spooled to <{}>.".format(dtnow(), rmq)
                 self.report({'INFO'}, txt)
                 subprocess.Popen([exe, alf_file])
         rpass = None

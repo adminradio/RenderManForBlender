@@ -350,9 +350,8 @@ def register():
 
 
 def unregister():
-    disable('LOAD')
-    disable('SAVE')
-    disable('FRAME')
-    disable('SCENE')
     disable('RENDER')
-    pass
+    disable('SCENE')
+    disable('FRAME')
+    disable('SAVE')
+    disable('LOAD')

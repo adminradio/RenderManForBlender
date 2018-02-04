@@ -141,9 +141,10 @@ def convert_cycles_input(nt, socket, rman_node, param_name):
             # this is a cycles node
             rman_node.inputs[param_name].default_value = socket.default_value
 
-#########  other node conversion methods  ############
 
-
+#
+# ########  other node conversion methods  ############
+#
 def convert_tex_image_node(nt, cycles_node, rman_node):
     if cycles_node.image:
         if cycles_node.image.packed_file:

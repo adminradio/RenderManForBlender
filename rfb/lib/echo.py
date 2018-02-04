@@ -28,7 +28,6 @@
 #
 # Python Imports
 #
-from datetime import datetime
 
 #
 # Blender Imports
@@ -37,7 +36,8 @@ from datetime import datetime
 #
 # RenderManForBlender Imports
 #
-from .. registry import Registry as rr
+from . prfs import pref
+from . time import dtnow
 
 
 def stdmsg(msg):
@@ -52,7 +52,7 @@ def _echo(msg, extend=False):
     pre = (
         "                      ...   "
         if extend
-        else "[{}] RfB - ".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        else "[{}] RfB - ".format(dtnow())
     )
     print('{}{}'.format(pre, msg))
 
@@ -90,15 +90,15 @@ def debug(lvl, *argv):
         if(lvl == 'warning'):
             stdmsg("WARNING: {}".format(argv))
         elif(lvl == "error"):
-            stdmsg("ERROR: ", argv)
-        elif(lvl == "osl"):
+            stdmsg("ERROR: {}".format(argv))
+        elif(lvl == "osl" and pref('rfb_info')):
             for item in argv:
                 stdmsg("OSLINFO: {}".format(argv))
     else:
-        if rr.get('RFB_DEBUG'):
+        if pref('rfb_debug'):
             if(lvl == 'info'):
-                stdmsg("INFO: {}".format(argv))
+                stdmsg("INFO: {}".format(argv[0]))
             else:
-                stdmsg("DEBUG: {}".format(argv))
+                stdmsg("DEBUG: {}".format(argv[0]))
         else:
             pass

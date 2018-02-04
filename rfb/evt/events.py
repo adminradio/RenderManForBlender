@@ -51,21 +51,7 @@ from . import state
 from . handlers import event_handler as eh
 
 from .. lib.echo import stdmsg
-from .. lib.echo import stdadd
 from .. lib.deco import nonrecursive
-
-
-# state = Status()
-
-ls = False
-nt = False
-tex = False
-cam = False
-shd = False
-file = False
-scene = False
-frame = False
-addon = False
 
 
 @eh("RFB_POST")
@@ -176,7 +162,6 @@ def render_complete():
 def update():
     items = state.get()
     if items:
-        # stdmsg("EventHandler >> Update with {} call(s).".format(len(items)))
         for item in items:
             if item == 'Scene':
                 continue

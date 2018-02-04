@@ -28,6 +28,7 @@
 #
 # Python Imports
 #
+from datetime import datetime
 
 #
 # Blender Imports
@@ -38,7 +39,11 @@
 #
 
 
-def pretty(_s_):
+def dtnow():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
+def pretty(_s_, sfill=True):
     """Make time values human readable."""
     #
     # Example output with @laptime decorator
@@ -48,17 +53,24 @@ def pretty(_s_):
     # RfB - Lap time:  00:01:59 h  | f() = function_name
     #
     if _s_ < 10.0:
-        return "{: >9.4f} ms".format(_s_ * 1000)
+        txt = "{: >9.4f}ms" if sfill else "{:.4f}ms"
+        return txt.format(_s_ * 1000)
     elif _s_ < 60.0:
-        return "{: >9.4f} s ".format(_s_)
+        #
+        # trailing space is needed if sfill is True (i.e. @laptime decorator)
+        #
+        txt = "{: >9.4f}s " if sfill else "{:.4f}s"
+        return txt.format(_s_)
     else:
-        return "{: >9} h ".format(hhmmss(_s_))
+        txt = "{: >9}h " if sfill else "{: >9}h"
+        return txt.format(hhmmss(_s_))
 
 
 def hhmmss(_s_):
     """Return number of seconds as day time. Turns over at 86400 sec."""
+    _s_ = int(_s_)
     hh = _s_ // (60 * 60) % 24
     ss = _s_ % (60 * 60)
     mm = ss // 60
     ss %= 60
-    return "{:0>2}:{:0>2}:{:0>2}".format(hh, mm, ss)
+    return "{:0>2d}:{:0>2d}:{:0>2d}".format(hh, mm, ss)

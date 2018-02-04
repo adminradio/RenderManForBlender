@@ -48,27 +48,44 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         rd = context.scene.render
         rm = context.scene.renderman
 
-        # Render
+        #
+        # Render Control (row)
+        #
         row = layout.row(align=True)
-        iid = icons.iconid("render")
-        row.operator("render.render", text="Render", icon_value=iid)
+        # disable if no camera in scene
+        row.enabled = True if context.scene.camera else False
 
+        #
+        # Render
+        #
+        opr = "render.render"
+        txt = "Frame"
+        iid = icons.iconid("render")
+        row.operator(opr, text=txt, icon_value=iid)
+
+        #
+        # Batch Render
+        #
+        opr = "render.render"
+        txt = "Animation"
+        iid = icons.iconid("batch_render")
+        row.operator(opr, text=txt, icon_value=iid).animation = True
+
+        #
         # IPR
+        #
         if engine.ipr:
             # Stop IPR
+            opr = "rfb.tool_ipr"
+            txt = "Stop IPR"
             iid = icons.iconid("stop_ipr")
-            row.operator('rfb.tool_ipr',
-                         text="Stop IPR", icon_value=iid)
+            row.operator(opr, text=txt, icon_value=iid)
         else:
             # Start IPR
+            opr = "rfb.tool_ipr"
+            txt = "Start IPR"
             iid = icons.iconid("start_ipr")
-            row.operator('rfb.tool_ipr', text="Start IPR",
-                         icon_value=iid)
-
-        # Batch Render
-        iid = icons.iconid("batch_render")
-        row.operator("render.render", text="Render Animation",
-                     icon_value=iid).animation = True
+            row.operator(opr, text=txt, icon_value=iid)
 
         layout.separator()
 

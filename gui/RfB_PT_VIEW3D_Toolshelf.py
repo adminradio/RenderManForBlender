@@ -23,6 +23,12 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
@@ -33,19 +39,19 @@ from bpy.types import Panel
 # RenderMan for Blender Imports
 #
 from . import icons
-from .. rfb.registry import Registry as rr
 from .. import engine
+from .. rfb.lib.prfs import pref
 
-from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets
+from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets  # noqa
 from . RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 
 class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
     bl_idname = "renderman_ui_panel"
-    bl_label = "Render Control"
+    bl_label = "Main Control"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = rr.get('RFB_TABNAME')
+    bl_category = pref('rfb_tabname')
 
     @classmethod
     def poll(cls, context):
@@ -59,18 +65,17 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         if scene.render.engine != "PRMAN_RENDER":
             return
 
-        # RENDER AND SPOOL LAYOUT (lay: current layout aka section)
-        # ######################################################################
+        # RENDER AND SPOOL LAYOUT
+        # #####################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
 
         opr = "render.render"
-        txt = "Render Animation" if rm.external_animation else "Render Frame"
-        iid = icons.iconid("batch_render") if rm.external_animation else icons.iconid("render")
-        ani = True if rm.external_animation else False
+        txt = "Render Frame"
+        iid = icons.iconid("render")
         sub = row.row(align=True)
         sub.enabled = True if bpy.context.scene.camera else False
-        sub.operator(opr, text=txt, icon_value=iid).animation = ani
+        sub.operator(opr, text=txt, icon_value=iid)
 
         prp = "rm_render"
         icn = 'TRIA_DOWN' if scene.rm_render else 'TRIA_RIGHT'
@@ -78,40 +83,43 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
         # render ui open?
         if scene.rm_render:
-            sub = col.box().box().column()
+            box = col.box().box()
 
-            row = sub.row()
+            row = box.row()
             prp = "render_into"
             row.prop(rm, prp, text="")
 
-            sb1 = row.row(align=True)
+            sub = row.row(align=True)
             prp = "do_denoise"
-            iid = (icons.iconid("dnoise_on")
-                   if rm.do_denoise
-                   else icons.iconid("dnoise_off"))
-            sb1.prop(rm, prp, icon_only=True, icon_value=iid)
+            iid = icons.iconid("dnoise_on") \
+                if rm.do_denoise \
+                else icons.iconid("dnoise_off")
+            sub.prop(rm, prp, icon_only=True, icon_value=iid)
+            sub.label(text="", icon='BLANK1')
 
-            prp = "render_selected_objects_only"
-            iid = (icons.iconid("selected_on")
-                   if rm.render_selected_objects_only
-                   else icons.iconid("selected_off"))
-            sb1.prop(rm, prp, icon_only=True, icon_value=iid)
-            sub.separator()
+            box.separator()
 
             # Render Presets
-            row = sub.row()
+            row = box.row()
 
             mnu = "rfb_mt_render_presets"
             txt = bpy.types.rfb_mt_render_presets.bl_label
             row.menu(mnu, text=txt)
 
-            sb1 = row.row(align=True)
-            sb1.label(text="", icon='BLANK1')
-            sb1.label(text="", icon='BLANK1')
-            sub.separator()
+            sub = row.row(align=True)
+            sub.scale_x = 2.0
+            prp = "render_selected_objects_only"
+            iid = icons.iconid("selected_on") \
+                if rm.render_selected_objects_only \
+                else icons.iconid("selected_off")
+            sub.prop(rm, prp, icon_only=True, icon_value=iid)
+            box.separator()
 
+            #
             # Spool Action | External | Animation
-            row = sub.row()
+            # A bit more complicated sublayouts 'cause of complex states
+            #
+            row = box.row()
             sb1 = row.row()
             sb1.enabled = rm.enable_external_rendering
 
@@ -130,14 +138,14 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
             # Toggle: Animation?
             sb3 = sb2.row(align=True)
-            sb3.enabled = rm.enable_external_rendering
+            sb3.active = rm.enable_external_rendering
             prp = "external_animation"
             iid = icons.toggle("animation", rm.external_animation)
             sb3.prop(rm, prp, icon_only=True, icon_value=iid)
 
-            # Dispsub.Driver | Denoise? | Selected only?
-            row = sub.row()
-            row.enabled = rm.enable_external_rendering
+            # DisplayDriver | Denoise? | Selected only?
+            row = box.row()
+            row.active = rm.enable_external_rendering
 
             sb1 = row.row(align=True)
             prp = "display_driver"
@@ -145,36 +153,38 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
             # Denoise
             sb1 = row.row(align=True)
-            sb1.enabled = rm.enable_external_rendering
+            sb1.active = rm.enable_external_rendering
 
             prp = "external_denoise"
             iid = icons.toggle("dnoise", rm.external_denoise)
             sb1.prop(rm, prp, icon_only=True, icon_value=iid)
 
-            # Selected only?
             sb2 = sb1.row(align=True)
-            prp = "render_selected_objects_only"
-            iid = icons.toggle("selected", rm.render_selected_objects_only)
-            sb2.prop(rm, prp, icon_only=True, icon_value=iid)
-
-            row = sub.row()
-            row.enabled = rm.external_animation and rm.enable_external_rendering
-            sb1 = row.row(align=True)
-            sb1.prop(scene, "frame_start", text="Start")
-            sb1.prop(scene, "frame_end", text="End")
-
-            sb2 = row.row(align=True)
-            sb2.enabled = rm.external_animation and rm.external_denoise
+            sb2.active = rm.external_animation and rm.external_denoise
             prp = "crossframe_denoise"
             iid = icons.toggle("crossdn", rm.crossframe_denoise)
             sb2.prop(rm, prp, icon_only=True, icon_value=iid)
-            sb2.label(text="", icon='BLANK1')  # right indent
 
+            _a_ = rm.external_animation
+            _b_ = rm.enable_external_rendering
+            row = box.row()
+            row.active = _a_ and _b_
+
+            sub = row.row(align=True)
+            sub.prop(scene, "frame_start", text="Start")
+            sub.prop(scene, "frame_end", text="End")
+
+            sub = row.row(align=True)
+            sub.label(text="", icon='BLANK1')
+            sub.label(text="", icon='BLANK1')
+
+            #
             # ui open - slightly more space on root layout
+            #
             layout.separator()
 
         # IPR LAYOUT
-        # ######################################################################
+        # #####################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
         icn = 'TRIA_DOWN' if scene.rm_ipr else 'TRIA_RIGHT'
@@ -201,7 +211,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
         # ui open?
         if scene.rm_ipr:
-            sub = col.box().box().column()
+            sub = col.box().box()
 
             # Interactive and Preview Sampling
             row = sub.row(align=True)
@@ -220,7 +230,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             layout.separator()
 
         # CAMERA LAYOUT
-        # ######################################################################
+        # #####################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
 
@@ -235,7 +245,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
         # ui open?
         if context.scene.prm_cam:
-            sub = col.box().box().column()
+            sub = col.box().box()
 
             # camera list menu
             row = sub.row()
@@ -248,10 +258,12 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
                 # camera tools
                 sb1 = row.row(align=True)
+                sb2 = sb1.row(align=True)
+                sb2.enabled = obj.is_visible(context.scene)
 
                 opr = "rfb.object_delete_camera"
                 icn = 'PANEL_CLOSE'
-                sb1.operator(opr, text="", icon=icn)
+                sb2.operator(opr, text="", icon=icn)
                 cam = bpy.data.scenes[scene.name].camera
                 sb1.prop(cam, "name", text="", icon_value=iid)
 
@@ -263,10 +275,9 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                     iid = icons.iconid('camview_on')
                     sb1.operator(opr, text="", icon_value=iid)
 
-                opr = "wm.context_toggle"
-                iid = icons.toggle('camlock', context.space_data.lock_camera)
-                pth = "space_data.lock_camera"
-                sb1.operator(opr, text="", icon_value=iid).data_path = pth
+                view = context.space_data
+                iid = icons.toggle('camlock', view.lock_camera)
+                sb1.prop(view, "lock_camera", text="", icon_value=iid)
 
                 # depth of field
                 row = sub.row(align=True)
@@ -275,22 +286,14 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
                 prp = "dof_distance"
                 row.prop(context.object.data, prp, text="Dist.")
-                #
-                # TODO:   refactor aperture/radius to radio buttons
-                # DATE:   2018-01-20
-                # AUTHOR: Timm Wimmers
-                # STATUS: assigned to self
-                #
+
                 opr = "rfb.camera_aperture_type"
                 val = context.object.data.cycles.aperture_type
-                iid = (
-                    icons.iconid('shutter_off')
-                    if val == 'FSTOP'
+                iid = icons.iconid('shutter_off') \
+                    if val == 'FSTOP' \
                     else icons.iconid('radius')
-                )
+
                 row.operator(opr, text="", icon_value=iid)
-                # prp = "aperture_type"
-                # row.prop(context.object.data.cycles, prp, text="")
             else:
                 cams = [
                     obj for obj in bpy.context.scene.objects
@@ -298,24 +301,24 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 ]
 
                 if cams:
-                    active = ""
-                    try:
-                        active = bpy.data.scenes[scene.name].camera.name
-                    except AttributeError:
+                    if not hasattr(bpy.data.scenes[scene.name].camera, "name"):
                         bpy.data.scenes[scene.name].camera = cams[0]
+                    # try:
+                    #     _a_ = bpy.data.scenes[scene.name].camera.name  # noqa
+                    # except AttributeError:
+                    #     bpy.data.scenes[scene.name].camera = cams[0]
                     txt = "Active camera: {}".format(cams[0].name)
                     sub.label(txt)
                     opr = "rfb.object_select_active_camera"
-                    txt = "Select"
+                    txt = "Edit"
                     icn = 'RESTRICT_SELECT_OFF'
                     sub.operator(opr, text=txt, icon=icn)
                 else:
                     sub.label("")
                     sub.label("Current scene contains no camera!")
             layout.separator()
-            # layout.separator()
 
-        # ######################################################################
+        # #####################################################################
         # CREATE ENVIRONMENT LIGHT LAYOUT
         #
         col = layout.column(align=True)
@@ -350,7 +353,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 lamp_sun = True
 
         if scene.rm_env:
-            sub = col.box().box().column()
+            sub = col.box().box()
             row = sub.row(align=True)
 
             if lamp_hmi:
@@ -389,9 +392,8 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
             layout.separator()
 
-        # ######################################################################
         # CREATE AREA LIGHT LAYOUT
-        #
+        # #####################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
 
@@ -424,7 +426,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 lamp_sun = True
 
         if scene.rm_area:
-            sub = col.box().box().column()
+            sub = col.box().box()
 
             row = sub.row(align=True)
 
@@ -452,9 +454,8 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # if layout is open create more space on root layout
             layout.separator()
 
-        # ######################################################################
         # CREATE DAYLIGHT LIGHT LAYOUT
-        #
+        # #####################################################################
         col = layout.column(align=True)
         row = col.row(align=True)
         opr = "rfb.object_add_light_day"
@@ -486,7 +487,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 lamp_spt = True
 
         if scene.rm_daylight:
-            sub = col.box().box().column()
+            sub = col.box().box()
             row = sub.row(align=True)
 
             if lamp_sun:
@@ -519,9 +520,8 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # if layout is open create more space on root layout
             layout.separator()
 
-        # ######################################################################
         # SELECTED OBJECTS - SUPPORT - OPEN LAST RIB
-        #
+        # #####################################################################
         sln = []
         if context.selected_objects:
             for obj in bpy.context.selected_objects:

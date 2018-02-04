@@ -3,7 +3,7 @@ import re
 
 def hashnum(template, number):
     """
-    Replace any group of hashes with number, if needed fill with zeros.
+    Replace any group of hashes with the number, if needed fill with zeros.
     """
     def repl(match):
         hashnum = len(match.group(1))
