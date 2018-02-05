@@ -1,7 +1,7 @@
 __pycache__/
 /.project
 _WORK_/
-_BACKUP_/
-_SNIPPETS_/
+#_BACKUP_/
+#_SNIPPETS_/
 RenderManAssetLibrary/
 rendermanforblender_updater/

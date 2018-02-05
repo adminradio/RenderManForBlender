@@ -41,12 +41,9 @@ import bpy
 from . import tmpl
 
 
-def user_path(path,
-              scene=None,
-              obj=None,
-              display_driver=None,
-              layer_name=None,
-              pass_name=None):
+def user_path(
+        path, scene=None, obj=None, display_driver=None,
+        layer_name=None, pass_name=None):
     #
     # first env vars, in case they contain special blender variables
     # recursively expand these (max 10), in case there are vars in vars
@@ -99,3 +96,7 @@ def user_path(path,
         path = bpy.path.abspath(path)
 
     return path
+
+
+def flist(_p_):
+    return [f for f in os.listdir(_p_)]

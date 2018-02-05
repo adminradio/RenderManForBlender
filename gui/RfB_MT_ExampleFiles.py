@@ -23,17 +23,18 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Blender imports
 #
 import bpy
-import addon_utils
 
 #
 # RenderMan for Blender
 #
 from . import icons
-from .. rfb.lib import get_Files_in_Directory
+from .. rfb.lib.path import flist
 
 
 class RfB_MT_ExampleFiles(bpy.types.Menu):
@@ -50,5 +51,5 @@ class RfB_MT_ExampleFiles(bpy.types.Menu):
         return op
 
     def draw(self, context):
-        for operator in rendermanExampleFilesList:
-            self.layout.operator(operator.bl_idname, icon_value=self.iid)
+        for opr in flist():
+            self.layout.operator(opr.bl_idname, icon_value=self.iid)

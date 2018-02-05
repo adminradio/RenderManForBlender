@@ -205,17 +205,9 @@ def readOSO(filePath):
 def get_Selected_Objects(scene):
     objectNames = []
     for obj in scene.objects:
-        # if(obj.select == True):
         if obj.select:
             objectNames.append(obj.name)
     return objectNames
-
-
-def get_Files_in_Directory(path):
-    files = []
-    # files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-    files = [f for f in os.listdir(path)]
-    return files
 
 
 # -------------------- Path Handling -----------------------------
@@ -256,7 +248,9 @@ def args_files_in_path(prefs, idblock, shader_type='', threaded=True):
 def get_path_list(rm, type):
     paths = []
     if rm.use_default_paths:
+        #
         # here for getting args
+        #
         if type == 'args':
             rmantree = guess_rmantree()
             paths.append(os.path.join(rmantree, 'lib', 'plugins'))
@@ -313,6 +307,14 @@ def get_path_list_converted(rm, type, to_unix=False):
     return path_list_convert(get_path_list(rm, type), to_unix)
 
 
+#
+# TODO:   Oh man, please comment your additions/deletions!
+#         IS THIS A STUB OR CAN THIS BE REFACTORED OUT?
+#
+# DATE:   2018-02-05
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#
 def path_win_to_unixy(winpath, escape_slashes=False):
     # if escape_slashes:
     #    p = winpath.replace('\\', '\\\\')
@@ -320,7 +322,6 @@ def path_win_to_unixy(winpath, escape_slashes=False):
     #    # convert pattern C:\\blah to //C/blah so 3delight can understand
     #    p = re.sub(r'([A-Za-z]):\\', r'//\1/', winpath)
     #    p = p.replace('\\', '/')
-
     return winpath
 
 
@@ -335,43 +336,13 @@ def get_sequence_path(path, blender_frame, anim):
     return tmpl.hashnum(path, frame)
 
 
-#
-# ------------- RIB formatting Helpers -------------
-#
-def rib(v, type_hint=None):
-
-    # float, int
-    if type_hint == 'color':
-        return list(v)[:3]
-
-    if type(v) in (mathutils.Vector, mathutils.Color) or\
-            v.__class__.__name__ == 'bpy_prop_array'\
-            or v.__class__.__name__ == 'Euler':
-        # BBM modified from if to elif
-        return list(v)
-
-    # matrix
-    elif type(v) == mathutils.Matrix:
-        return [v[0][0], v[1][0], v[2][0], v[3][0],
-                v[0][1], v[1][1], v[2][1], v[3][1],
-                v[0][2], v[1][2], v[2][2], v[3][2],
-                v[0][3], v[1][3], v[2][3], v[3][3]]
-    elif type_hint == 'int':
-        return int(v)
-    elif type_hint == 'float':
-        return float(v)
-    else:
-        return v
-
-
-def rib_ob_bounds(ob_bb):
-    return (ob_bb[0][0], ob_bb[7][0], ob_bb[0][1],
-            ob_bb[7][1], ob_bb[0][2], ob_bb[1][2])
-
-
 def rib_path(path, escape_slashes=False):
-    return path_win_to_unixy(bpy.path.abspath(path),
-                             escape_slashes=escape_slashes)
+    _p_ = path_win_to_unixy(
+        bpy.path.abspath(path), escape_slashes=escape_slashes
+    )
+    print("RFB-DBG - rib_path() -> In:  {}".format(path))
+    print("RFB-DBG - rib_path() -> Out: {}".format(_p_))
+    return _p_
 
 
 #

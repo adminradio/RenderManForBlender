@@ -37,6 +37,7 @@ import bpy.props
 from bpy.props import *
 
 import nodeitems_utils
+
 from nodeitems_utils import NodeItem
 from nodeitems_utils import NodeCategory
 
@@ -49,7 +50,6 @@ from .. shd import node_add_outputs
 from .. shd import class_generate_properties
 from .. shd import update_conditional_visops
 
-from .. rfb.lib import rib
 from .. rfb.lib import readOSO
 from .. rfb.lib import args_files_in_path
 
@@ -57,6 +57,7 @@ from .. rfb.lib.prfs import pref
 from .. rfb.lib.prfs import prefs
 from .. rfb.lib.echo import debug
 from .. rfb.lib.echo import stdmsg
+from .. rfb.lib.ribh import ribify
 from .. rfb.lib.path import user_path
 
 
@@ -1426,7 +1427,7 @@ def gen_params(ri, node, mat_name=None):
 
             elif type(input) != RendermanNodeSocketStruct:
                 params['%s %s' % (prop_type, input_name)] = \
-                    rib(input.default_value,
+                    ribify(input.default_value,
                         type_hint=prop_type)
 
     # Special case for SeExpr Nodes. Assume that the code will be in a file so
@@ -1442,7 +1443,7 @@ def gen_params(ri, node, mat_name=None):
                     script = bpy.data.texts[node.internalSearch]
                     params['%s %s' % ("string",
                                       "expression")] = \
-                        rib(script.as_string(),
+                        ribify(script.as_string(),
                             type_hint=meta['renderman_type'])
             elif prop_name == "shadercode" and fileInputType == "NODE":
                 params['%s %s' % ("string", "expression")] = node.expression
@@ -1461,7 +1462,7 @@ def gen_params(ri, node, mat_name=None):
                 else:
                     params['%s %s' % (meta['renderman_type'],
                                       meta['renderman_name'])] = \
-                        rib(prop, type_hint=meta['renderman_type'])
+                        ribify(prop, type_hint=meta['renderman_type'])
 
     else:
 
@@ -1565,7 +1566,7 @@ def gen_params(ri, node, mat_name=None):
 
                         params['%s %s' % (
                             meta['renderman_type'],
-                            meta['renderman_name'])] = rib(
+                            meta['renderman_name'])] = ribify(
                                 get_tex_file_name(prop),
                                 type_hint=meta['renderman_type'])
 
@@ -1575,11 +1576,11 @@ def gen_params(ri, node, mat_name=None):
                         params['%s[%d] %s' % (
                             meta['renderman_type'],
                             len(prop),
-                            meta['renderman_name'])] = rib(prop)
+                            meta['renderman_name'])] = ribify(prop)
                     else:
                         params['%s %s' % (
                             meta['renderman_type'],
-                            meta['renderman_name'])] = rib(
+                            meta['renderman_name'])] = ribify(
                                 prop,
                                 type_hint=meta['renderman_type'])
 
@@ -1931,7 +1932,7 @@ def translate_cycles_node(ri, node, mat_name):
                 link.from_node, mat_name, link.from_socket, input)
 
         else:
-            param_val = rib(input.default_value,
+            param_val = ribify(input.default_value,
                             type_hint=get_socket_type(node, input))
             # skip if this is a vector set to 0 0 0
             if input.type == 'VECTOR' and param_val == [0.0, 0.0, 0.0]:
@@ -2404,9 +2405,6 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    # user_preferences = bpy.context.user_preferences
-    # pref_id = __package__.split(".")[0]
-    # prf = user_preferences.addons[pref_id].preferences
     prf = prefs()
 
     categories = {}

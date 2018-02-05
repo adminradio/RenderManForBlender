@@ -26,28 +26,46 @@
 # <pep8-80 compliant>
 
 #
+# Python Imports
+#
+import mathutils
+
+#
 # Blender Imports
 #
-from bpy.types import Panel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
-from . RfB_PT_MIXIN_ShaderNodePolling import RfB_PT_MIXIN_ShaderNodePolling
-from . utils import draw_props
 
 
-class RfB_PT_DATA_Light(RfB_PT_MIXIN_ShaderNodePolling, Panel):
-    bl_label = "Light Shader"
-    bl_context = 'data'
+def bbox(bb):
+    return (bb[0][0], bb[7][0], bb[0][1],
+            bb[7][1], bb[0][2], bb[1][2])
 
-    def draw(self, context):
-        layout = self.layout
-        lamp = context.lamp
 
-        node = lamp.renderman.get_light_node()
-        if node:
-            if lamp.renderman.renderman_type != 'FILTER':
-                layout.prop(lamp.renderman, 'light_primary_visibility')
+def ribify(v, type_hint=None):
 
-            draw_props(node, node.prop_names, layout)
+    # float, int
+    if type_hint == 'color':
+        return list(v)[:3]
+
+    if type(v) in (mathutils.Vector, mathutils.Color) \
+            or v.__class__.__name__ == 'bpy_prop_array' \
+            or v.__class__.__name__ == 'Euler':
+        return list(v)
+
+    elif type(v) == mathutils.Matrix:
+        return [v[0][0], v[1][0], v[2][0], v[3][0],
+                v[0][1], v[1][1], v[2][1], v[3][1],
+                v[0][2], v[1][2], v[2][2], v[3][2],
+                v[0][3], v[1][3], v[2][3], v[3][3]]
+
+    elif type_hint == 'int':
+        return int(v)
+
+    elif type_hint == 'float':
+        return float(v)
+
+    else:
+        return v

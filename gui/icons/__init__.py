@@ -24,7 +24,7 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-__all__ = ["iconid"]
+__all__ = ["iconid", "toggle"]
 
 # Python Imports
 import os
@@ -45,7 +45,7 @@ def iconid(ident):
     if icon:
         iid = icon.icon_id
     else:
-        stdmsg("Icons: Requested ID {} not found."
+        stdmsg("ICONS: Requested ID {} not found."
                "Using 'dev_error' instead!").format(ident.lower())
         iid = _collections["main"].get("dev_error").icon_id
 
@@ -60,7 +60,7 @@ def toggle(prefix, b):
 
 
 #
-# 'theme' is a preperation for theming support. (TW)
+# 'theme' is a preperation for theming support. (TW, 2018-02-05)
 #
 def __load(theme='default'):
     prvcoll = bpy.utils.previews.new()
@@ -74,6 +74,5 @@ def __load(theme='default'):
     return prvcoll
 
 
-stdmsg("Icons: Loading into preview collection.")
 _collections = {}
 _collections["main"] = __load()

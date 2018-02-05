@@ -842,13 +842,18 @@ class RPass:
         self.ri.Option("rib", rib_options)
         self.ri.Begin(self.paths['rib_output'])
 
-        # Check if rendering select objects only.
+        #
+        # Check if rendering select objects only
+        #
         if rm.render_selected_objects_only:
             visible_objects = get_Selected_Objects(self.scene)
         else:
             visible_objects = None
-        write_rib(self, self.scene, self.ri, visible_objects, engine, do_objects)
+
+        write_rib(self, self.scene, self.ri,
+                  visible_objects, engine, do_objects)
         self.ri.End()
+
         if engine:
             _t_ = pretty(time.time() - t1, sfill=False)
             msg = "RIB generation took: {}".format(_t_)
@@ -884,6 +889,12 @@ class RPass:
         # for UDIM textures
         for in_file, out_file, options in temp_texture_list:
             if '_MAPID_' in in_file:
+                #
+                # FIXME:  Catch FileNotFoundError 'in_file'
+                # DATE:   2018-02-05
+                # AUTHOR: Timm Wimmers
+                # STATUS: -unassigned-
+                #
                 in_file = str(Path(in_file).resolve())
                 for udim_file in glob.glob(in_file.replace('_MAPID_', '*')):
                     texture_list.append(
@@ -892,20 +903,33 @@ class RPass:
                 texture_list.append((in_file, out_file, options))
 
         for in_file, out_file, options in texture_list:
+            #
+            # FIXME:  Catch FileNotFoundError 'in_file'
+            # DATE:   2018-02-05
+            # AUTHOR: Timm Wimmers
+            # STATUS: -unassigned-
+            #
             in_file = str(Path(in_file).resolve())
             out_file_path = os.path.join(
-                self.paths['texture_output'], out_file)
+                self.paths['texture_output'],
+                out_file
+            )
 
-            if os.path.isfile(out_file_path) and os.path.exists(in_file) and\
-                    self.rm.always_generate_textures is False and \
-                    os.path.getmtime(in_file) <= \
-                    os.path.getmtime(out_file_path):
-                debug("info", "Texture '%s' exist or is not dirty!" %
-                      out_file)
+            if os.path.isfile(out_file_path) \
+                    and os.path.exists(in_file) \
+                    and self.rm.always_generate_textures is False \
+                    and os.path.getmtime(in_file) \
+                    <= os.path.getmtime(out_file_path):
+                debug(
+                    "info",
+                    "Texture '%s' exist or is not dirty!" % out_file
+                )
             else:
-                cmd = [os.path.join(self.paths['rmantree'], 'bin',
-                                    self.paths['path_texture_optimiser'])] + \
-                    options + [in_file, out_file_path]
+                cmd = [
+                    os.path.join(self.paths['rmantree'], 'bin',
+                                 self.paths['path_texture_optimiser'])
+                ] + options + [in_file, out_file_path]
+
                 debug("info", "Command 'txmake' started!", cmd)
 
                 Blendcdir = bpy.path.abspath("//")
@@ -914,8 +938,9 @@ class RPass:
 
                 environ = os.environ.copy()
                 environ['RMANTREE'] = self.paths['rmantree']
-                process = subprocess.Popen(cmd, cwd=Blendcdir,
-                                           stdout=subprocess.PIPE, env=environ)
+                process = subprocess.Popen(
+                    cmd, cwd=Blendcdir, stdout=subprocess.PIPE, env=environ
+                )
                 process.communicate()
                 files_converted.append(out_file_path)
 

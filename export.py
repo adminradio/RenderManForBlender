@@ -38,13 +38,15 @@ from mathutils import Quaternion
 
 from . import bl_info
 
-from . rfb.lib import rib
+# from . rfb.lib import rib
 from . rfb.lib import rib_path
-from . rfb.lib import rib_ob_bounds
 from . rfb.lib import get_sequence_path
 from . rfb.lib import path_list_convert
 from . rfb.lib import check_if_archive_dirty
 from . rfb.lib import locate_openVDB_cache
+
+from . rfb.lib.ribh import bbox
+from . rfb.lib.ribh import ribify
 
 from . rfb.lib.prfs import pref
 from . rfb.lib.echo import debug
@@ -105,7 +107,7 @@ def export_object_instance(ri, mtx=None, instance_handle=None, num=None):
     if mtx and not is_singular(mtx):
         ri.AttributeBegin()
         ri.Attribute("identifier", {"int id": num})
-        ri.Transform(rib(mtx))
+        ri.Transform(ribify(mtx))
         ri.ObjectInstance(instance_handle)
         ri.AttributeEnd()
 
@@ -538,7 +540,7 @@ def get_primvars(ob, geo, interpolation=""):
 
     # get material id if this is a multi-material mesh
     if is_multi_material(geo):
-        primvars["uniform float material_id"] = rib([p.material_index
+        primvars["uniform float material_id"] = ribify([p.material_index
                                                      for p in geo.polygons])
 
     if rm.export_default_uv:
@@ -548,14 +550,14 @@ def get_primvars(ob, geo, interpolation=""):
     if rm.export_default_vcol:
         vcols = get_mesh_vcol(geo)
         if vcols and len(vcols) > 0:
-            primvars["%s color Cs" % interpolation] = rib(vcols)
+            primvars["%s color Cs" % interpolation] = ribify(vcols)
 
     # custom prim vars
     for p in rm.prim_vars:
         if p.data_source == 'VERTEX_COLOR':
             vcols = get_mesh_vcol(geo, p.data_name)
             if vcols and len(vcols) > 0:
-                primvars["%s color %s" % (interpolation, p.name)] = rib(vcols)
+                primvars["%s color %s" % (interpolation, p.name)] = ribify(vcols)
 
         elif p.data_source == 'UV_TEXTURE':
             uvs = get_mesh_uv(geo, p.data_name, flipvmode=rm.export_flipv)
@@ -722,10 +724,10 @@ def export_transform(ri, instance, concat=False, flatten=False):
             m = modify_light_matrix(m.copy(), ob)
 
         if concat and ob.parent_type == "object":
-            ri.ConcatTransform(rib(m))
+            ri.ConcatTransform(ribify(m))
             ri.ScopedCoordinateSystem(instance.ob.name)
         else:
-            ri.Transform(rib(m))
+            ri.Transform(ribify(m))
             ri.ScopedCoordinateSystem(instance.ob.name)
     export_motion_end(ri, instance.motion_data)
 
@@ -735,7 +737,7 @@ def export_object_transform(ri, ob):
         else ob.matrix_world
     if ob.type == 'LAMP':
         m = modify_light_matrix(m.copy(), ob)
-    ri.Transform(rib(m))
+    ri.Transform(ribify(m))
     ri.ScopedCoordinateSystem(ob.name)
 
 
@@ -744,7 +746,7 @@ def export_light_source(ri, lamp):
              'SPOT': 'PxrDiskLight', 'HEMI': 'PxrDomeLight', 'AREA': 'PxrRectLight'}
     params = {"float exposure": [lamp.energy * 5.0],
               "__instanceid": lamp.name,
-              "color lightColor": rib(lamp.color)}
+              "color lightColor": ribify(lamp.color)}
     if lamp.type not in ['HEMI']:
         params['int areaNormalize'] = 1
     if lamp.type == 'SUN':
@@ -856,7 +858,7 @@ def export_world(ri, world, do_geometry=True):
         m2 = Matrix.Rotation(math.radians(180), 4, 'X')
         m = m * m2
         m = m * Matrix.Scale(-1.0, 4, (1, 0, 0))
-        ri.Transform(rib(m))
+        ri.Transform(ribify(m))
         # No need to name Coordinate System system for world.
         # ri.ShadingRate(rm.shadingrate)
 
@@ -872,7 +874,7 @@ def export_world(ri, world, do_geometry=True):
         params = property_group_to_params(light_shader)
     else:
         plugin_name = "PxrDomeLight"
-        params = {'color lightColor': rib(world.horizon_color)}
+        params = {'color lightColor': ribify(world.horizon_color)}
     ri.Attribute("visibility", {'int transmission': 0, 'int indirect': 0,
                                 'int camera': int(rm.light_primary_visibility)})
     ri.Light(plugin_name, handle, params)
@@ -970,7 +972,7 @@ def export_hair(ri, scene, ob, psys, data, objectCorrectionMatrix=False):
         scene, ob, psys, objectCorrectionMatrix)
 
     for vertsArray, points, widthString, widths, scalpS, scalpT in curves:
-        params = {"P": rib(points), widthString: widths, 'uniform integer index': range(len(vertsArray))}
+        params = {"P": ribify(points), widthString: widths, 'uniform integer index': range(len(vertsArray))}
         if len(scalpS):
             params['uniform float scalpS'] = scalpS
             params['uniform float scalpT'] = scalpT
@@ -993,23 +995,23 @@ def geometry_source_rib(ri, scene, ob):
             max = rm.procedural_bounds_max
             bounds = [min[0], max[0], min[1], max[1], min[2], max[2]]
         else:
-            bounds = rib_ob_bounds(ob.bound_box)
+            bounds = bbox(ob.bound_box)
 
         if rm.geometry_source == 'DELAYED_LOAD_ARCHIVE':
             archive_path = rib_path(get_sequence_path(rm.path_archive,
                                                       blender_frame, anim))
-            ri.Procedural("DelayedReadArchive", archive_path, rib(bounds))
+            ri.Procedural("DelayedReadArchive", archive_path, ribify(bounds))
 
         elif rm.geometry_source == 'PROCEDURAL_RUN_PROGRAM':
             path_runprogram = rib_path(rm.path_runprogram)
             ri.Procedural("RunProgram", [path_runprogram,
                                          rm.path_runprogram_args],
-                          rib(bounds))
+                          ribify(bounds))
 
         elif rm.geometry_source == 'DYNAMIC_LOAD_DSO':
             path_dso = rib_path(rm.path_dso)
             ri.Procedural("DynamicLoad", [path_dso, rm.path_dso_initial_data],
-                          rib(bounds))
+                          ribify(bounds))
 
         elif rm.geometry_source == 'OPENVDB':
             openvdb_file = rib_path(replace_frame_num(rm.path_archive))
@@ -1018,7 +1020,7 @@ def geometry_source_rib(ri, scene, ob):
             for channel in rm.openvdb_channels:
                 if channel.name != '':
                     params['varying %s %s' % (channel.type, channel.name)] = []
-            ri.Volume("blobbydso:impl_openvdb", rib(bounds), [0, 0, 0],
+            ri.Volume("blobbydso:impl_openvdb", ribify(bounds), [0, 0, 0],
                       params)
 
 
@@ -1043,7 +1045,7 @@ def export_blobby_particles(ri, scene, psys, ob, motion_data):
             scale = rm.width if rm.constant_width else widths[i]
             mtx = Matrix.Translation(loc) * rotation.to_matrix().to_4x4() \
                 * Matrix.Scale(scale, 4)
-            tform.extend(rib(mtx))
+            tform.extend(ribify(mtx))
 
         op.append(0)  # blob operation:add
         op.append(count)
@@ -1099,7 +1101,7 @@ def export_particle_instances(ri, scene, rpass, psys, ob, motion_data, type='OBJ
             mtx = Matrix.Translation(loc) * rotation.to_matrix().to_4x4() \
                 * Matrix.Scale(scale, 4)
 
-            ri.Transform(rib(mtx))
+            ri.Transform(ribify(mtx))
             ri.CoordinateSystem(ob.name)
         if len(motion_data) > 1:
             ri.MotionEnd()
@@ -1125,7 +1127,7 @@ def export_particle_points(ri, scene, psys, ob, motion_data, objectCorrectionMat
     for (i, (P, rot, width)) in motion_data:
         params = get_primvars_particle(
             scene, psys, [scene.frame_current + i for (i, data) in motion_data])
-        params[ri.P] = rib(P)
+        params[ri.P] = ribify(P)
         params["uniform string type"] = rm.particle_type
         if rm.constant_width:
             params["constantwidth"] = rm.width
@@ -1242,16 +1244,16 @@ def export_shader(ri, mat):
     # rm = mat.renderman
     # if rm.surface_shaders.active == '' or not rpass.surface_shaders: return
     # name = get_mat_name(mat.name)
-    params = {"color baseColor": rib(mat.diffuse_color),
+    params = {"color baseColor": ribify(mat.diffuse_color),
               "float specular": mat.specular_intensity,
               'string __instanceid': get_mat_name(mat.name)}
 
     if mat.emit:
-        params["color emitColor"] = rib(mat.diffuse_color)
+        params["color emitColor"] = ribify(mat.diffuse_color)
     if mat.subsurface_scattering.use:
         params["float subsurface"] = mat.subsurface_scattering.scale
         params["color subsurfaceColor"] = \
-            rib(mat.subsurface_scattering.color)
+            ribify(mat.subsurface_scattering.color)
     if mat.raytrace_mirror.use:
         params["float metallic"] = mat.raytrace_mirror.reflect_factor
     ri.Bxdf("PxrDisney", get_mat_name(mat.name), params)
@@ -1327,7 +1329,7 @@ def export_curve(ri, scene, ob, data):
 
         for P, width, npt, basis, period in curves:
             ri.Basis(basis[0], basis[1], basis[2], basis[3])
-            ri.Curves("cubic", [npt], period, {"P": rib(P), "width": width})
+            ri.Curves("cubic", [npt], period, {"P": ribify(P), "width": width})
 
     else:
         debug("error",
@@ -1526,7 +1528,7 @@ def export_points(ri, scene, ob, motion):
 
     for nverts, verts, P, N in samples:
         params = {
-            ri.P: rib(P),
+            ri.P: ribify(P),
             "uniform string type": rm.primitive_point_type,
             "constantwidth": rm.primitive_point_width
         }
@@ -1545,7 +1547,7 @@ def export_openVDB(ri, ob):
         return
     params = {"constant string[2] blobbydso:stringargs": [cacheFile, "density:fogvolume"], "varying float density": [],
               "varying float flame": [], "varying float heat": []}
-    ri.Volume("blobbydso:impl_openvdb", rib_ob_bounds(ob.bound_box), [0, 0, 0],
+    ri.Volume("blobbydso:impl_openvdb", bbox(ob.bound_box), [0, 0, 0],
               params)
 
 
@@ -1571,17 +1573,17 @@ def export_smoke(ri, ob):
         "varying color color": [item for index, item in enumerate(smoke_data.color_grid) if index % 4 != 0]
     }
 
-    smoke_res = rib(smoke_data.domain_resolution)
+    smoke_res = ribify(smoke_data.domain_resolution)
     if smoke_data.use_high_resolution:
         smoke_res = [(smoke_data.amplify + 1) * i for i in smoke_res]
 
-    ri.Volume("box", rib_ob_bounds(ob.bound_box),
+    ri.Volume("box", bbox(ob.bound_box),
               smoke_res, params)
 
 
 def export_volume(ri, ob):
     rm = ob.renderman
-    ri.Volume("box", rib_ob_bounds(ob.bound_box), [0, 0, 0])
+    ri.Volume("box", bbox(ob.bound_box), [0, 0, 0])
 
 
 def export_sphere(ri, ob):
@@ -1683,7 +1685,7 @@ def export_blobby_family(ri, scene, ob):
         ro = prot.to_matrix().to_4x4()
 
         m2 = m * sc * ro
-        tform = tform + rib(parent.matrix_world * m2)
+        tform = tform + ribify(parent.matrix_world * m2)
 
     op.append(0)  # blob operation:add
     op.append(count)
@@ -2173,11 +2175,11 @@ def export_RIBArchive_data_archive(ri, scene, rpass, data_blocks, exportMaterial
             # Gets the world location and uses the ri transform to set it in
             # the archive.
             if objectMatrix:
-                ri.Transform(rib(db.data.matrix_world))
+                ri.Transform(ribify(db.data.matrix_world))
                 ri.CoordinateSystem(db.name)
             export_mesh_archive(ri, scene, db)
         elif db.type == "PSYS":
-            # ri.Transform(rib(Matrix.Identity(4)))
+            # ri.Transform(ribify(Matrix.Identity(4)))
             export_particle_archive(ri, scene, rpass, db, correctionMatrix)
         elif db.type == "DUPLI":
             export_dupli_archive(ri, scene, rpass, db, data_blocks)
@@ -2261,12 +2263,12 @@ def export_data_rib_archive(ri, data_block, instance, rpass):
         export_material_archive(ri, mat)
 
     if rm.geometry_source == "ARCHIVE" and ".zip" in instance.ob.renderman.path_archive:
-        arvhiveInfo = instance.ob.renderman
-        _p_ = Path(arvhiveInfo.path_archive).resolve()
+        archiveInfo = instance.ob.renderman
+        _p_ = str(Path(archiveInfo.path_archive).resolve())
         relPath = os.path.splitext(_p_)[0]
         archiveFileExtention = ".zip"
         objectName = os.path.split(os.path.splitext(relPath)[0])[1]
-        archiveAnimated = arvhiveInfo.archive_anim_settings.animated_sequence
+        archiveAnimated = archiveInfo.archive_anim_settings.animated_sequence
         if(archiveAnimated is True):
             current_frame = bpy.context.scene.frame_current
             zero_fill = str(current_frame).zfill(4)
@@ -2288,19 +2290,19 @@ def export_empties_archives(ri, ob):
     # Perform custom transform export since this is the only time empties are
     # exprted.
     matrix = ob.matrix_local
-    ri.Transform(rib(matrix))
+    ri.Transform(ribify(matrix))
     ri.CoordinateSystem(ob.name)
 
     # visible_objects=visible_objects
 
-    arvhiveInfo = ob.renderman
-    _p_ = Path(arvhiveInfo.path_archive).resolve()
+    archiveInfo = ob.renderman
+    _p_ = Path(archiveInfo.path_archive).resolve()
     relPath = os.path.splitext(_p_)[0]
 
     archiveFileExtention = ".zip"
 
     objectName = os.path.split(os.path.splitext(relPath)[0])[1]
-    archiveAnimated = arvhiveInfo.archive_anim_settings.animated_sequence
+    archiveAnimated = archiveInfo.archive_anim_settings.animated_sequence
 
     ri.AttributeBegin()
     if(archiveAnimated is True):
@@ -2470,17 +2472,17 @@ def export_object_attributes(ri, scene, ob, visible_objects):
     for i in range(8):
         name = 'MatteID%d' % i
         if getattr(rm, name) != [0.0, 0.0, 0.0]:
-            user_attr["color %s" % name] = rib(getattr(rm, name))
+            user_attr["color %s" % name] = ribify(getattr(rm, name))
 
     if hasattr(ob, 'color'):
-        user_attr["color Cs"] = rib(ob.color[:3])
+        user_attr["color Cs"] = ribify(ob.color[:3])
 
     if len(user_attr):
         ri.Attribute('user', user_attr)
 
 
 def get_bounding_box(ob):
-    bounds = rib_ob_bounds(ob.bound_box)
+    bounds = bbox(ob.bound_box)
     return bounds
 
 # export the archives for an mesh. If this is a
@@ -2535,7 +2537,7 @@ def export_dupli_archive(ri, scene, rpass, data_block, data_blocks):
             ri.Attribute('identifier', {'string name': dupli_name})
 
             ri.ConcatTransform(
-                rib(ob.matrix_world.inverted_safe() * dupob.matrix)
+                ribify(ob.matrix_world.inverted_safe() * dupob.matrix)
             )
             mat = dupob.object.active_material
 
@@ -2563,7 +2565,7 @@ def export_dupli_archive(ri, scene, rpass, data_block, data_blocks):
             mat = dupob.object.active_material
             if mat:
                 export_material_archive(ri, mat)
-            ri.Transform(rib(Matrix.Identity(4)))
+            ri.Transform(ribify(Matrix.Identity(4)))
             ri.CoordinateSystem(dupob.object.name)
 
             if dupob.object.renderman.geometry_source == 'ARCHIVE':
@@ -2645,20 +2647,20 @@ def property_group_to_params(node, lamp=None):
             # if struct is not linked continue
             if 'arraySize' in meta:
                 params['%s[%d] %s' % (meta['renderman_type'], len(prop),
-                                      meta['renderman_name'])] = rib(prop)
+                                      meta['renderman_name'])] = ribify(prop)
             elif ('widget' in meta
                     and meta['widget'] == 'assetIdInput'
                     and prop_name != 'iesProfile'):
 
                 params['%s %s' % (meta['renderman_type'],
                                   meta['renderman_name'])] = \
-                    rib(get_tex_file_name(prop),
+                    ribify(get_tex_file_name(prop),
                         type_hint=meta['renderman_type'])
 
             else:
                 params['%s %s' % (meta['renderman_type'],
                                   meta['renderman_name'])] = \
-                    rib(prop, type_hint=meta['renderman_type'])
+                    ribify(prop, type_hint=meta['renderman_type'])
 
     if lamp and node.plugin_name in [
             'PxrBlockerLightFilter',
@@ -2812,7 +2814,7 @@ def export_camera_matrix(ri, scene, ob, motion_data=[]):
         l = Matrix.Translation(-loc)  # noqa
         m = s * r * l
 
-        ri.Transform(rib(m))
+        ri.Transform(ribify(m))
         ri.CoordinateSystem(ob.name)
 
     export_motion_end(ri, motion_data)
