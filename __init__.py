@@ -116,6 +116,7 @@ def register():
     # FIXME:  lost examples by accident, will fix this later
     # DATE:   2018-02-06
     # AUTHOR: Timm Wimmers
+    # STATUS: assigned to self, 2018-02-06
     #
     # from . gui import RfB_MT_ExampleFiles  # noqa
     from . gui import RfB_PT_DATA_Camera  # noqa
