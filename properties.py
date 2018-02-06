@@ -539,8 +539,7 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         description="If a pixel changes by less than this amount when "
                     "updated, it will not receive further samples in "
                     "adaptive mode.  Lower values lead to increased render "
-                    "times and higher quality images"
-        )
+                    "times and higher quality images")
 
     dark_falloff = FloatProperty(
         name="Dark Falloff",

@@ -424,7 +424,8 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                 # TODO:    contact blender devs for status on this:
                 #          pointer struct for color ramps can't be
                 #          created via python (as far as I know!)
-                # DATE:    2017-12-28 (adminradio)
+                # DATE:    2017-12-28
+                # STATUS:  -unassigned-
                 #
                 nt = bpy.data.node_groups[self.node_group]
                 if nt:
@@ -461,7 +462,7 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                             self.draw_nonconnectable_props(
                                 context, row, prop)
 
-                        # boxed row layout for single props with or withou label
+                        # boxed layout for single props with or without label
                         elif (PropertyLookup.is_labeled(prop_id) or
                               PropertyLookup.is_unlabeled(prop_id)):
                             cl = layout.box()
@@ -1513,8 +1514,12 @@ def gen_params(ri, node, mat_name=None):
 
                     if from_socket.node.bl_idname == 'ShaderNodeGroup':
                         ng = from_socket.node.node_tree
-                        group_output = next((n for n in ng.nodes if n.bl_idname == 'NodeGroupOutput'),
-                                            None)
+                        group_output = next(
+                            (
+                                n for n in ng.nodes
+                                if n.bl_idname == 'NodeGroupOutput'
+                            ), None)
+
                         if group_output is None:
                             return False
 
@@ -1533,9 +1538,10 @@ def gen_params(ri, node, mat_name=None):
                             [get_output_param_str(
                                 from_socket.node, temp_mat_name, actual_socket)]
                     else:
-                        stdmsg('Warning: %s not found on %s' %
-                              (vstruct_from_param, from_socket.node.name))
-
+                        stdmsg(
+                            'Warning: %s not found on %s' %
+                            (vstruct_from_param, from_socket.node.name)
+                        )
                 # else output rib
                 else:
                     # if struct is not linked continue
@@ -1545,8 +1551,9 @@ def gen_params(ri, node, mat_name=None):
                     # if this is a gain on PxrSurface and the lobe isn't
                     # enabled
                     if (node.bl_idname == 'PxrSurfaceBxdfNode'
-                        and PropertyLookup.enable_gain(prop_name)
-                        and not getattr(node, PropertyLookup.map_gain(prop_name))):
+                            and PropertyLookup.enable_gain(prop_name)
+                            and not getattr(
+                                node, PropertyLookup.map_gain(prop_name))):
 
                         val = (
                             [0, 0, 0]
@@ -1557,12 +1564,14 @@ def gen_params(ri, node, mat_name=None):
                         params['%s %s' % (meta['renderman_type'],
                                           meta['renderman_name'])] = val
 
-                    elif ('options' in meta
-                        and meta['options'] == 'texture'
-                        and node.bl_idname != "PxrPtexturePatternNode"
-                        or ('widget' in meta
-                            and meta['widget'] == 'assetIdInput'
-                            and prop_name != 'iesProfile')):
+                    elif ('options'
+                            in meta
+                            and meta['options'] == 'texture'
+                            and node.bl_idname != "PxrPtexturePatternNode"
+                            or ('widget'
+                                in meta
+                                and meta['widget'] == 'assetIdInput'
+                                and prop_name != 'iesProfile')):
 
                         params['%s %s' % (
                             meta['renderman_type'],

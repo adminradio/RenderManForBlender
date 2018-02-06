@@ -51,7 +51,7 @@ from .. rfb.lib.file import fixname
 # this has the added bonus of not using operators for each preset
 #
 class RenderPresets():
-    FinalDenoisePreset = [
+    FinalDenoise = [
         "rm = bpy.context.scene.renderman",
         "rm.pixel_variance = 0.01",
         "rm.min_samples = 32",
@@ -61,7 +61,7 @@ class RenderPresets():
         "rm.motion_blur = True",
         "rm.do_denoise = True",
         "rm.PxrPathTracer_settings.maxPathLength = 10", ]
-    FinalHighPreset = [
+    FinalHigh = [
         "rm = bpy.context.scene.renderman",
         "rm.pixel_variance = 0.0025",
         "rm.min_samples = 64",
@@ -71,7 +71,7 @@ class RenderPresets():
         "rm.motion_blur = True",
         "rm.do_denoise = False",
         "rm.PxrPathTracer_settings.maxPathLength = 10", ]
-    FinalPreset = [
+    Final = [
         "rm = bpy.context.scene.renderman",
         "rm.pixel_variance = 0.005",
         "rm.min_samples = 32",
@@ -81,7 +81,7 @@ class RenderPresets():
         "rm.motion_blur = True",
         "rm.do_denoise = False",
         "rm.PxrPathTracer_settings.maxPathLength = 10", ]
-    MidPreset = [
+    Mid = [
         "rm = bpy.context.scene.renderman",
         "rm.pixel_variance = 0.05",
         "rm.min_samples = 0",
@@ -91,7 +91,7 @@ class RenderPresets():
         "rm.motion_blur = True",
         "rm.do_denoise = False",
         "rm.PxrPathTracer_settings.maxPathLength = 10", ]
-    PreviewPreset = [
+    Preview = [
         "rm = bpy.context.scene.renderman",
         "rm.pixel_variance = 0.1",
         "rm.min_samples = 0",
@@ -101,7 +101,7 @@ class RenderPresets():
         "rm.motion_blur = False",
         "rm.do_denoise = False",
         "rm.PxrPathTracer_settings.maxPathLength = 5", ]
-    TractorLocalQueuePreset = [
+    TractorLocalQueue = [
         "rm = bpy.context.scene.renderman",
         "rm.pixel_variance = 0.01",
         "rm.min_samples = 24",
@@ -139,32 +139,32 @@ def register():
     # This includes render based and Material based
     #
     quick_add_presets(
-        RenderPresets.FinalDenoisePreset,
+        RenderPresets.FinalDenoise,
         os.path.join("renderman", "render"),
         "FinalDenoise")
 
     quick_add_presets(
-        RenderPresets.FinalHighPreset,
+        RenderPresets.FinalHigh,
         os.path.join("renderman", "render"),
         "FinalHigh")
 
     quick_add_presets(
-        RenderPresets.FinalPreset,
+        RenderPresets.Final,
         os.path.join("renderman", "render"),
         "Final")
 
     quick_add_presets(
-        RenderPresets.MidPreset,
+        RenderPresets.Mid,
         os.path.join("renderman", "render"),
         "Mid")
 
     quick_add_presets(
-        RenderPresets.PreviewPreset,
+        RenderPresets.Preview,
         os.path.join("renderman", "render"),
         "Preview")
 
     quick_add_presets(
-        RenderPresets.TractorLocalQueuePreset,
+        RenderPresets.TractorLocalQueue,
         os.path.join("renderman", "render"),
         "TractorLocalQueue")
 

@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 #
 # Python Imports
 #
@@ -38,33 +40,45 @@ import bpy
 # RenderManForBlender Imports
 #
 from . lib.prfs import pref
-from . lib.path import user_path
+from . lib.file import quote
+from . lib.path import expand
 
 
-def end_block(f, indent_level):
-    f.write("%s}\n" % ('\t' * indent_level))
+def end_block(f, lvl):
+    f.write("%s}\n" % ('\t' * lvl))
 
 
-def write_parent_task_line(f, title, serial_subtasks, indent_level):
-    f.write("%sTask {%s} -serialsubtasks %d -subtasks {\n" %
-            ('\t' * indent_level, title, int(serial_subtasks)))
+def w_parents(f, title, serial_subtasks, lvl):
+    i = '\t' * lvl
+    s = int(serial_subtasks)
+    f.write("%sTask {%s} -serialsubtasks %d -subtasks {\n" % (i, title, s))
 
 
-def write_cmd_task_line(f, title, cmds, indent_level):
-    f.write("%sTask {%s} -cmds {\n" % ('\t' * indent_level, title))
-    for key, cmd in cmds:
-        f.write("%sRemoteCmd -service {%s} {%s}\n" % ('\t' * (indent_level + 1),
-                                                      key, " ".join(cmd)))
-    f.write("%s}\n" % ('\t' * indent_level))
+def w_commands(f, title, cmds, lvl):
+    j = " "  # joiner
+
+    #
+    # open level
+    #
+    i = '\t' * lvl  # current indent
+    f.write("%sTask {%s} -cmds {\n" % (i, title))
+
+    #
+    # write sublevel(s)
+    #
+    ii = '\t' * (lvl + 1)  # next indent
+    for k, v in cmds:
+        f.write("%sRemoteCmd -service {%s} {%s}\n" % (ii, k, j.join(v)))
+
+    #
+    # close level
+    #
+    f.write("%s}\n" % (i))
 
 
-def txmake_task(f, title, in_name, out_name, options, indent_level):
-    cmd = ['txmake'] + options + ['-newer'] + [in_name, out_name]
-    write_cmd_task_line(f, title, [('PixarRender', cmd)], indent_level)
-
-
-def quote(filename):
-    return '"%s"' % filename
+def txmake_task(f, title, ifn, ofn, options, lvl):
+    cmd = ['txmake'] + options + ['-newer'] + [ifn, ofn]
+    w_commands(f, title, [('PixarRender', cmd)], lvl)
 
 
 def render(rman_version_short,
@@ -81,163 +95,289 @@ def render(rman_version_short,
            rpass=None,
            bake=False):
 
-    out_dir = pref('env_vars').out
-    cdir = user_path(out_dir)
-    scene = context.scene
-    rm = scene.renderman
+    frb = frame_begin
+    fre = frame_end
+    odr = pref('env_vars').out
+    cdr = expand(odr)
+    scn = context.scene
+    rmn = scn.renderman
 
-    alf_file = (
-        os.path.join(cdir, 'bake_%s.alf' % time.strftime("%m%d%y%H%M%S"))
-        if bake
-        else os.path.join(cdir, rm.custom_alfname + '_%s.alf' % time.strftime("%m%d%y%H%M%S"))
-    )
+    _t_ = time.strftime("%m%d%y%H%M%S")
+    alf_file = os.path.join(cdr, 'bake_%s.alf' % _t_) \
+        if bake \
+        else os.path.join(cdr, rmn.custom_alfname + '_%s.alf' % _t_)
 
-    per_frame_denoise = denoise == 'frame'
-    crossframe_denoise = denoise == 'crossframe'
+    f_dnoise = denoise == 'frame'
+    x_dnoise = denoise == 'crossframe'
 
     # open file
     f = open(alf_file, 'w')
+
     # write header
     f.write('##AlfredToDo 3.0\n')
+
     # job line
-    job_title = 'untitled' if not bpy.data.filepath else \
-        os.path.splitext(os.path.split(bpy.data.filepath)[1])[0]
-    job_title += " frames %d-%d" % (frame_begin, frame_end) if frame_end \
-        else " frame %d" % frame_begin
-    if per_frame_denoise:
+    job_title = os.path.splitext(os.path.split(bpy.data.filepath)[1])[0] \
+        if bpy.data.filepath else 'untitled'
+
+    job_title += " frames %d-%d" % (frb, fre) if fre else " frame %d" % frb
+
+    if f_dnoise:
         job_title += ' per-frame denoise'
-    elif crossframe_denoise:
+
+    elif x_dnoise:
         job_title += ' crossframe_denoise'
+
     job_params = {
         'title': job_title,
         'serialsubtasks': 1,
         'envkey': 'prman-%s' % rman_version_short,
         'comment': 'Created by RenderMan for Blender'
     }
-    job_str = 'Job'
-    for key, val in job_params.items():
-        if key == 'serialsubtasks':
-            job_str += " -%s %s" % (key, str(val))
-        else:
-            job_str += " -%s {%s}" % (key, str(val))
-    f.write(job_str + ' -subtasks {' + '\n')
 
+    jstr = 'Job'
+    for k, v in job_params.items():
+        if k == 'serialsubtasks':
+            jstr += " -%s %s" % (k, str(v))
+        else:
+            jstr += " -%s {%s}" % (k, str(v))
+
+    f.write(jstr + ' -subtasks {' + '\n')
+
+    #
     # collect textures find frame specific and job specific
+    #
     if job_texture_cmds:
-        write_parent_task_line(f, 'Job Textures', False, 1)
-    # do job tx makes
-    for in_name, out_name, options in job_texture_cmds:
-        in_name = bpy.path.abspath(in_name)
-        out_name = os.path.join(rpass.paths['texture_output'], out_name)
-        txmake_task(f, "TxMake %s" % os.path.split(in_name)
-                    [-1], quote(in_name), quote(out_name), options, 2)
+        w_parents(f, 'Job Textures', False, 1)
+
+    #
+    # do job txmake texture(s)
+    #
+    for ifn, ofn, options in job_texture_cmds:
+        ifn = bpy.path.abspath(ifn)
+        ofn = os.path.join(rpass.paths['texture_output'], ofn)
+        txmake_task(
+            f, "TxMake %s" % os.path.split(ifn)[-1],
+            quote(ifn), quote(ofn), options, 2
+        )
+
     if job_texture_cmds:
         end_block(f, 1)
 
-    write_parent_task_line(f, 'Frame Renders', False, 1)
-    # for frame
-    if frame_end is None:
-        frame_end = frame_begin
-    for frame_num in range(frame_begin, frame_end + 1):
-        if frame_num in frame_texture_cmds or denoise:
-            write_parent_task_line(f, 'Frame %d' % frame_num, True, 2)
+    w_parents(f, 'Frame Renders', False, 1)
 
-        # do frame specic txmake
-        if frame_num in frame_texture_cmds:
-            write_parent_task_line(f, 'Frame %d textures' %
-                                   frame_num, False, 3)
-            for in_name, out_name, options in frame_texture_cmds[frame_num]:
-                in_name = bpy.path.abspath(in_name)
-                out_name = os.path.join(
-                    rpass.paths['texture_output'], out_name)
-                txmake_task(f, "TxMake %s" % os.path.split(in_name)
-                            [-1], quote(in_name), quote(out_name), options, 4)
+    #
+    # do txmake for frame(s)
+    #
+    if fre is None:
+        fre = frb
+
+    for frn in range(frb, fre + 1):
+        if frn in frame_texture_cmds or denoise:
+            w_parents(f, 'Frame %d' % frn, True, 2)
+
+        #
+        # do frame specific txmake
+        #
+        if frn in frame_texture_cmds:
+            w_parents(f, 'Frame %d textures' % frn, False, 3)
+
+            for ifn, ofn, options in frame_texture_cmds[frn]:
+                ifn = bpy.path.abspath(ifn)
+                ofn = os.path.join(rpass.paths['texture_output'], ofn)
+                txmake_task(
+                    f, "TxMake %s" % os.path.split(ifn)[-1],
+                    quote(ifn), quote(ofn), options, 4
+                )
             end_block(f, 3)
 
+        #
         # render frame
+        #
         if to_render:
-            threads = rm.threads if not rm.override_threads else rm.external_threads
-            cmd_str = ['prman', '-Progress', '-cwd', quote(cdir), '-t:%d' %
-                       threads, quote(rib_files[frame_num - frame_begin])]
-            if rm.enable_checkpoint:
-                if rm.render_limit == 0:
-                    cmd_str.insert(5, '-checkpoint %d%s' %
-                                   (rm.checkpoint_interval, rm.checkpoint_type))
+            threads = rmn.threads \
+                if not rmn.override_threads \
+                else rmn.external_threads
+
+            cmd_str = [
+                'prman',
+                '-Progress',
+                '-cwd',
+                quote(cdr),
+                '-t:%d' % threads,
+                quote(rib_files[frn - frb])
+            ]
+
+            if rmn.enable_checkpoint:
+                if rmn.render_limit == 0:
+                    a = rmn.checkpoint_interval
+                    b = rmn.checkpoint_type
+                    cmd_str.insert(5, '-checkpoint %d%s' % (a, b))
                 else:
-                    cmd_str.insert(5, '-checkpoint %d%s,%d%s' % (
-                        rm.checkpoint_interval, rm.checkpoint_type, rm.render_limit, rm.checkpoint_type))
-            if rm.recover:
+                    a = rmn.checkpoint_interval
+                    b = rmn.checkpoint_type
+                    c = rmn.render_limit
+                    d = rmn.checkpoint_type
+                    cmd_str.insert(5, '-checkpoint %d%s,%d%s' % (a, b, c, d))
+
+            if rmn.recover:
                 cmd_str.insert(5, '-recover 1')
-            if rm.custom_cmd != '':
-                cmd_str.insert(5, rm.custom_cmd)
-            write_cmd_task_line(f, 'Render frame %d' % frame_num, [('PixarRender',
-                                                                    cmd_str)], 3)
 
-        # denoise frame
-        if per_frame_denoise:
+            if rmn.custom_cmd != '':
+                cmd_str.insert(5, rmn.custom_cmd)
+
+            w_commands(
+                f, 'Render frame %d' % frn, [('PixarRender', cmd_str)], 3
+            )
+
+        #
+        # denoise single frame
+        #
+        if f_dnoise:
+            j = " "
+            dafs = denoise_aov_files
             denoise_options = []
-            if rm.denoise_cmd != '':
-                denoise_options.append(rm.denoise_cmd)
-            if rm.spool_denoise_aov and denoise_aov_files != []:
+            if rmn.denoise_cmd != '':
+                denoise_options.append(rmn.denoise_cmd)
+            if rmn.spool_denoise_aov and dafs != []:
                 denoise_options.insert(0, '--filtervariance 1')
-                cmd_str = ['denoise'] + denoise_options + [quote(denoise_files[
-                    frame_num - frame_begin][0])] + [" ".join([quote(file) for file in
-                                                               denoise_aov_files[frame_num - frame_begin]])]
+
+                cmd_str = (
+                    ['denoise']
+                    + denoise_options
+                    + [quote(denoise_files[frn - frb][0])]
+                    + [j.join([quote(file) for file in dafs[frn - frb]])]
+                )
             else:
-                if rm.denoise_gpu:
+                if rmn.denoise_gpu:
                     denoise_options.append('--override gpuIndex 0 --')
-                cmd_str = ['denoise'] + denoise_options + \
-                    [quote(denoise_files[
-                        frame_num - frame_begin][0])]
-            write_cmd_task_line(f, 'Denoise frame %d' % frame_num,
-                                [('PixarRender', cmd_str)], 3)
-        elif crossframe_denoise:
+
+                cmd_str = (
+                    ['denoise']
+                    + denoise_options
+                    + [quote(denoise_files[frn - frb][0])]
+                )
+
+            w_commands(
+                f, 'Denoise frame %d' % frn, [('PixarRender', cmd_str)], 3
+            )
+
+        #
+        # cross frame denoise
+        #
+        elif x_dnoise:
             denoise_options = ['--crossframe -v variance', '-F 1', '-L 1']
-            if rm.spool_denoise_aov and denoise_aov_files != []:
+
+            if rmn.spool_denoise_aov and denoise_aov_files != []:
                 denoise_options.append('--filtervariance 1')
-            if rm.denoise_cmd != '':
-                denoise_options.append(rm.denoise_cmd)
-            if rm.denoise_gpu and not rm.spool_denoise_aov:
+
+            if rmn.denoise_cmd != '':
+                denoise_options.append(rmn.denoise_cmd)
+
+            if rmn.denoise_gpu and not rmn.spool_denoise_aov:
                 denoise_options.append('--override gpuIndex 0 --')
-            if frame_num - frame_begin < 1:
+
+            if frn - frb < 1:
                 pass
-            elif frame_num - frame_begin == 1:
+
+            elif frn - frb == 1:
                 denoise_options.remove('-F 1')
-                cmd_str = ['denoise'] + denoise_options + [quote(f[0])
-                                                           for f in denoise_files[0:2]]
-                if rm.spool_denoise_aov and denoise_aov_files != []:
-                    files = [quote(item) for sublist in denoise_aov_files[0:2]
-                             for item in sublist]
-                    cmd_str = ['denoise'] + denoise_options + [quote(f[0])
-                                                               for f in denoise_files[0:2]] + files
-                write_cmd_task_line(f, 'Denoise frame %d' % (frame_num - 1),
-                                    [('PixarRender', cmd_str)], 3)
+                cmd_str = (
+                    ['denoise']
+                    + denoise_options
+                    + [quote(f[0]) for f in denoise_files[0:2]]
+                )
+
+                if rmn.spool_denoise_aov and denoise_aov_files != []:
+                    files = [
+                        quote(item)
+                        for sublist in denoise_aov_files[0:2]
+                        for item in sublist
+                    ]
+
+                    cmd_str = (
+                        ['denoise']
+                        + denoise_options
+                        + [quote(f[0]) for f in denoise_files[0:2]] + files
+                    )
+                w_commands(
+                    f, 'Denoise frame %d' % (frn - 1),
+                    [('PixarRender', cmd_str)], 3
+                )
+
             else:
-                cmd_str = ['denoise'] + denoise_options + [quote(f[0])
-                                                           for f in denoise_files[frame_num - frame_begin - 2: frame_num - frame_begin + 1]]
-                if rm.spool_denoise_aov and denoise_aov_files != []:
-                    files = [quote(item) for sublist in denoise_aov_files[
-                        frame_num - frame_begin - 2: frame_num - frame_begin + 1] for item in sublist]
-                    cmd_str = ['denoise'] + denoise_options + [quote(f[0])
-                                                               for f in denoise_files[frame_num - frame_begin - 2: frame_num - frame_begin + 1]] + files
-                write_cmd_task_line(f, 'Denoise frame %d' % (frame_num - 1),
-                                    [('PixarRender', cmd_str)], 3)
-            if frame_num == frame_end:
+                cmd_str = (
+                    ['denoise']
+                    + denoise_options
+                    + [
+                        quote(f[0])
+                        for f in
+                        denoise_files[frn - frb - 2:frn - frb + 1]
+                    ]
+                )
+
+                if rmn.spool_denoise_aov and denoise_aov_files != []:
+                    files = [
+                        quote(item)
+                        for sublist in
+                        denoise_aov_files[frn - frb - 2:frn - frb + 1]
+                        for item in sublist
+                    ]
+
+                    cmd_str = (
+                        ['denoise']
+                        + denoise_options
+                        + [
+                            quote(f[0])
+                            for f in
+                            denoise_files[frn - frb - 2:frn - frb + 1]
+                        ]
+                        + files
+                    )
+
+                w_commands(
+                    f, 'Denoise frame %d' % (frn - 1),
+                    [('PixarRender', cmd_str)], 3
+                )
+
+            if frn == fre:
                 denoise_options.remove('-L 1')
-                cmd_str = ['denoise'] + denoise_options + [quote(f[0])
-                                                           for f in denoise_files[frame_num - frame_begin - 1: frame_num - frame_begin + 1]]
-                if rm.spool_denoise_aov and denoise_aov_files != []:
-                    files = [quote(item) for sublist in denoise_aov_files[
-                        frame_num - frame_begin - 1: frame_num - frame_begin + 1] for item in sublist]
-                    cmd_str = ['denoise'] + denoise_options + [quote(f[0])
-                                                               for f in denoise_files[frame_num - frame_begin - 1: frame_num - frame_begin + 1]] + files
 
-                write_cmd_task_line(f, 'Denoise frame %d' % frame_num,
-                                    [('PixarRender', cmd_str)], 3)
+                cmd_str = (
+                    ['denoise']
+                    + denoise_options
+                    + [
+                        quote(f[0])
+                        for f in denoise_files[frn - frb - 1:frn - frb + 1]
+                    ]
+                )
 
-        # if len(frame_texture_cmds) or per_frame_denoise:
-        if denoise or frame_num in frame_texture_cmds:
+                if rmn.spool_denoise_aov and denoise_aov_files != []:
+                    files = [
+                        quote(item)
+                        for sublist in
+                        denoise_aov_files[frn - frb - 1:frn - frb + 1]
+                        for item in sublist
+                    ]
+
+                    cmd_str = (
+                        ['denoise']
+                        + denoise_options
+                        + [
+                            quote(f[0])
+                            for f in
+                            denoise_files[frn - frb - 1:frn - frb + 1]
+                        ]
+                        + files)
+
+                w_commands(
+                    f, 'Denoise frame %d' % frn,
+                    [('PixarRender', cmd_str)], 3
+                )
+
+        if denoise or frn in frame_texture_cmds:
             end_block(f, 2)
+
     end_block(f, 1)
 
     # end job

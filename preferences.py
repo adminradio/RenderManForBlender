@@ -185,57 +185,71 @@ class RendermanPreferences(AddonPreferences):
         subtype='FILE_PATH',
         default="txmake")
 
-    draw_ipr = BoolProperty(
+    rfb_ipr_indicator = BoolProperty(
         name="Indicate IPR",
-        description="Draw indicator on View3D when IPR is active",
+        description="Draw indicator on View3D when IPR is active.\n"
+                    "(Requires restarting IPR if it's currently running)",
         default=True)
 
-    draw_panel_icon = BoolProperty(
+    rfb_panel_icon = BoolProperty(
         name="Panel Icons",
         description="Draw a nice icon on RenderMan Panels (recommended)",
         default=True)
 
+    rfb_nesting = BoolProperty(
+        name="Box nested properties",
+        description="Draw a box around nested property sections",
+        default=True)
+
     rfb_info = BoolProperty(
-        name="Infos",
+        name="Info to console",
         description="Echo some useful infos to console (recommended "
                     "for questions in support forum)",
         default=True)
 
     rfb_debug = BoolProperty(
-        name="Debugging",
-        description="Echo debugging infos to console (it's messy!)",
+        name="Debugging (messy!)",
+        description="Echo debugging infos to console. This is a bit "
+                    "messy and may be easy to follow!",
         default=False)
 
+    #
+    # TODO:   requestuesting userpref for laptimes doesn't wotk
+    #         as expected (option is always none), have to investigate.
+    # DATE:   2018-02-06
+    # AUTHOR: Timm Wimmers
+    # STATUS: assigned to self, 2018-02-06
+    #
     rfb_laptime = BoolProperty(
         name="Time Tasks",
         description="Echo lap times of some critical tasks to console (not "
                     "widely implemented yet, may slightly impact performace)",
-        default=False)
+        default=True)
 
     rfb_sc_float = FloatVectorProperty(
         name="Scalar (Float)",
-        default=(0.994050, 1.000000, 0.530710, 1.000000),
+        default=(0.500000, 0.500000, 0.500000, 1.000000),
         size=4,
         min=0, max=1,
         subtype='COLOR')
 
     rfb_sc_vector = FloatVectorProperty(
         name="Vector (XYZ)",
-        default=(0.042977, 0.061914, 0.500000, 1.000000),
+        default=(0.000000, 0.000000, 1.000000, 1.000000),
         size=4,
         min=0, max=1,
         subtype='COLOR')
 
     rfb_sc_bxdf = FloatVectorProperty(
         name="Shader (any BxDF)",
-        default=(0.375220, 1.000000, 0.188767, 1.000000),
+        default=(0.000000, 1.000000, 0.000000, 1.000000),
         size=4,
         min=0, max=1,
         subtype='COLOR')
 
     rfb_sc_color = FloatVectorProperty(
         name="Color (RGB, RGBA)",
-        default=(0.500000, 0.427215, 0.038179, 1.000000),
+        default=(1.000000, 1.000000, 0.000000, 1.000000),
         size=4,
         min=0, max=1,
         subtype='COLOR')
@@ -249,7 +263,7 @@ class RendermanPreferences(AddonPreferences):
 
     rfb_sc_int = FloatVectorProperty(
         name="Number (Integer)",
-        default=(0.994050, 1.000000, 0.530710, 1.000000),
+        default=(1.000000, 1.000000, 1.000000, 1.000000),
         size=4,
         min=0, max=1,
         subtype='COLOR')
@@ -337,11 +351,15 @@ class RendermanPreferences(AddonPreferences):
         lc, rc = split_ll(layout, alignment=False)
         lc = lc.column()
         row = lc.row()
-        row.prop(self, 'draw_ipr')
+        row.prop(self, 'rfb_ipr_indicator')
         row.prop(self, 'rfb_ipr_border', text="")
-        lc.prop(self, 'draw_panel_icon')
-        lc.prop(self, 'rfb_debug')
+        lc.prop(self, 'rfb_panel_icon')
+        lc.prop(self, 'rfb_nesting')
+        lc.separator()
+        lc.separator()
+        lc.separator()
         lc.prop(self, 'rfb_info')
+        lc.prop(self, 'rfb_debug')
         #
         #
         # FIXME:  Timing with @laptime currently doesn't support user
@@ -349,18 +367,17 @@ class RendermanPreferences(AddonPreferences):
         #         investigate
         # DATE:   2018-02-04
         # AUTHOR: Timm Wimmers
-        # STATUS: -unassigned-
+        # STATUS: assigned to self, 2018-02-06
         #
         # lc.prop(self, 'rfb_laptime')
 
         box = rc.box()
-        box.label("Node Tree Socket Colors")
+        box.label("Node Tree Socket Colors:")
         box = box.column(align=True)
         row = box.row()
         row.prop(self, 'rfb_sc_bxdf')
         row = box.row()
         row.prop(self, 'rfb_sc_color')
-        box.separator()
         row = box.row()
         row.prop(self, 'rfb_sc_float')
         row = box.row()

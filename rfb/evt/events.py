@@ -160,9 +160,7 @@ def render_complete():
 
 @nonrecursive
 def update():
-    items = state.get()
-    if items:
-        for item in items:
-            if item == 'Scene':
-                continue
-            stdmsg("EventHandler '{}' triggered.".format(str(item.upper())))
+    for item in state.get():
+        if item == 'Scene':
+            continue
+        stdmsg("EventHandler '{}' triggered.".format(str(item.upper())))

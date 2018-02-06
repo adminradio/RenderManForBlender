@@ -34,6 +34,8 @@ import bpy
 from .. import icons
 from ... import engine
 
+from ... rfb.lib.prfs import pref
+
 
 #
 # FIXME:  split_ll() and split_lr() return rows() instead of column()
@@ -83,6 +85,14 @@ def bbox_v(layout):
 
 
 def draw_props(node, prop_names, layout):
+    nst = pref('rfb_nesting')
+    #
+    # if the user enables boxed nesting, we can compress space vertically a
+    # little bit, because boxing adds also space by itself inside
+    #
+    align = True if nst else False
+    layout = layout.column(align=align)
+
     for prop_name in prop_names:
         prop_meta = node.prop_meta[prop_name]
         prop = getattr(node, prop_name)
@@ -91,47 +101,63 @@ def draw_props(node, prop_names, layout):
             ui_prop = prop_name + "_ui_open"
             ui_open = getattr(node, ui_prop)
 
-            cond = bpy.context.scene.renderman.alf_options
-            icn = 'panel_open' if cond else 'panel_closed'
-            iid = icons.iconid(icn)
-            cl = layout.box()
-            cl.prop(
-                node,
-                ui_prop,
-                icon_value=iid,
-                text=prop_name.split('.')[-1],
-                icon_only=True,
-                emboss=False)
+            txt = prop_name.split('.')[-1]
+            if nst:
+                icn = 'panel_open' if ui_open else 'panel_closed'
+                iid = icons.iconid(icn)
+                lay = layout.box()
+                lay.prop(node, ui_prop, icon_value=iid, text=txt, emboss=False)
+            else:
+                icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+                lay = layout
+                lay.prop(node, ui_prop, icon=icn, text=txt, emboss=False)
 
             if ui_open:
-                draw_props(node, prop, cl)
+                draw_props(node, prop, lay)
 
         else:
-            if ('widget' in prop_meta and prop_meta['widget'] == 'null' or
-                'hidden' in prop_meta and prop_meta['hidden'] or
-                    prop_name == 'combineMode'):
+            if ('widget'
+                    in prop_meta
+                    and prop_meta['widget'] == 'null'
+                    or 'hidden' in prop_meta and prop_meta['hidden']
+                    or prop_name == 'combineMode'):
                 continue
-
-            cl = layout.row()
+            sub = layout.column()
+            lay = sub.row()
             if "Subset" in prop_name and prop_meta['type'] == 'string':
-                cl.prop_search(
-                    node,
-                    prop_name,
-                    bpy.data.scenes[0].renderman,
-                    "object_groups")
+                rm = bpy.data.scenes[0].renderman
+                #
+                # FIXME:  bpy.data.scenes[0] is the first scene
+                #         in file, this should be 'active scene'!
+                # DATE:   2018-02-06
+                # AUTHOR: Timm Wimmers
+                # STATUS: -unassigned-
+                #
+                lay.prop_search(node, prop_name, rm, "object_groups")
             else:
-                if 'widget' in prop_meta and prop_meta['widget'] == 'floatRamp':
+                if ('widget'
+                        in prop_meta
+                        and prop_meta['widget'] == 'floatRamp'):
                     rm = bpy.context.lamp.renderman
                     nt = bpy.context.lamp.node_tree
                     float_node = nt.nodes[rm.float_ramp_node]
                     layout.template_curve_mapping(float_node, 'mapping')
-                elif 'widget' in prop_meta and prop_meta['widget'] == 'colorRamp':
+
+                elif ('widget'
+                        in prop_meta
+                        and prop_meta['widget'] == 'colorRamp'):
                     rm = bpy.context.lamp.renderman
                     nt = bpy.context.lamp.node_tree
                     ramp_node = nt.nodes[rm.color_ramp_node]
                     layout.template_color_ramp(ramp_node, 'color_ramp')
                 else:
-                    cl.prop(node, prop_name)
+                    lay.prop(node, prop_name)
+                    if nst:
+                        #
+                        # disable compressed layout inside box()
+                        # workaround, lay.column(align=False) doesn't work!
+                        #
+                        sub.separator()
 
 
 def rfb_menu_func(self, context):

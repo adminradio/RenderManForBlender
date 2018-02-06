@@ -65,6 +65,17 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         if scene.render.engine != "PRMAN_RENDER":
             return
 
+        #
+        # selected objects (no cameras, no lamps, no speaker)
+        # used for button "Selected Objects Only" and later on for
+        # object specific operators near the end of toolshelf
+        #
+        _sro_ = []  # list of selected renderable objects
+        if context.selected_objects:
+            for obj in bpy.context.selected_objects:
+                if obj.type not in ['CAMERA', 'LAMP', 'SPEAKER']:
+                    _sro_.append(obj)
+
         # RENDER AND SPOOL LAYOUT
         # #####################################################################
         col = layout.column(align=True)
@@ -107,6 +118,10 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             row.menu(mnu, text=txt)
 
             sub = row.row(align=True)
+            #
+            # renderable objects selected (sob)?
+            #
+            sub.enabled = True if _sro_ else False
             sub.scale_x = 2.0
             prp = "render_selected_objects_only"
             iid = icons.iconid("selected_on") \
@@ -481,6 +496,12 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 lamp_hmi = True
             if lamp.data.type == 'AREA':
                 lamp_rea = True
+            #
+            # FIXME:  The next two lamp data types are unused
+            # DATE:   2018-02-06
+            # AUTHOR: Timm Wimmers
+            # STATUS: -unassigned-
+            #
             if lamp.data.type == 'POINT':
                 lamp_pnt = True
             if lamp.data.type == 'SPOT':
@@ -522,58 +543,85 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
 
         # SELECTED OBJECTS - SUPPORT - OPEN LAST RIB
         # #####################################################################
-        sln = []
-        if context.selected_objects:
-            for obj in bpy.context.selected_objects:
-                if obj.type not in ['CAMERA', 'LAMP', 'SPEAKER']:
-                    sln.append(obj)
-        if sln:
+
+        #
+        # selected renderable objects
+        #
+        if _sro_:
             col = layout.column(align=True)
 
+            #
             # Create new material
+            #
             opr = "rfb.material_add_bxdf"
             txt = "Add New Material"
             icn = 'MATERIAL'
             col.operator_menu_enum(opr, 'bxdf_name', text=txt, icon=icn)
 
+            #
             # Make object emissive
+            #
             opr = "rfb.object_make_emissive"
             txt = "Make Emissive"
             iid = icons.iconid("make_emissive")
             col.operator(opr, text=txt, icon_value=iid)
 
+            #
             # Add sb1div scheme
+            #
             opr = "rfb.object_enable_subdiv"
             txt = "Make Subdiv"
             iid = icons.iconid("make_subdiv")
             col.operator(opr, text=txt, icon_value=iid)
 
+            #
             # Export object as RIB archive
+            #
             opr = "rfb.object_export_rib"
             txt = "Export RIB Archive"
             iid = icons.iconid("archive_rib")
             col.operator(opr, text=txt, icon_value=iid)
 
+        #
+        # support
+        #
         col = layout.column(align=True)
-        # iid used twice
-        iid = icons.iconid("web")
+        iid = icons.iconid("web")  # used twice
 
+        #
         # RenderMan Doc (online)
+        #
         opr = "wm.url_open"
         txt = "RenderMan Docs"
         url = ("https://github.com/prman-pixar/"
                "RenderManForBlender/wiki/Documentation-Home")
         col.operator(opr, text=txt, icon_value=iid).url = url
 
+        #
         # RenderMan What's new (online)
+        #
         opr = "wm.url_open"
         txt = "About RenderMan"
         url = "https://renderman.pixar.com/whats-new"
         col.operator(opr, text=txt, icon_value=iid).url = url
 
-        col = layout.column(align=True)
+        #
+        # FIXME:  lost "examples" by accident, will fix this later
+        # DATE:   2018-02-06
+        # AUTHOR: Timm Wimmers
+        # STATUS: assidned to self, 2018-02-06
+        #
+        # iid = icons.iconid("prman")
+        # layout.menu("rfb_mt_example_files", icon_value=iid)
 
-        opr = "rfb.file_open_last_rib"
-        txt = "Open Last RIB"
-        iid = icons.iconid("open_rib")
-        col.operator(opr, text=txt, icon_value=iid)
+        #
+        # open last rib, only enabled if not binary
+        # (like ASCII and not compressed file format)
+        #
+        if scene.renderman.rib_format == 'ascii' \
+                and scene.renderman.rib_compression == 'none':
+            col = layout.column(align=True)
+            opr = "rfb.file_open_last_rib"
+            txt = "Open Last RIB"
+            iid = icons.iconid("open_rib")
+            col.operator(opr, text=txt, icon_value=iid)

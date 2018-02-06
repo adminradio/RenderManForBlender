@@ -38,7 +38,6 @@ import functools
 #
 # RenderManForBlender Imports
 #
-from . prfs import pref
 from . time import pretty
 from . echo import stdmsg
 
@@ -59,10 +58,6 @@ def nonrecursive(f):
 
 
 def laptime(f):
-    # print(pref('rfb_laptime'))
-    # if not pref('rfb_laptime'):
-    #     return f
-
     @functools.wraps(f)
     def _w_(*args, **kwargs):
         s = time.clock()

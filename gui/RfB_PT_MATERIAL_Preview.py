@@ -74,4 +74,4 @@ class RfB_PT_MATERIAL_Preview(RfB_PT_MIXIN_Panel, Panel):
             col.prop(mat, "specular_hardness", text="Hardness")
         else:
             box = layout.box().box()
-            box.label("No material assigned to object!", icon='ERROR')
+            box.label("No material assigned, or no object selected!", icon='ERROR')

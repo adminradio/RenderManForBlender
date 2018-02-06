@@ -44,6 +44,10 @@ def fixname(name):
     return name.strip()
 
 
+def quote(f):
+    return '"%s"' % f
+
+
 def save_presets(ctx, props, pathFromPresetDir, name):
     fn = fixname(name)
     tp = os.path.join("presets", pathFromPresetDir)

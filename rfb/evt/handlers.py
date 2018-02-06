@@ -339,8 +339,11 @@ def enable(h):
 
 
 def register():
-    enable('LOAD')
-    enable('SAVE')
+    #
+    # not yet sure if LOAD or SAVE are useful for anything (?)
+    #
+    # enable('LOAD')
+    # enable('SAVE')
     enable('FRAME')
     enable('SCENE')
     enable('RENDER')
@@ -353,5 +356,5 @@ def unregister():
     disable('RENDER')
     disable('SCENE')
     disable('FRAME')
-    disable('SAVE')
-    disable('LOAD')
+    # disable('SAVE')
+    # disable('LOAD')

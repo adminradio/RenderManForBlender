@@ -36,7 +36,7 @@ class RfB_PT_MIXIN_PanelIcon():
 
     # override
     def draw_header(self, context):
-        if pref('draw_panel_icon'):
+        if pref('rfb_panel_icon'):
             self.layout.label(text='', icon_value=self.iid)
         else:
             pass

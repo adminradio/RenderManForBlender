@@ -112,6 +112,12 @@ def register():
     from . gui import RfB_MT_SCENE_LightsArea  # noqa
     from . gui import RfB_MT_SCENE_LightsDay  # noqa
     from . gui import RfB_MT_SCENE_LightsHemi  # noqa
+    #
+    # FIXME:  lost examples by accident, will fix this later
+    # DATE:   2018-02-06
+    # AUTHOR: Timm Wimmers
+    #
+    # from . gui import RfB_MT_ExampleFiles  # noqa
     from . gui import RfB_PT_DATA_Camera  # noqa
     from . gui import RfB_PT_DATA_Lamp  # noqa
     from . gui import RfB_PT_DATA_Light  # noqa

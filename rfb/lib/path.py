@@ -41,9 +41,68 @@ import bpy
 from . import tmpl
 
 
-def user_path(
-        path, scene=None, obj=None, display_driver=None,
-        layer_name=None, pass_name=None):
+def user_path(path,
+              scene=None,
+              obj=None,
+              display_driver=None,
+              layer_name=None,
+              pass_name=None):
+    #
+    # first env vars, in case they contain special blender variables
+    # recursively expand these (max 10), in case there are vars in vars
+    #
+    # Mmh, this is unix only, what about %name% under Windows?
+    #
+    for i in range(10):
+        path = os.path.expandvars(path)
+        if '$' not in path:
+            break
+
+    unsaved = True if not bpy.data.filepath else False
+    #
+    # first builtin special blender variable
+    #
+    if unsaved:
+        path = path.replace('{blend}', 'untitled')
+    else:
+        name = os.path.splitext(os.path.basename(bpy.data.filepath))[0]
+        path = path.replace('{blend}', name)
+
+    if scene is not None:
+        path = path.replace('{scene}', scene.name)
+
+    if display_driver is not None:
+        if display_driver == "tiff":
+            path = path.replace('{file_type}', display_driver[-4:])
+        else:
+            path = path.replace('{file_type}', display_driver[-3:])
+
+    if obj is not None:
+        path = path.replace('{object}', obj.name)
+
+    if layer_name is not None:
+        path = path.replace('{layer}', layer_name)
+
+    if pass_name is not None:
+        path = path.replace('{pass}', pass_name)
+
+    #
+    # convert ### to frame number
+    #
+    if scene is not None:
+        path = tmpl.hashnum(path, scene.frame_current)
+
+    # convert blender style // to absolute path
+    if unsaved:
+        path = bpy.path.abspath(path, start=bpy.app.tempdir)
+    else:
+        path = bpy.path.abspath(path)
+
+    return path
+
+
+def expand(path, scene=None, obj=None, display_driver=None,
+           layer_name=None, pass_name=None):
     #
     # first env vars, in case they contain special blender variables
     # recursively expand these (max 10), in case there are vars in vars

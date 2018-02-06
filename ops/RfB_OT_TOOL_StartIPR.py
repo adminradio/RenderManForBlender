@@ -61,7 +61,7 @@ class RfB_OT_TOOL_StartIPR(bpy.types.Operator):
 
             engine.ipr.start_interactive()
 
-            if pref('draw_ipr'):
+            if pref('rfb_ipr_indicator'):
                 engine.ipr_handle = (
                     bpy.types.SpaceView3D.draw_handler_add(
                         self.draw, (context,), 'WINDOW', 'POST_PIXEL'

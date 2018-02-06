@@ -46,7 +46,6 @@ import os
 import sys
 import fnmatch
 import platform
-import mathutils
 import subprocess
 from pathlib import Path
 
@@ -340,8 +339,8 @@ def rib_path(path, escape_slashes=False):
     _p_ = path_win_to_unixy(
         bpy.path.abspath(path), escape_slashes=escape_slashes
     )
-    print("RFB-DBG - rib_path() -> In:  {}".format(path))
-    print("RFB-DBG - rib_path() -> Out: {}".format(_p_))
+    print("RFB-DBG - In:  rib_path(\"{}\")".format(path))
+    print("RFB-DBG - Out: rib_path(\"{}\")".format(_p_))
     return _p_
 
 
