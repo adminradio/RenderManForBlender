@@ -3806,7 +3806,7 @@ def interactive_initial_rib(rpass, ri, scene, prman):
 
     dspy_info = make_dspy_info(scene)
 
-    ri.Display('rerender', 'it', 'rgba', dspy_info)
+    ri.Display('IPR', 'it', 'rgba', dspy_info)
     export_hider(ri, rpass, scene, True)
 
     ri.EditWorldBegin(

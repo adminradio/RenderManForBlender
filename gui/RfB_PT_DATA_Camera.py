@@ -37,7 +37,7 @@ from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 
 class RfB_PT_DATA_Camera(RfB_PT_MIXIN_ShaderTypePolling, Panel):
     bl_context = "data"
-    bl_label = "RenderMan Camera"
+    bl_label = "Camera Settings"
 
     @classmethod
     def poll(cls, context):

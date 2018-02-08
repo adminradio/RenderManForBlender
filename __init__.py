@@ -152,7 +152,12 @@ def register():
     from . gui import RfB_PT_SCENE_ObjectGroups  # noqa
     from . gui import RfB_PT_SCENE_RIBInjection  # noqa
     from . gui import RfB_PT_SCENE_SampleFilters  # noqa
-    from . gui import RfB_PT_WORLD_RIBInjection  # noqa
+    #
+    # World panel RIB injection not needed anymore,
+    # had found a place im the 'World' Panel
+    #
+    # from . gui import RfB_PT_WORLD_RIBInjection  # noqa
+    #
     from . gui import RfB_PT_VIEW3D_Toolshelf  # noqa
 
     from . ops import RfB_OT_COLL_TogglePath  # noqa

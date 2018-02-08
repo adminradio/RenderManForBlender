@@ -265,7 +265,15 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             # camera list menu
             row = sub.row()
             mnu = "rfb_mt_scene_cameras"
-            row.menu(mnu)
+            #
+            # TODO:   This menu should name the active camera!
+            #         This will leave more space for other quick settings
+            #         in the layout row below.
+            # DATE:   2018-02-08
+            # AUTHOR: Timm Wimmers
+            # STATUS: -unassigned-
+            #
+            row.menu(mnu, text="Select active camera")
 
             obj = bpy.context.object
             if obj and obj.type == 'CAMERA':
@@ -314,16 +322,12 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                     obj for obj in bpy.context.scene.objects
                     if obj.type == "CAMERA"
                 ]
-
                 if cams:
                     if not hasattr(bpy.data.scenes[scene.name].camera, "name"):
                         bpy.data.scenes[scene.name].camera = cams[0]
-                    # try:
-                    #     _a_ = bpy.data.scenes[scene.name].camera.name  # noqa
-                    # except AttributeError:
-                    #     bpy.data.scenes[scene.name].camera = cams[0]
                     txt = "Active camera: {}".format(cams[0].name)
                     sub.label(txt)
+
                     opr = "rfb.object_select_active_camera"
                     txt = "Edit"
                     icn = 'RESTRICT_SELECT_OFF'

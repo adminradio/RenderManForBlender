@@ -39,5 +39,6 @@ class RfB_PT_WORLD_RIBInjection(RfB_PT_MIXIN_RIBInjection, Panel):
     bl_label = "World RIB Injection"
 
     def draw(self, context):
-        self.draw_rib_boxes(self.layout, ['world_rib_box'],
-                            context.world)
+        self.draw_rib_boxes(
+            self.layout, ['world_rib_box'], context.world
+        )

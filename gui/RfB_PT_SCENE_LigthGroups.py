@@ -34,7 +34,7 @@ from bpy.types import Panel
 # RenderMan for Blender Imports
 #
 from . import icons
-from . utils import split_lr
+from . utils import splitlr
 
 from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
 
@@ -95,7 +95,7 @@ class RfB_PT_SCENE_LigthGroups(RfB_PT_MIXIN_Collection, Panel):
 
         if len(light_names) > 0:
             box = layout.box()
-            lc, rc = split_lr(box)
+            lc, rc = splitlr(box)
             lc = lc.column(align=True)
             cl = rc.column(align=True)
             for light_name in light_names:

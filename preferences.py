@@ -23,12 +23,23 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
 import os
 import platform
 
+#
+# Blender Imports
+#
 import bpy
 from bpy.types import AddonPreferences
 
+#
+# RenderManForBlender Imports
+#
 from bpy.props import IntProperty
 from bpy.props import BoolProperty
 from bpy.props import EnumProperty
@@ -41,7 +52,7 @@ from . rfb.lib import guess_rmantree
 from . rfb.lib import rmantree_from_env
 from . rfb.lib import get_installed_rendermans
 
-from . gui.utils import split_ll
+from . gui.utils import splitll
 from . assets.properties import RendermanAssetGroup
 
 
@@ -53,7 +64,6 @@ class RendermanEnvVarSettings(bpy.types.PropertyGroup):
     if platform.system() == "Windows":
         home = os.environ.get('USERPROFILE')
         temp = os.environ.get('TEMP')
-        # outpath = os.path.join(home, "Documents", "RenderMan")
         out = StringProperty(
             name="OUT (Output Root)",
             description="Default RIB export path root",
@@ -61,7 +71,6 @@ class RendermanEnvVarSettings(bpy.types.PropertyGroup):
             default=os.path.join(temp, 'rfb', '{blend}'))
 
     else:
-        # outpath = os.path.join(os.environ.get('HOME'), "Documents", "RenderMan")
         out = StringProperty(
             name="OUT (Output Root)",
             description="Default RIB export path root",
@@ -92,44 +101,62 @@ class RendermanPreferences(AddonPreferences):
 
     # find the renderman options installed
     def find_installed_rendermans(self, context):
-        options = [('NEWEST', 'Newest Version Installed',
-                    'Automatically updates when new version installed.')]
+        options = [
+            ('NEWEST', 'Newest Version Installed',
+             'Automatically updates when new version installed.')
+        ]
+
         for vers, path in get_installed_rendermans():
             options.append((path, vers, path))
         return options
 
-    shader_paths = CollectionProperty(type=RendermanPreferencePath,
-                                      name="Shader Paths")
+    shader_paths = CollectionProperty(
+        type=RendermanPreferencePath, name="Shader Paths"
+    )
 
-    shader_paths_index = IntProperty(min=-1, default=-1)
+    shader_paths_index = IntProperty(
+        min=-1, default=-1
+    )
 
-    texture_paths = CollectionProperty(type=RendermanPreferencePath,
-                                       name="Texture Paths")
-    texture_paths_index = IntProperty(min=-1, default=-1)
+    texture_paths = CollectionProperty(
+        type=RendermanPreferencePath, name="Texture Paths"
+    )
 
-    procedural_paths = CollectionProperty(type=RendermanPreferencePath,
-                                          name="Procedural Paths")
+    texture_paths_index = IntProperty(
+        min=-1, default=-1
+    )
 
-    procedural_paths_index = IntProperty(min=-1, default=-1)
+    procedural_paths = CollectionProperty(
+        type=RendermanPreferencePath, name="Procedural Paths"
+    )
 
-    archive_paths = CollectionProperty(type=RendermanPreferencePath,
-                                       name="Archive Paths")
-    archive_paths_index = IntProperty(min=-1, default=-1)
+    procedural_paths_index = IntProperty(
+        min=-1, default=-1
+    )
+
+    archive_paths = CollectionProperty(
+        type=RendermanPreferencePath, name="Archive Paths"
+    )
+
+    archive_paths_index = IntProperty(
+        min=-1, default=-1
+    )
 
     use_default_paths = BoolProperty(
         name="Use RenderMan default paths",
-        description="Includes paths for default shaders etc. from RenderMan Pro\
-            Server install",
+        description="Includes paths for default shaders etc. from "
+                    "RenderMan Pro Server install.",
         default=True)
     use_builtin_paths = BoolProperty(
         name="Use built in paths",
-        description="Includes paths for default shaders etc. from RenderMan\
-            exporter",
+        description="Includes paths for default shaders etc. from "
+                    "RenderMan exporter.",
         default=False)
 
     rmantree_choice = EnumProperty(
         name='RenderMan Version to use',
-        description='Leaving as "Newest" will automatically update when you install a new RenderMan version',
+        description='Leaving as "Newest" will automatically update when '
+                    'you install a new RenderMan version',
         # default='NEWEST',
         items=find_installed_rendermans
     )
@@ -188,29 +215,29 @@ class RendermanPreferences(AddonPreferences):
     rfb_ipr_indicator = BoolProperty(
         name="Indicate IPR",
         description="Draw indicator on View3D when IPR is active.\n"
-                    "(Requires restarting IPR if it's currently running)",
+                    "(Requires restarting IPR if it's currently running).",
         default=True)
 
     rfb_panel_icon = BoolProperty(
         name="Panel Icons",
-        description="Draw a nice icon on RenderMan Panels (recommended)",
+        description="Draw a nice icon on RenderMan Panels (recommended).",
         default=True)
 
     rfb_nesting = BoolProperty(
         name="Box nested properties",
-        description="Draw a box around nested property sections",
+        description="Draw a box around nested property sections.",
         default=True)
 
     rfb_info = BoolProperty(
         name="Info to console",
         description="Echo some useful infos to console (recommended "
-                    "for questions in support forum)",
+                    "for questions in support forum).",
         default=True)
 
     rfb_debug = BoolProperty(
         name="Debugging (messy!)",
         description="Echo debugging infos to console. This is a bit "
-                    "messy and may be easy to follow!",
+                    "messy and may be not so easy to follow!",
         default=False)
 
     #
@@ -223,7 +250,7 @@ class RendermanPreferences(AddonPreferences):
     rfb_laptime = BoolProperty(
         name="Time Tasks",
         description="Echo lap times of some critical tasks to console (not "
-                    "widely implemented yet, may slightly impact performace)",
+                    "widely implemented yet, may slightly impact performace).",
         default=True)
 
     rfb_sc_float = FloatVectorProperty(
@@ -292,13 +319,17 @@ class RendermanPreferences(AddonPreferences):
         name="Main Image path",
         description="Path for the rendered main image",
         subtype='FILE_PATH',
-        default=os.path.join('$OUT', 'images', '{scene}.####.{file_type}'))
+        default=os.path.join(
+            '$OUT', 'images', '{scene}.####.{file_type}')
+    )
 
     path_aov_image = StringProperty(
         name="AOV Image path",
         description="Path for the rendered aov images",
         subtype='FILE_PATH',
-        default=os.path.join('$OUT', 'images', '{scene}.{layer}.{pass}.####.{file_type}'))
+        default=os.path.join(
+            '$OUT', 'images', '{scene}.{layer}.{pass}.####.{file_type}')
+    )
 
     env_vars = PointerProperty(
         type=RendermanEnvVarSettings,
@@ -316,13 +347,18 @@ class RendermanPreferences(AddonPreferences):
 
     # both these paths are absolute
     active_assets_path = StringProperty(default='')
+
     assets_path = StringProperty(
         name="Asset Library Path",
         description="Path for asset files, if not present these will be "
                     "copied from RMANTREE.\nSet this if you want to pull "
                     "in an external library.",
         subtype='FILE_PATH',
-        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'RenderManAssetLibrary'))
+        default=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'data',
+            'RenderManAssetLibrary')
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -338,17 +374,18 @@ class RendermanPreferences(AddonPreferences):
         if guess_rmantree() is None:
             row = layout.row()
             row.alert = True
-            row.label('Error in RMANTREE. Reload addon to reset.', icon='ERROR')
+            row.label(
+                'Error in RMANTREE. Reload addon to reset.', icon='ERROR'
+            )
 
         env = self.env_vars
         layout.prop(env, "out")
         layout.prop(self, 'path_display_driver_image')
         layout.prop(self, 'path_aov_image')
-        # layout.prop(self.assets_library, 'path', text="Assets Library Path")
         layout.prop(self, 'assets_path')
         layout.prop(self, 'rfb_tabname')
         layout.separator()
-        lc, rc = split_ll(layout, alignment=False)
+        lc, rc = splitll(layout)
         lc = lc.column()
         row = lc.row()
         row.prop(self, 'rfb_ipr_indicator')

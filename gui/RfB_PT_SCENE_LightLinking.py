@@ -35,12 +35,12 @@ from bpy.types import Panel
 # from . import icons
 
 from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
-from . utils import split_ll
+from . utils import splitll
 
 
 class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
     # bl_idname = "renderman_light_panel"
-    bl_label = "RenderMan Light Linking"
+    bl_label = "Light Linking"
     bl_context = "scene"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -59,7 +59,7 @@ class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
         # ###
         # ### Left and Right Column
         # ###
-        left, right = split_ll(layout)
+        left, right = splitll(layout)
         left = left.column()  # vbox: vertical arrangement
         right = right.column()  # vbox: vertical alignment
 
@@ -85,7 +85,7 @@ class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
                                 rm, "object_groups", rm, 'll_object_index')
 
         # ###
-        # ### go out of split_ll() aka |left|right|
+        # ### go out of splitll() aka |left|right|
         # ###
         #
         # Add / Remove Light Linking Button Bar

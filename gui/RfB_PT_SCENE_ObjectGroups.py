@@ -38,7 +38,7 @@ from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
 
 class RfB_PT_SCENE_ObjectGroups(RfB_PT_MIXIN_Collection, Panel):
   bl_idname = "renderman_object_groups_panel"
-  bl_label = "RenderMan Object Groups"
+  bl_label = "Object Groups"
   bl_context = "scene"
   bl_space_type = 'PROPERTIES'
   bl_region_type = 'WINDOW'  # bl_category = "Renderman"

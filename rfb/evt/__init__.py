@@ -34,6 +34,6 @@
 #
 # RenderManForBlender Imports
 #
-from . Status import Status
+from . status import Status
 
 state = Status()

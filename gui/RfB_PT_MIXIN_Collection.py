@@ -32,7 +32,7 @@ from bpy.types import Panel
 # RenderMan for Blender Imports
 #
 
-from . utils import split_lr
+from . utils import splitlr
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
 
@@ -58,7 +58,7 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
         default_name=''
     ):
 
-        left, right = split_lr(layout)
+        left, right = splitlr(layout)
         left.label(self.bl_label)
 
         op = right.operator(operator, icon="ZOOMOUT", text="")

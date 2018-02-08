@@ -64,9 +64,6 @@ from .. rfb.lib.path import user_path
 from . import types
 from .. gui import icons
 
-# from . import ops
-# from .. ops import RfB_OT_NODE_RefreshOSL
-
 from . utils.PropertyLookup import PropertyLookup
 
 NODE_LAYOUT_SPLIT = 0.5
@@ -617,30 +614,47 @@ class RendermanShadingNode(bpy.types.ShaderNode):
 
     def setOslProps(self, prop_names, shader_meta):
         for prop_name in prop_names:
+
             prop_type = shader_meta[prop_name]["type"]
+
             if shader_meta[prop_name]["IO"] == "out":
                 self.outputs.new(
-                    socket_map[prop_type], prop_name)
+                    socket_map[prop_type],
+                    prop_name
+                )
             else:
                 prop_default = shader_meta[prop_name]["default"]
+
                 if prop_type == "float":
                     prop_default = float(prop_default)
                 elif prop_type == "int":
                     prop_default = int(float(prop_default))
 
                 if prop_type == "matrix":
-                    self.inputs.new(socket_map["struct"], prop_name, prop_name)
+                    self.inputs.new(
+                        socket_map["struct"],
+                        prop_name,
+                        prop_name
+                    )
                 elif prop_type == "void":
                     pass
-                elif 'lockgeom' in shader_meta[prop_name] \
+                elif 'lockgeom' \
+                        in shader_meta[prop_name] \
                         and shader_meta[prop_name]['lockgeom'] == 0:
                     pass
                 else:
-                    input = self.inputs.new(socket_map[shader_meta[prop_name]["type"]], prop_name, prop_name)
+                    input = self.inputs.new(
+                        socket_map[shader_meta[prop_name]["type"]],
+                        prop_name,
+                        prop_name
+                    )
                     input.default_value = prop_default
+
                     if prop_type == 'struct' or prop_type == 'point':
                         input.hide_value = True
+
                     input.renderman_type = prop_type
+
         debug('osl', "Shader: ", shader_meta["shader"], "Properties: ",
               prop_names, "Shader meta data: ", shader_meta)
         # eh?
@@ -707,10 +721,14 @@ def generate_node_type(_prefs, name, args):
     """Generate a node type dynamically from pattern."""
     nodetype = args.find("shaderType/tag").attrib['value']
     typename = '%s%sNode' % (name, nodetype.capitalize())
-    nodedict = {'bxdf': RendermanBxdfNode,
-                'pattern': RendermanPatternNode,
-                'displacement': RendermanDisplacementNode,
-                'light': RendermanLightNode}
+
+    nodedict = {
+        'bxdf': RendermanBxdfNode,
+        'pattern': RendermanPatternNode,
+        'displacement': RendermanDisplacementNode,
+        'light': RendermanLightNode
+    }
+
     if nodetype not in nodedict.keys():
         return
 
@@ -729,22 +747,35 @@ def generate_node_type(_prefs, name, args):
     def init(self, context):
         if self.renderman_node_type == 'bxdf':
             self.outputs.new('RendermanShaderSocket', "Bxdf").type = 'SHADER'
-            # socket_template = self.socket_templates.new(identifier='Bxdf', name='Bxdf', type='SHADER')
+            # socket_template = self.socket_templates.new(
+            #   identifier='Bxdf',
+            #   name='Bxdf',
+            #   type='SHADER'
+            # )
             node_add_inputs(self, name, self.prop_names)
             node_add_outputs(self)
+            #
             # if this is PxrLayerSurface set the diffusegain to 0.  The default
             # of 1 is unintuitive
+            #
             if self.plugin_name == 'PxrLayerSurface':
                 self.diffuseGain = 0
         elif self.renderman_node_type == 'light':
+            #
             # only make a few sockets connectable
+            #
             node_add_inputs(self, name, self.prop_names)
             self.outputs.new('RendermanShaderSocket', "Light")
+
         elif self.renderman_node_type == 'displacement':
+            #
             # only make the color connectable
+            #
             self.outputs.new('RendermanShaderSocket', "Displacement")
             node_add_inputs(self, name, self.prop_names)
+        #
         # else pattern
+        #
         elif name == "PxrOSL":
             self.outputs.clear()
         else:
@@ -769,20 +800,25 @@ def generate_node_type(_prefs, name, args):
     if name == 'PxrRamp':
         ntype.node_group = StringProperty('color_ramp', default='')
 
-    ntype.plugin_name = StringProperty(name='Plugin Name',
-                                       default=name, options={'HIDDEN'})
+    ntype.plugin_name = StringProperty(
+        name='Plugin Name', default=name, options={'HIDDEN'}
+    )
+    #
     # Todo: recheck (2017-12-28)
     # lights cant connect to a node tree in 20.0
+    #
     class_generate_properties(ntype, name, inputs + outputs)
+
     if nodetype == 'light':
         ntype.light_shading_rate = FloatProperty(
             name="Light Shading Rate",
-            description="Shading Rate for this light.  \
-                Leave this high unless detail is missing",
+            description="Shading Rate for this light. "
+                        "Leave this high unless detail is missing",
             default=100.0)
+
         ntype.light_primary_visibility = BoolProperty(
             name="Light Primary Visibility",
-            description="Camera visibility for this light",
+            description="Camera visibility for this light.",
             default=True)
 
     bpy.utils.register_class(ntype)
@@ -835,9 +871,12 @@ def draw_nodes_properties_ui(
         layout, context, nt, input_name='Bxdf',
         output_node_type="output"):
 
-    output_node = next((n for n in nt.nodes
-                        if hasattr(n, 'renderman_node_type')
-                        and n.renderman_node_type == output_node_type), None)
+    output_node = next((
+        n for n in nt.nodes
+        if hasattr(n, 'renderman_node_type')
+        and n.renderman_node_type == output_node_type
+    ), None)
+
     if output_node is None:
         return
 
@@ -865,12 +904,17 @@ def draw_nodes_properties_ui(
 
 
 def socket_node_input(nt, socket):
-    return next((l.from_node for l in nt.links if l.to_socket == socket), None)
+    return next((
+        l.from_node for l in nt.links if l.to_socket == socket
+    ), None)
 
 
 def socket_socket_input(nt, socket):
-    return next((l.from_socket for l in nt.links if l.to_socket == socket and socket.is_linked),
-                None)
+    return next((
+        l.from_socket
+        for l in nt.links
+        if l.to_socket == socket and socket.is_linked
+    ), None)
 
 
 def linked_sockets(sockets):

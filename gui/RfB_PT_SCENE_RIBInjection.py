@@ -36,7 +36,7 @@ from . RfB_PT_MIXIN_RIBInjection import RfB_PT_MIXIN_RIBInjection
 
 class RfB_PT_SCENE_RIBInjection(RfB_PT_MIXIN_RIBInjection, Panel):
     bl_context = "scene"
-    bl_label = "Scene RIB Injection"
+    bl_label = "RIB Injection"
 
     def draw(self, context):
         self.draw_rib_boxes(self.layout, ['frame_rib_box'],

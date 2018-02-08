@@ -38,57 +38,128 @@ from ... rfb.lib.prfs import pref
 
 
 #
-# FIXME:  split_ll() and split_lr() return rows() instead of column()
-#         This is wrong - have to be fixed everywhere!
+# FIXME:  splitll() and splitlr() return rows() instead of column()
+#         This is NOT wrong´, but have to be parameterized for ROW and COL!
 # DATE:   2018-02-04
 # AUTHOR: Timm Wimmers
 # STATUS: -unassigned-
 #
-def split_ll(layout, alignment=True):
-    """Split a layout into two colums. Both are left aligned."""
-    row = layout.row()
+def splitll(_l_, align=False):
+    row = _l_.row()
 
-    # left column, left aligned
-    lc = row.row(align=alignment)
-    lc.alignment = "LEFT"
+    __l = row.row(align=align)
+    __l.alignment = "LEFT"
 
-    # right column, left aligned
-    rc = row.row(align=alignment)
-    rc.alignment = "LEFT"
-    return lc, rc
+    __r = row.row(align=align)
+    __r.alignment = "LEFT"
+
+    return __l, __r
 
 
-def split_lr(layout, alignment=True):
-    """Split a layout into two colums. First is left, second is right aligned."""
-    row = layout.row()
+def splitlr(_l_, align=False):
+    row = _l_.row()
 
-    # left column, left aligned
-    lc = row.row(align=alignment)
-    lc.alignment = "LEFT"
+    __l = row.row(align=align)
+    __l.alignment = "LEFT"
 
-    # right column, right aligned
-    rc = row.row(align=alignment)
-    rc.alignment = "RIGHT"
-    return lc, rc
+    __r = row.row(align=align)
+    __r.alignment = "RIGHT"
+
+    return __l, __r
 
 
-def bbox_h(layout):
+def splitpc(_l_, _p_, align=False):
+    spl = _l_.row().split(percentage=_p_)
+    __l = spl.column(align=align)
+    spl = spl.split()
+    __r = spl.column(align=align)
+    return __l, __r
+
+
+#
+# read them like:
+#   - split one one
+#   - split one two
+#   - split two one etc.
+#
+#   i.e: 'split12' or spoken as 'split one two' is:
+#       - one fraction left    (one third)
+#       - two fractions right  (two thirds)
+#       - you get the idea ...
+#
+def split11(_l_, align=False):
+    return splitpc(_l_, 1 / 2, align=align)
+
+
+def split12(_l_, align=False):
+    return splitpc(_l_, 1 / 3, align=align)
+
+
+def split21(_l_, align=False):
+    return splitpc(_l_, 2 / 3, align=align)
+
+
+def split13(_l_, align=False):
+    return splitpc(_l_, 1 / 4, align=align)
+
+
+def split31(_l_, align=False):
+    return splitpc(_l_, 3 / 4, align=align)
+
+
+def split14(_l_, align=False):
+    return splitpc(_l_, 1 / 5, align=align)
+
+
+def split41(_l_, align=False):
+    return splitpc(_l_, 4 / 5, align=align)
+
+
+def prop12(_l_, dta, prp, lbl):
+    """
+    Draw a property left labeled with 1/3 distribution.
+
+    If you already have a distributed layout, you can pass in a tuple with
+    two layout references (aka left and right); if not simply pass in a parent
+    layout we will draw your property in a row with 1/3 distribution.
+
+    This function doesn't append any colons, if you want one, append one to
+    your label string (lbl).
+    """
+    #
+    # TODO:   if lbl is none take from property name.
+    # DATE:   2018-02-08
+    # AUTHOR: Timm Wimmers
+    # STATUS: -unassigned-
+    #
+    if type(_l_) == tuple:
+        _ll = _l_[0]
+        _rl = _l_[1]
+    else:
+        _ll, _rl = split12(_l_.row())
+    _ll.label(lbl)
+    _rl.prop(dta, prp, text="")
+    return
+
+
+def boxh(_l_):
     """Draw a bordered box with horizontal arrangement."""
-    box = layout.box()
+    box = _l_.box()
     return box.row()
 
 
-def bbox_v(layout):
+def boxv(_l_):
     """Draw a bordered box with vertical arrangement."""
-    box = layout.box()
-    return box.column()
+    box = _l_.box()
+    # vertical alignmnet is default
+    return box
 
 
 def draw_props(node, prop_names, layout):
     nst = pref('rfb_nesting')
     #
     # if the user enables boxed nesting, we can compress space vertically a
-    # little bit, because boxing adds also space by itself inside
+    # little bit, because boxing adds a bit of padding by itself
     #
     align = True if nst else False
     layout = layout.column(align=align)
@@ -125,7 +196,6 @@ def draw_props(node, prop_names, layout):
             sub = layout.column()
             lay = sub.row()
             if "Subset" in prop_name and prop_meta['type'] == 'string':
-                rm = bpy.data.scenes[0].renderman
                 #
                 # FIXME:  bpy.data.scenes[0] is the first scene
                 #         in file, this should be 'active scene'!
@@ -133,6 +203,7 @@ def draw_props(node, prop_names, layout):
                 # AUTHOR: Timm Wimmers
                 # STATUS: -unassigned-
                 #
+                rm = bpy.data.scenes[0].renderman
                 lay.prop_search(node, prop_name, rm, "object_groups")
             else:
                 if ('widget'

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+    <g transform="matrix(1,0,0,1,-34,-34)">
+        <g id="cvisible_on" transform="matrix(1,0,0,1,34,34)">
+            <rect x="0" y="0" width="32" height="32" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="0" y="0" width="32" height="32"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g id="BG" transform="matrix(1,0,0,1,-34,0)">
+                    <path d="M64.72,0C65.427,0 66,0.574 66,1.28L66,30.72C66,31.426 65.427,32 64.72,32L35.28,32C34.574,32 34,31.426 34,30.72L34,1.28C34,0.574 34.573,0 35.28,0L64.72,0Z" style="fill-opacity:0.25098;"/>
+                </g>
+                <g transform="matrix(1,0,0,1,-34,-34)">
+                    <path d="M64.72,66L35.28,66C34.574,66 34,65.426 34,64.72L34,35.28C34,34.574 34.573,34 35.28,34L64.72,34C65.427,34 66,34.574 66,35.28L66,64.72C66,65.426 65.427,66 64.72,66ZM51.001,57.005C52.105,57.005 53,56.105 53,54.995C53,52.34 53,47.66 53,45.005C53,43.895 52.104,42.995 51.001,42.995C48.13,42.995 42.87,42.995 39.999,42.995C38.896,42.995 38,43.895 38,45.005C38,47.66 38,52.34 38,54.995C38,56.105 38.896,57.005 39.999,57.005L51.001,57.005ZM62,42.995L54.999,47L54.999,53L62,57.005L62,42.995Z" style="fill:rgb(250,170,1);"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

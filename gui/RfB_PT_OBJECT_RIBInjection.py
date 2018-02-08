@@ -23,13 +23,19 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
 from bpy.types import Panel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . RfB_PT_MIXIN_RIBInjection import RfB_PT_MIXIN_RIBInjection
 
@@ -39,5 +45,8 @@ class RfB_PT_OBJECT_RIBInjection(RfB_PT_MIXIN_RIBInjection, Panel):
     bl_label = "Pre/Post RIB Injection"
 
     def draw(self, context):
-        self.draw_rib_boxes(self.layout, ['pre_object_rib_box', 'post_object_rib_box'],
-                            context.object)
+        self.draw_rib_boxes(
+            self.layout,
+            ['pre_object_rib_box', 'post_object_rib_box'],
+            context.object
+        )
