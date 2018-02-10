@@ -30,7 +30,7 @@ import bpy
 from bpy.props import StringProperty
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. import engine
 

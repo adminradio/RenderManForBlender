@@ -23,39 +23,40 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# ################################################
-# #                                              #
-# #                STUB / WIP                    #
-# #                                              #
-# ################################################
-
 # <pep8-80 compliant>
 
 #
-# Blender imports
+# Python Imports
+#
+# import os
+
+#
+# Blender Imports
 #
 import bpy
 
 #
-# RenderMan for Blender
+# RenderManForBlender Imports
 #
-from . import icons
-from .. rfb.lib.path import flist
+from .. rfb.lib.echo import stdmsg
+from .. rfb.lib.echo import stdadd
+from .. rfb.lib.file import rfb_examples
 
 
-class RfB_MT_ExampleFiles(bpy.types.Menu):
-    bl_idname = "rfb_mt_example_files"
-    bl_label = "RenderMan Examples"
-    iid = icons.iconid('prman')
+class RfB_OT_STUB_DevelOperator(bpy.types.Operator):
+    bl_idname = 'rfb.stub_devel_operator'
+    bl_label = "Stub Operator (Developer)"
+    bl_description = "A developer operator for drafting OPS."
 
-    def get_operator_failsafe(self, idname):
-        op = bpy.ops
-        for attr in idname.split("."):
-            if attr not in dir(op):
-                return lambda: None
-            op = getattr(op, attr)
-        return op
+    def invoke(self, context, event=None):
+        scn = context.scene  # noqa
+        rmn = context.scene.renderman  # noqa
 
-    def draw(self, context):
-        for opr in flist():
-            self.layout.operator(opr.bl_idname, icon_value=self.iid)
+        print()
+        stdmsg('DEVOP: Found RenderMan For Blender Examples:')
+        for item in rfb_examples():
+            stdadd(item)
+        print()
+
+        cancelled = False
+        return {'CANCELLED'} if cancelled else {'FINISHED'}

@@ -162,6 +162,7 @@ def register():
 
     from . ops import RfB_OT_COLL_TogglePath  # noqa
     from . ops import RfB_OT_FILE_OpenLastRIB  # noqa
+    from . ops import RfB_OT_STUB_DevelOperator  # noqa
     from . ops import RfB_OT_FILE_SpoolRender  # noqa
     from . ops import RfB_OT_FILE_ViewStats  # noqa
     from . ops import RfB_OT_ITEM_MovetoGroup  # noqa

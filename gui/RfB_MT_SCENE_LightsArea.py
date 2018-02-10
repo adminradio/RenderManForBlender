@@ -23,35 +23,26 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
-import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
-from . import icons
+from . RfB_MT_MIXIN_Lamps import RfB_MT_MIXIN_Lamps
 
 
-class RfB_MT_SCENE_LightsArea(bpy.types.Menu):
+class RfB_MT_SCENE_LightsArea(RfB_MT_MIXIN_Lamps):
     bl_idname = "rfb_mt_scene_lightsarea"
     bl_label = "Select AreaLight"
 
-    icn = icons.iconid('arealight')
-
-    def draw(self, context):
-        layout = self.layout
-
-        lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
-
-        if len(lamps):
-            for lamp in lamps:
-                if lamp.data.type == 'AREA':
-                    name = lamp.name
-                    op = layout.operator(
-                        "rfb.object_select_light", text=name, icon_value=self.icn)
-                    op.light_name = name
-
-        else:
-            layout.label("No AreaLight in the Scene")
+    dtyp = "AREA"
+    tmpl = "Area Light"
+    icon = 'arealight'

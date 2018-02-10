@@ -41,8 +41,8 @@ from . RfB_PT_MIXIN_RIBInjection import RfB_PT_MIXIN_RIBInjection
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 
 from . import icons
-from . utils import prop12   # one third // two thirds
-from . utils import split12  # one third // two thirds
+from . utils import prop12   # |one third |     two thirds        |
+from . utils import split12  # |one third |     two thirds        |
 
 
 class RfB_PT_DATA_World(
@@ -50,14 +50,14 @@ class RfB_PT_DATA_World(
         RfB_PT_MIXIN_ShaderTypePolling,
         Panel):
     bl_context = "world"
-    bl_label = "World Setup"
+    bl_label = "World Lighting"
     shader_type = 'world'
 
     def draw(self, context):
         layout = self.layout
+        layout = layout.column(align=True)
         world = context.scene.world
 
-        layout = layout.column(align=True)
 
         if not world.renderman.use_renderman_node:
             layout.prop(world, "horizon_color")
@@ -282,4 +282,4 @@ class RfB_PT_DATA_World(
                     )
                 layout.separator()
                 lay = layout.box()
-                self.draw_rib_boxes(lay, ['world_rib_box'], context.world )
+                self.draw_rib_boxes(lay, ['world_rib_box'], context.world)

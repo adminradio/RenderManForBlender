@@ -32,7 +32,7 @@ import bpy
 from bpy.props import EnumProperty
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 
 EXCLUDED_OBJECT_TYPES = ['LAMP', 'CAMERA', 'ARMATURE']

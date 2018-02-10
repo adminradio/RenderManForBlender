@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-    <g transform="matrix(1,0,0,1,-72,-142)">
-        <g id="start_it" transform="matrix(1,0,0,1,72,142)">
+    <g transform="matrix(1,0,0,1,0,-68)">
+        <g id="start_it" transform="matrix(1,0,0,1,0,68)">
             <rect x="0" y="0" width="32" height="32" style="fill:none;"/>
-            <g transform="matrix(1.18182,0,0,1.18182,1.81888,1.8204)">
-                <path d="M11.999,4.498C6.997,4.498 2.727,7.609 0.999,11.998C2.727,16.387 6.997,19.498 11.999,19.498C17.002,19.498 21.271,16.387 22.999,11.998C21.271,7.609 17.002,4.498 11.999,4.498Z" style="fill-opacity:0.25;"/>
+            <g transform="matrix(0.923077,0,0,0.923077,1.23077,-130.769)">
+                <rect x="3" y="146" width="26" height="26" style="fill:rgb(53,152,233);"/>
+                <path d="M29,172L3,172L3,146L29,146L29,172ZM5.167,148.167L5.167,169.833L26.833,169.833L26.833,148.167L5.167,148.167Z" style="fill:white;fill-opacity:0.74902;"/>
             </g>
-            <g id="eye" transform="matrix(1.18182,0,0,1.18182,1.81888,1.8204)">
+            <g transform="matrix(0.727273,0,0,0.733317,7.27299,7.20154)">
+                <path d="M11.999,4.498C6.997,4.498 2.727,7.609 0.999,11.998C2.727,16.387 6.997,19.498 11.999,19.498C17.002,19.498 21.271,16.387 22.999,11.998C21.271,7.609 17.002,4.498 11.999,4.498Z" style="fill-opacity:0.247059;"/>
+            </g>
+            <g id="eye" transform="matrix(0.727273,0,0,0.733317,7.27299,7.20154)">
                 <path d="M11.999,8.998C10.342,8.998 8.999,10.341 8.999,11.998C8.999,13.655 10.342,14.998 11.999,14.998C13.656,14.998 14.999,13.655 14.999,11.998C14.999,10.341 13.656,8.998 11.999,8.998ZM11.999,16.998C9.238,16.998 6.999,14.759 6.999,11.998C6.999,9.237 9.238,6.998 11.999,6.998C14.76,6.998 16.999,9.237 16.999,11.998C16.999,14.759 14.76,16.998 11.999,16.998ZM11.999,4.498C6.997,4.498 2.727,7.609 0.999,11.998C2.727,16.387 6.997,19.498 11.999,19.498C17.002,19.498 21.271,16.387 22.999,11.998C21.271,7.609 17.002,4.498 11.999,4.498Z" style="fill:white;fill-rule:nonzero;"/>
             </g>
         </g>

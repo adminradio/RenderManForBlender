@@ -23,6 +23,12 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
@@ -39,25 +45,24 @@ class RfB_MT_SCENE_Cameras(bpy.types.Menu):
     bl_label = "Switch Active Camera"
     bl_description = "Select and switch active (render) camera."
     opr = "rfb.object_select_camera"
-    iida = icons.iconid('cameraactive')
-    iide = icons.iconid('empty')
+    aid = icons.iconid('camera')
+    eid = icons.iconid('empty')
 
     def draw(self, context):
         menu = self.layout
-        cams = [
-            obj for obj in bpy.context.scene.objects if obj.type == "CAMERA"
-        ]
+        objs = bpy.context.scene.objects
+        cams = [obj for obj in objs if obj.type == "CAMERA"]
+
         if cams:
             cams.sort(key=lambda cam: cam.name)
             for cam in cams:
                 name = cam.name
                 try:
                     active = bpy.data.scenes[context.scene.name].camera.name
-                    iid = self.iida if active == name else self.iide
+                    iid = self.aid if active == name else self.eid
                 except AttributeError:
-                    iid = self.iide
-                # menu.enabled = not cam.hide
-                op = menu.operator(self.opr, text=name, icon_value=iid)
-                op.cam_name = name
+                    iid = self.eid
+                mop = menu.operator(self.opr, text=name, icon_value=iid)
+                mop.cam_name = name
         else:
             menu.label("No camera in scene!")

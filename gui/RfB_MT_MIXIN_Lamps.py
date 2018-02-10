@@ -23,39 +23,55 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# ################################################
-# #                                              #
-# #                STUB / WIP                    #
-# #                                              #
-# ################################################
-
 # <pep8-80 compliant>
 
 #
-# Blender imports
+# Python Imports
+#
+
+#
+# Blender Imports
 #
 import bpy
 
 #
-# RenderMan for Blender
+# RenderManForBlender Imports
 #
 from . import icons
-from .. rfb.lib.path import flist
 
 
-class RfB_MT_ExampleFiles(bpy.types.Menu):
-    bl_idname = "rfb_mt_example_files"
-    bl_label = "RenderMan Examples"
-    iid = icons.iconid('prman')
+class RfB_MT_MIXIN_Lamps(bpy.types.Menu):
+    bl_idname = "RFB_MT_MIXIN_LAMPS"
+    bl_label = "SELECT LAMP"
+    typ = "LAMP"
+    eid = icons.iconid('empty')
+    opr = "rfb.object_select_light"
 
-    def get_operator_failsafe(self, idname):
-        op = bpy.ops
-        for attr in idname.split("."):
-            if attr not in dir(op):
-                return lambda: None
-            op = getattr(op, attr)
-        return op
+    dtyp = "DATA"         # Override: data type
+    tmpl = "LAMP LIGHT"   # Override: template
+    icon = 'pointlight'   # Override: name for icon id
+
+    def __init__(self):
+        self.iid = icons.iconid(self.icon)
 
     def draw(self, context):
-        for opr in flist():
-            self.layout.operator(opr.bl_idname, icon_value=self.iid)
+        mnu = self.layout
+        obs = bpy.context.scene.objects
+
+        items = [
+            obj for obj in obs
+            if obj.type == self.typ
+            and obj.data.type == self.dtyp
+        ]
+
+        if items:
+            sobj = bpy.context.selected_objects
+            items.sort(key=lambda x: x.name)
+            sobj = bpy.context.selected_objects
+            for item in items:
+                iid = self.iid if item in sobj else self.eid
+                txt = item.name
+                sop = mnu.operator(self.opr, text=txt, icon_value=iid)
+                sop.light_name = txt
+        else:
+            mnu.label("No {} in Scene!".format(self.tmpl), icon_value=self.iid)

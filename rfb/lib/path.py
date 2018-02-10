@@ -29,6 +29,7 @@
 # Python Imports
 #
 import os
+import pathlib
 
 #
 # Blender Imports
@@ -159,3 +160,13 @@ def expand(path, scene=None, obj=None, display_driver=None,
 
 def flist(_p_):
     return [f for f in os.listdir(_p_)]
+
+
+#
+# Exoerimenting with pathlib. (TW)
+#
+def root():
+    """Return absolute path of this addon as 'Path' obkject."""
+    _a_ = pathlib.Path(bpy.utils.user_resource('SCRIPTS', "addons"))
+    _p_ = _a_ / __package__.split('.')[0]
+    return _p_.resolve()

@@ -57,7 +57,7 @@ import bpy
 
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . prfs import pref
 from . math import clamp
@@ -339,8 +339,8 @@ def rib_path(path, escape_slashes=False):
     _p_ = path_win_to_unixy(
         bpy.path.abspath(path), escape_slashes=escape_slashes
     )
-    print("RFB-DBG - In:  rib_path(\"{}\")".format(path))
-    print("RFB-DBG - Out: rib_path(\"{}\")".format(_p_))
+    # print("RFB-DBG - In:  rib_path(\"{}\")".format(path))
+    # print("RFB-DBG - Out: rib_path(\"{}\")".format(_p_))
     return _p_
 
 

@@ -23,19 +23,27 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
-import bpy
+
+#
+# RenderManForBlender Imports
+#
+from . RfB_OT_MIXIN_AddLight import RfB_OT_MIXIN_AddLight
 
 
-class RfB_OT_OBJECT_AddLightArea(bpy.types.Operator):
+class RfB_OT_OBJECT_AddLightArea(RfB_OT_MIXIN_AddLight):
     bl_idname = "rfb.object_add_light_area"
     bl_label = "Add RenderMan Area Light"
-    bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
+    bl_description = "Adds a PxrAreaLight to the current scene."
 
     def execute(self, context):
-        bpy.ops.object.lamp_add(type='AREA')
-        bpy.ops.rfb.node_add_nodetree({'material': None, 'lamp': bpy.context.active_object.data}, idtype='lamp')
+        self.addlight(context, 'AREA')
         return {"FINISHED"}

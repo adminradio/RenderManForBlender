@@ -1380,8 +1380,8 @@ def createNodes(Asset):
                 light.data.renderman.area_shape = nodeType[3:-5].lower()
             else:
                 mapping = {'PxrDistantLight': 'DIST',
-                            'PxrDomeLight': 'ENV',
-                            'PxrEnvDayLight': 'SKY'}
+                           'PxrDomeLight': 'ENV',
+                           'PxrEnvDayLight': 'SKY'}
                 light.data.renderman.renderman_type = mapping[nodeType]
 
             created_node = light.data.renderman.get_light_node()

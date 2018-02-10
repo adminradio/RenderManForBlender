@@ -23,12 +23,22 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
 import bpy
 from bpy.props import IntProperty
 from bpy.props import StringProperty
+
+#
+# RenderManForBlender Imports
+#
 
 
 class RfB_OT_ITEM_MovetoGroup(bpy.types.Operator):
@@ -42,16 +52,13 @@ class RfB_OT_ITEM_MovetoGroup(bpy.types.Operator):
         scene = context.scene
         group_index = self.properties.group_index
         item_type = self.properties.item_type
-
-        object_group = (
-            scene.renderman.object_groups
-            if item_type == 'object'
-            else scene.renderman.light_groups)
-
-        object_group = object_group[group_index].members
+        rmn_og = scene.renderman.ogrs
+        rmn_lg = scene.renderman.light_groups
+        ogr = (rmn_og if item_type == 'object' else rmn_lg)
+        ogr = ogr[group_index].members
         if hasattr(context, 'selected_objects'):
 
-            members = object_group.keys()
+            members = ogr.keys()
 
             for ob in context.selected_objects:
                 if ob.name not in members:
@@ -63,13 +70,16 @@ class RfB_OT_ITEM_MovetoGroup(bpy.types.Operator):
                             for lg in scene.renderman.light_groups:
                                 if ob.name in lg.members.keys():
                                     do_add = False
-                                    self.report(
-                                        {'WARNING'},
-                                        "Lamp %s cannot be added to light group %s, already a member of %s" % (
-                                            ob.name, scene.renderman.light_groups[group_index].name, lg.name)
+                                    self.report({'WARNING'},
+                                                "Lamp %s cannot be added to "
+                                                "light group %s, already a "
+                                                "member of %s" % (
+                                        ob.name,
+                                        rmn_lg[group_index].name,
+                                        lg.name)
                                     )
                         if do_add:
-                            ob_in_group = object_group.add()
+                            ob_in_group = ogr.add()
                             ob_in_group.name = ob.name
 
         return {'FINISHED'}

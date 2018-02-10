@@ -37,7 +37,7 @@ import subprocess
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. rfb.lib.echo import stdmsg
 from .. rfb.lib.echo import stdadd

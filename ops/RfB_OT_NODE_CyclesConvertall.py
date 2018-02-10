@@ -29,7 +29,7 @@
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. nds import convert_cycles_nodetree
 from .. nds import is_renderman_nodetree

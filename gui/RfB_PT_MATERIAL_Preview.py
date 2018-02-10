@@ -30,7 +30,7 @@ import bpy
 from bpy.types import Panel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 # from . import icons
 

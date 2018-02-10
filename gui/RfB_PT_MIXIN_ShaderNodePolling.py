@@ -24,7 +24,7 @@
 # ##### END MIT LICENSE BLOCK #####
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 

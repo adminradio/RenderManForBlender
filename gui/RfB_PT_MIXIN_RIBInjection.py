@@ -29,7 +29,7 @@
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 

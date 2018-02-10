@@ -29,7 +29,7 @@
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. import icons
 from ... import engine

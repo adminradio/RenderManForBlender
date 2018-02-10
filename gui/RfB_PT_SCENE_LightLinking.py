@@ -30,7 +30,7 @@ import bpy
 from bpy.types import Panel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 # from . import icons
 
@@ -56,13 +56,22 @@ class RfB_PT_SCENE_LightLinking(RfB_PT_MIXIN_Collection, Panel):
         scene = context.scene
         rm = scene.renderman
 
-        # ###
-        # ### Left and Right Column
-        # ###
+        #
+        # Left and Right Column
+        #
         left, right = splitll(layout)
         left = left.column()  # vbox: vertical arrangement
         right = right.column()  # vbox: vertical alignment
 
+        #
+        # FIXME:  This may throw Exceptions if there are no lights in the
+        #         scene! This isn't unusual because world env- or world sky-
+        #         light may be sufficient (Pixars "Piper" short was rendered
+        #         with just one EnvLight).
+        # DATE:   2018-02-08
+        # AUTHOR: Timm Wimmers
+        # STATUS: -unassigned-
+        #
         #
         # first (left) col: select light type (lights or light groups)
         #

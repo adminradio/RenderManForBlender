@@ -29,7 +29,7 @@
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . import icons
 
@@ -46,7 +46,11 @@ class RfB_UL_LIGHTS_LinkingObjects(bpy.types.UIList):
         light_type = rm.ll_light_type
         lg = bpy.data.lamps if light_type == "light" else rm.light_groups
         ll_prefix = "lg_%s>%s>obj_%s>%s" % (
-            light_type, lg[rm.ll_light_index].name, rm.ll_object_type, item.name)
+            light_type,
+            lg[rm.ll_light_index].name,
+            rm.ll_object_type,
+            item.name
+        )
 
         # default to symbol: 'unlinked'
         iid = self.iid_unlinked

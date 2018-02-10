@@ -26,18 +26,27 @@
 # <pep8-80 compliant>
 
 #
+# Python Imports
+#
+
+#
 # Blender Imports
 #
 import bpy
 
+#
+# RenderManForBlender Imports
+#
+from . RfB_OT_MIXIN_AddLight import RfB_OT_MIXIN_AddLight
 
-class RfB_OT_OBJECT_AddLightDay(bpy.types.Operator):
+
+class RfB_OT_OBJECT_AddLightDay(RfB_OT_MIXIN_AddLight):
     bl_idname = "rfb.object_add_light_day"
     bl_label = "Add DayLight"
     bl_description = "Adds a PxrEnvDayLight to the current scene."
-    bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context):
+        self.addlight(context, 'SUN')
         #
         # FIXME:  Adding the lamp as type 'SUN' here from operator, will add
         #         the lamp as 'HEMI' due to the 'renderman.renderman_type'
@@ -48,9 +57,6 @@ class RfB_OT_OBJECT_AddLightDay(bpy.types.Operator):
         # AUTHOR: Timm Wimmers
         # STATUS: -unassigned-
         #
-        bpy.ops.object.lamp_add(type='SUN')
-        _tmp = {'material': None, 'lamp': bpy.context.active_object.data}
-        bpy.ops.rfb.node_add_nodetree(_tmp, idtype='lamp')
         bpy.context.object.data.renderman.renderman_type = 'SKY'
         # QUICK: change late explicitly
         bpy.context.object.data.type = 'SUN'

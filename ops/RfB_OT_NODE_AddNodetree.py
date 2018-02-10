@@ -30,7 +30,7 @@ import bpy
 from bpy.props import StringProperty
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. nds import convert_cycles_nodetree
 
@@ -71,7 +71,6 @@ class RfB_OT_NODE_AddNodetree(bpy.types.Operator):
             if light_type == 'SUN':
                 context.lamp.renderman.renderman_type = 'DIST'
             elif light_type == 'HEMI':
-
                 context.lamp.renderman.renderman_type = 'ENV'
             else:
                 context.lamp.renderman.renderman_type = light_type
@@ -82,7 +81,6 @@ class RfB_OT_NODE_AddNodetree(bpy.types.Operator):
                 context.lamp.size_y = 1.0
 
             idblock.renderman.use_renderman_node = True
-
         else:
             idblock.renderman.renderman_type = "ENV"
             idblock.renderman.use_renderman_node = True

@@ -23,19 +23,27 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
-import bpy
+
+#
+# RenderManForBlender Imports
+#
+from . RfB_OT_MIXIN_AddLight import RfB_OT_MIXIN_AddLight
 
 
-class RfB_OT_OBJECT_AddLightHemi(bpy.types.Operator):
+class RfB_OT_OBJECT_AddLightHemi(RfB_OT_MIXIN_AddLight):
     bl_idname = "rfb.object_add_light_hemi"
     bl_label = "Add RenderMan Hemi"
-    bl_description = ""
-    bl_options = {"REGISTER", "UNDO"}
+    bl_description = "Adds a PxrEnvLight to the current scene."
 
     def execute(self, context):
-        bpy.ops.object.lamp_add(type='HEMI')
-        bpy.ops.rfb.node_add_nodetree({'material': None, 'lamp': bpy.context.active_object.data}, idtype='lamp')
+        self.addlight(context, 'HEMI')
         return {"FINISHED"}

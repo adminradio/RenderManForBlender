@@ -35,7 +35,7 @@ from bpy.props import StringProperty
 from bpy.props import BoolProperty
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. rfb.lib import getattr_recursive
 

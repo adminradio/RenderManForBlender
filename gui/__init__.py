@@ -78,7 +78,7 @@ __all__ = [
 import bpy
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . utils import rfb_menu_func
 

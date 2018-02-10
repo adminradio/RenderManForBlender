@@ -53,6 +53,7 @@ from . rfb.lib import rmantree_from_env
 from . rfb.lib import get_installed_rendermans
 
 from . gui.utils import splitll
+from . gui.utils import split12
 from . assets.properties import RendermanAssetGroup
 
 
@@ -65,33 +66,33 @@ class RendermanEnvVarSettings(bpy.types.PropertyGroup):
         home = os.environ.get('USERPROFILE')
         temp = os.environ.get('TEMP')
         out = StringProperty(
-            name="OUT (Output Root)",
-            description="Default RIB export path root",
+            name="Output Root ($OUT)",
+            description="Default RIB export path root.",
             subtype='DIR_PATH',
             default=os.path.join(temp, 'rfb', '{blend}'))
 
     else:
         out = StringProperty(
             name="OUT (Output Root)",
-            description="Default RIB export path root",
+            description="Default RIB export path root.",
             subtype='DIR_PATH',
             default='/tmp/rfb/{blend}')
 
     shd = StringProperty(
         name="SHD (Shadow Maps)",
-        description="SHD environment variable",
+        description="SHD environment variable.",
         subtype='DIR_PATH',
         default=os.path.join('$OUT', 'shadowmaps'))
 
     ptc = StringProperty(
         name="PTC (Point Clouds)",
-        description="PTC environment variable",
+        description="PTC environment variable.",
         subtype='DIR_PATH',
         default=os.path.join('$OUT', 'pointclouds'))
 
     arc = StringProperty(
         name="ARC (Archives)",
-        description="ARC environment variable",
+        description="ARC environment variable.",
         subtype='DIR_PATH',
         default=os.path.join('$OUT', 'archives'))
 
@@ -166,20 +167,54 @@ class RendermanPreferences(AddonPreferences):
         description="How RenderMan should be detected. "
                     "Most users should leave to 'Detect'",
         items=[
-            (
-                "DETECT",
-                "Choose From Installed",
-                "Scan for installed RenderMan locations to choose from"
-            ), (
-                "ENV",
-                "Get From RMANTREE Environment Variable",
-                "This will use the RMANTREE set in the enviornment variables"
-            ), (
-                "MANUAL",
-                "Set Manually",
-                "Manually set the RenderMan installation (for expert users)"
-            )
+            ("DETECT",
+             "Choose From Installed",
+             "Scan for installed RenderMan locations to choose from"),
+
+            ("ENV",
+             "Get From RMANTREE Environment Variable",
+             "This will use the RMANTREE set in the enviornment variables"),
+
+            ("MANUAL",
+             "Set Manually",
+             "Manually set the RenderMan installation (for expert users)")
         ]
+    )
+
+    add_lights_pos = EnumProperty(
+        name="Add new lights at",
+        description="Where to create new Env, Area or Daylights.",
+        items=[
+            ("CURSOR", "3D Cursor", "Add new lights at current cursor."),
+            ("POSITION", "Position", "Add new lights at given position."),
+            ("WORLDCENTER", "World Center", "Add lights at world [0,0,0].")
+        ],
+        default='CURSOR')
+
+    add_lights_coord = FloatVectorProperty(
+        name="New Lights Position",
+        description="Position of newly created Env, Area or Daylights.",
+        size=3,
+        default=(0.0, 0.0, 5.0))
+
+    add_lights_rigged = BoolProperty(
+        name="Group new lights",
+        description="Group new lights into a parent object (empty).",
+        default=False)
+
+    add_lights_rigname = StringProperty(
+        name="Light rig name",
+        description="Name of the parent object where new lights would be"
+                    "rigged together.",
+        default="RIG BaseLight"
+    )
+    add_lights_naming = StringProperty(
+        name="Naming rules for new lights",
+        description="Naming rule for new lights.\nSupports {TYPE}="
+                    "ENV, AREA or DAY, {SHORT}=E, A or D and \n{LONG}="
+                    "EnvLight, DayLight or AreaLight for replacements.\n"
+                    "Leave empty for Blenders default naming.",
+        default="RFB-{SHORT}"
     )
 
     path_rmantree = StringProperty(
@@ -229,13 +264,13 @@ class RendermanPreferences(AddonPreferences):
         default=True)
 
     rfb_info = BoolProperty(
-        name="Info to console",
-        description="Echo some useful infos to console (recommended "
-                    "for questions in support forum).",
+        name="RfB infos to console",
+        description="Echo some useful infos to console (may be useful "
+                    "for questions in RenderMan forum).",
         default=True)
 
     rfb_debug = BoolProperty(
-        name="Debugging (messy!)",
+        name="Debug infos to console",
         description="Echo debugging infos to console. This is a bit "
                     "messy and may be not so easy to follow!",
         default=False)
@@ -243,15 +278,23 @@ class RendermanPreferences(AddonPreferences):
     #
     # TODO:   requestuesting userpref for laptimes doesn't wotk
     #         as expected (option is always none), have to investigate.
+    #         Maybe we could introduce a new envvar $RFBTIMING or
+    #         %RFBLAPTIME% on Windows, that would be easier!
     # DATE:   2018-02-06
     # AUTHOR: Timm Wimmers
-    # STATUS: assigned to self, 2018-02-06
+    # STATUS: assigned to self (but stalled due to low priority), 2018-02-06
     #
     rfb_laptime = BoolProperty(
         name="Time Tasks",
         description="Echo lap times of some critical tasks to console (not "
                     "widely implemented yet, may slightly impact performace).",
         default=True)
+
+    rfb_stub_operator = BoolProperty(
+        name="DEVELOPER - Stub Operator",
+        description="Enables a developer operator for drafting OPS.",
+        default=False
+    )
 
     rfb_sc_float = FloatVectorProperty(
         name="Scalar (Float)",
@@ -311,7 +354,7 @@ class RendermanPreferences(AddonPreferences):
         subtype='COLOR')
 
     rfb_tabname = StringProperty(
-        name="Toolshelf category",
+        name="Toolshelf tab name",
         description="Name of the RenderMan tab in the toolshelf",
         default="RenderMan")
 
@@ -384,19 +427,36 @@ class RendermanPreferences(AddonPreferences):
         layout.prop(self, 'path_aov_image')
         layout.prop(self, 'assets_path')
         layout.prop(self, 'rfb_tabname')
+        if self.add_lights_pos == 'POSITION':
+            lco, rco = split12(layout)
+            lco.label("Add new lights at:")
+            row = rco.row(align=True)
+            row.prop(self, 'add_lights_pos', text="")
+            row.prop(self, 'add_lights_coord', text="")
+        else:
+            layout.prop(self, 'add_lights_pos')
+        lco, rco = split12(layout)
+        lco.label("Group new lights (RIG):")
+        row = rco.row(align=True)
+        icn = 'CHECKBOX_HLT' if self.add_lights_rigged else 'CHECKBOX_DEHLT'
+        row.prop(self, 'add_lights_rigged', text="", icon=icn)
+        sub = row.row(align=True)
+        sub.active = self.add_lights_rigged
+        sub.prop(self, 'add_lights_rigname', text="")
+        layout.prop(self, 'add_lights_naming')
+
         layout.separator()
         lc, rc = splitll(layout)
-        lc = lc.column()
-        row = lc.row()
+        box = lc.box()
+        row = box.row()
         row.prop(self, 'rfb_ipr_indicator')
         row.prop(self, 'rfb_ipr_border', text="")
-        lc.prop(self, 'rfb_panel_icon')
-        lc.prop(self, 'rfb_nesting')
-        lc.separator()
-        lc.separator()
-        lc.separator()
-        lc.prop(self, 'rfb_info')
-        lc.prop(self, 'rfb_debug')
+        box.prop(self, 'rfb_panel_icon')
+        box.prop(self, 'rfb_nesting')
+        box.separator()
+        box.prop(self, 'rfb_info')
+        box.prop(self, 'rfb_debug')
+        box.prop(self, 'rfb_stub_operator')
         #
         #
         # FIXME:  Timing with @laptime currently doesn't support user
@@ -410,7 +470,7 @@ class RendermanPreferences(AddonPreferences):
 
         box = rc.box()
         box.label("Node Tree Socket Colors:")
-        box = box.column(align=True)
+        box.separator()
         row = box.row()
         row.prop(self, 'rfb_sc_bxdf')
         row = box.row()

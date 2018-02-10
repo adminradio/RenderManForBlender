@@ -33,7 +33,7 @@ import os
 import bpy
 import bpy.utils.previews
 
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 from ... rfb.lib.echo import stdmsg
 
 

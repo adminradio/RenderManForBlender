@@ -36,6 +36,7 @@ import bpy
 #
 # RenderManForBlender Imports
 #
+from . import path
 
 
 def fixname(name):
@@ -62,3 +63,9 @@ def save_presets(ctx, props, pathFromPresetDir, name):
         f.write("import bpy\n")
         for item in props:
             f.write("{}\n".format(item))
+
+
+def rfb_examples():
+    """Return a path object list of RenderMan for Blender Examples."""
+    _p_ = path.root() / 'data' / 'examples'
+    return list(_p_.glob('**/*.blend'))

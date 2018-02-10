@@ -794,18 +794,18 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         default='SPIRAL')
 
     bucket_spiral_x = IntProperty(
-        name="X",
+        name="Bucket Spiral X",
         description="X coordinate of bucket spiral start.",
         min=-1, default=-1)
 
     bucket_spiral_y = IntProperty(
-        name="Y",
+        name="Bucket Spiral Y",
         description="Y coordinate of bucket spiral start.",
         min=-1, default=-1)
 
     render_selected_objects_only = BoolProperty(
-        name="Only Render Selected",
-        description="Render only the selected object(s).",
+        name="Render Selected Only",
+        description="Render only the selected objects (all if none selected).",
         default=False)
 
     shadingrate = FloatProperty(
@@ -1411,7 +1411,7 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
 
     path_texture_optimiser = StringProperty(
         name="Texture Optimiser Path",
-        description="Path to tdlmake executable",
+        description="Path to txmake executable",
         subtype='FILE_PATH',
         default="txmake")
 
@@ -1689,9 +1689,19 @@ class RendermanLightSettings(bpy.types.PropertyGroup):
         lamp = self.id_data
         light_type = lamp.renderman.renderman_type
 
-        if light_type in ['SKY', 'ENV']:
+        #
+        # FIXME:  SKY was updatet as 'HEMI', which switches the lights
+        #         in the toolshelf in the wrong section! Seems to work now,
+        #         but doublecheck if this is now ok and has no side effects!
+        # SEE:    https://github.com/prman-pixar/RenderManForBlender/blob/
+        #         2b5f04d3ac4e60dd1091735472d2cbacdb8e7472/properties.py#L1283
+        # DATE:   2018-02-09
+        # AUTHOR: Timm Wimmers
+        # STATUS: -unassigned-
+        #
+        if light_type == 'ENV':
             lamp.type = 'HEMI'
-        elif light_type == 'DIST':
+        elif light_type in ['SKY', 'DIST']:
             lamp.type = 'SUN'
         elif light_type == 'PORTAL':
             lamp.type = 'AREA'
@@ -3045,43 +3055,43 @@ class RendermanObjectSettings(bpy.types.PropertyGroup):
 class Tab_CollectionGroup(bpy.types.PropertyGroup):
 
     bpy.types.Scene.rm_ipr = BoolProperty(
-        name="IPR settings",
+        name="RfB UI: IPR",
         description="Show some useful setting for the Interactive Rendering.",
         default=False)
 
+    bpy.types.Scene.prm_cam = BoolProperty(
+        name="RfB UI: Camera",
+        description="Show some settings about the camera.",
+        default=False)
+
     bpy.types.Scene.rm_render = BoolProperty(
-        name="Render settings",
+        name="RfB UI: Render",
         description="Show some useful setting for the Rendering.",
         default=False)
 
     bpy.types.Scene.rm_render_external = BoolProperty(
-        name="Render settings",
+        name="RfB UI: Render External",
         description="Show some useful setting for external rendering.",
         default=False)
 
     bpy.types.Scene.rm_help = BoolProperty(
-        name="Help",
+        name="RfB UI: Help",
         description="Show some links about RenderMan and the documentation.",
         default=False)
 
     bpy.types.Scene.rm_env = BoolProperty(
-        name="Envlight",
+        name="RfB UI: EnvLight",
         description="Show some settings about the selected Env Light.",
         default=False)
 
     bpy.types.Scene.rm_area = BoolProperty(
-        name="AreaLight",
+        name="RfB UI: AreaLight",
         description="Show some settings about the selected Area Light.",
         default=False)
 
     bpy.types.Scene.rm_daylight = BoolProperty(
-        name="DayLight",
+        name="RfB UI: DayLight",
         description="Show some settings about the selected Day Light.",
-        default=False)
-
-    bpy.types.Scene.prm_cam = BoolProperty(
-        name="Renderman Camera",
-        description="Show some settings about the camera.",
         default=False)
 
 
@@ -3320,27 +3330,45 @@ def register():
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.renderman = PointerProperty(
-        type=RendermanSceneSettings, name="Renderman Scene Settings")
+        type=RendermanSceneSettings,
+        name="RfB Scene Settings"
+    )
     bpy.types.World.renderman = PointerProperty(
-        type=RendermanWorldSettings, name="Renderman World Settings")
+        type=RendermanWorldSettings,
+        name="RfB World Settings"
+    )
     bpy.types.Material.renderman = PointerProperty(
-        type=RendermanMaterialSettings, name="Renderman Material Settings")
+        type=RendermanMaterialSettings,
+        name="RfB Material Settings"
+    )
     bpy.types.Texture.renderman = PointerProperty(
-        type=RendermanTextureSettings, name="Renderman Texture Settings")
+        type=RendermanTextureSettings,
+        name="RfB Texture Settings"
+    )
     bpy.types.Lamp.renderman = PointerProperty(
-        type=RendermanLightSettings, name="Renderman Light Settings")
+        type=RendermanLightSettings,
+        name="RfB Light Settings"
+    )
     bpy.types.ParticleSettings.renderman = PointerProperty(
-        type=RendermanParticleSettings, name="Renderman Particle Settings")
+        type=RendermanParticleSettings,
+        name="RfB Particle Settings"
+    )
     bpy.types.Mesh.renderman = PointerProperty(
         type=RendermanMeshGeometrySettings,
-        name="Renderman Mesh Geometry Settings")
+        name="RfB Mesh Geometry Settings"
+    )
     bpy.types.Curve.renderman = PointerProperty(
         type=RendermanCurveGeometrySettings,
-        name="Renderman Curve Geometry Settings")
+        name="RfB Curve Geometry Settings"
+    )
     bpy.types.Object.renderman = PointerProperty(
-        type=RendermanObjectSettings, name="Renderman Object Settings")
+        type=RendermanObjectSettings,
+        name="RfB Object Settings"
+    )
     bpy.types.Camera.renderman = PointerProperty(
-        type=RendermanCameraSettings, name="Renderman Camera Settings")
+        type=RendermanCameraSettings,
+        name="RfB Camera Settings"
+    )
 
 
 def unregister():

@@ -31,7 +31,7 @@
 from bpy.types import Panel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . RfB_PT_MIXIN_ShaderNodePolling import RfB_PT_MIXIN_ShaderNodePolling
 from . utils import draw_props

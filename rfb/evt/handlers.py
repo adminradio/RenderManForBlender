@@ -34,6 +34,7 @@ from bpy.app.handlers import persistent
 #
 # RenderManForBlender Imports
 #
+from .. lib.prfs import pref
 from .. lib.echo import stdmsg
 
 
@@ -193,7 +194,8 @@ def disable(h):
 
     if h == 'LOAD':
         if not load_enabled:
-            stdmsg("EventHandler 'LOAD' already unregistered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'LOAD' already unregistered.")
             return
         else:
             if h_load_pre in bpy.app.handlers.load_pre:
@@ -201,12 +203,14 @@ def disable(h):
             if h_load_post in bpy.app.handlers.load_post:
                 bpy.app.handlers.load_post.remove(h_load_post)
             load_enabled = False
-        stdmsg("EventHandler 'LOAD' unregistered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'LOAD' unregistered.")
         return
 
     if h == 'SAVE':
         if not save_enabled:
-            stdmsg("EventHandler 'SAVE' already unregistered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'SAVE' already unregistered.")
             return
         else:
             if h_save_pre in bpy.app.handlers.save_pre:
@@ -214,12 +218,14 @@ def disable(h):
             if h_save_post in bpy.app.handlers.save_post:
                 bpy.app.handlers.save_post.remove(h_save_post)
             save_enabled = False
-        stdmsg("EventHandler 'SAVE' unregistered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'SAVE' unregistered.")
         return
 
     if h == 'SCENE':
         if not scene_enabled:
-            stdmsg("EventHandler 'SCENE' already unregistered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'SCENE' already unregistered.")
             return
         else:
             if h_scene_pre in bpy.app.handlers.scene_update_pre:
@@ -227,12 +233,14 @@ def disable(h):
             if h_scene_post in bpy.app.handlers.scene_update_post:
                 bpy.app.handlers.scene_update_post.remove(h_scene_post)
             scene_enabled = False
-        stdmsg("EventHandler 'SCENE' unregistered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'SCENE' unregistered.")
         return
 
     if h == 'FRAME':
         if not frame_enabled:
-            stdmsg("EventHandler 'FRAME' already unregistered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'FRAME' already unregistered.")
             return
         else:
             if h_frame_pre in bpy.app.handlers.frame_change_pre:
@@ -240,12 +248,14 @@ def disable(h):
             if h_frame_post in bpy.app.handlers.frame_change_post:
                 bpy.app.handlers.frame_change_post.remove(h_frame_post)
         frame_enabled = False
-        stdmsg("EventHandler 'FRAME' unregistered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'FRAME' unregistered.")
         return
 
     if h == 'RENDER':
         if not render_enabled:
-            stdmsg("EventHandler 'RENDER' already unregistered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'RENDER' already unregistered.")
             return
         else:
             if h_render_pre in bpy.app.handlers.render_pre:
@@ -256,7 +266,8 @@ def disable(h):
                 bpy.app.handlers.render_cancel.remove(h_render_cancel)
             if h_render_complete in bpy.app.handlers.render_complete:
                 bpy.app.handlers.render_complete.remove(h_render_complete)
-        stdmsg("EventHandler 'RENDER' unregistered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'RENDER' unregistered.")
         render_enabled = False
         return
 
@@ -270,7 +281,8 @@ def enable(h):
 
     if h == 'LOAD':
         if load_enabled:
-            stdmsg("EventHandler 'FILE (LOAD)' already registered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'FILE (LOAD)' already registered.")
             return
         else:
             if h_load_pre not in bpy.app.handlers.load_pre:
@@ -278,12 +290,14 @@ def enable(h):
             if h_load_post not in bpy.app.handlers.load_post:
                 bpy.app.handlers.load_post.append(h_load_post)
         load_enabled = True
-        stdmsg("EventHandler 'FILE (LOAD)' registered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'FILE (LOAD)' registered.")
         return
 
     if h == 'SAVE':
         if save_enabled:
-            stdmsg("EventHandler 'FILE (SAVE)' already registered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'FILE (SAVE)' already registered.")
             return
         else:
             if h_save_pre not in bpy.app.handlers.save_pre:
@@ -291,12 +305,14 @@ def enable(h):
             if h_save_post not in bpy.app.handlers.save_post:
                 bpy.app.handlers.save_post.append(h_save_post)
         save_enabled = True
-        stdmsg("EventHandler 'FILE (SAVE)' registered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'FILE (SAVE)' registered.")
         return
 
     if h == 'FRAME':
         if frame_enabled:
-            stdmsg("EventHandler 'FRAME' already registered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'FRAME' already registered.")
             return
         else:
             if h_frame_pre not in bpy.app.handlers.frame_change_pre:
@@ -304,12 +320,14 @@ def enable(h):
             if h_frame_post not in bpy.app.handlers.frame_change_post:
                 bpy.app.handlers.frame_change_post.append(h_frame_post)
         frame_enabled = True
-        stdmsg("EventHandler 'FRAME' registered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'FRAME' registered.")
         return
 
     if h == 'SCENE':
         if scene_enabled:
-            stdmsg("EventHandler 'SCENE' already registered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'SCENE' already registered.")
             return
         else:
             if h_scene_pre not in bpy.app.handlers.scene_update_pre:
@@ -317,12 +335,14 @@ def enable(h):
             if h_scene_post not in bpy.app.handlers.scene_update_post:
                 bpy.app.handlers.scene_update_post.append(h_scene_post)
         scene_enabled = True
-        stdmsg("EventHandler 'SCENE' registered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'SCENE' registered.")
         return
 
     if h == 'RENDER':
         if render_enabled:
-            stdmsg("EventHandler 'RENDER' already registered.")
+            if pref('rfb_info'):
+                stdmsg("EventHandler 'RENDER' already registered.")
             return
         else:
             if h_render_pre not in bpy.app.handlers.render_pre:
@@ -334,7 +354,8 @@ def enable(h):
             if h_render_complete not in bpy.app.handlers.render_complete:
                 bpy.app.handlers.render_complete.append(h_render_complete)
         render_enabled = True
-        stdmsg("EventHandler 'RENDER' registered.")
+        if pref('rfb_info'):
+            stdmsg("EventHandler 'RENDER' registered.")
         return
 
 

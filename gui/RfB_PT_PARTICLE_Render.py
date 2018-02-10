@@ -31,7 +31,7 @@ from bpy.types import Panel
 from bl_ui.properties_particle import ParticleButtonsPanel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 # from . import icons
 

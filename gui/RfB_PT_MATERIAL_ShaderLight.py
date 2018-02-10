@@ -29,7 +29,7 @@
 from bpy.types import Panel
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 from .. nds import draw_nodes_properties_ui

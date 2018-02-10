@@ -40,7 +40,7 @@ import bpy
 
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. import engine
 

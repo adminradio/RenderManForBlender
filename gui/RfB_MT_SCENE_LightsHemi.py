@@ -23,36 +23,26 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender imports
 #
-import bpy
 
 #
 # RenderMan for Blender
 #
-from . import icons
+from . RfB_MT_MIXIN_Lamps import RfB_MT_MIXIN_Lamps
 
 
-class RfB_MT_SCENE_LightsHemi(bpy.types.Menu):
+class RfB_MT_SCENE_LightsHemi(RfB_MT_MIXIN_Lamps):
     bl_idname = "rfb_mt_scene_lightshemi"
     bl_label = "Select EnvLight"
 
-    icn = icons.iconid('envlight')
-
-    def draw(self, context):
-        layout = self.layout
-        # col = layout.column(align=True)
-
-        lamps = [obj for obj in bpy.context.scene.objects if obj.type == "LAMP"]
-
-        if len(lamps):
-            for lamp in lamps:
-                if lamp.data.type == 'HEMI':
-                    name = lamp.name
-                    op = layout.operator(
-                        "rfb.object_select_light", text=name, icon_value=self.icn)
-                    op.light_name = name
-
-        else:
-            layout.label("No EnvLight in the Scene")
+    dtyp = "HEMI"
+    tmpl = "Env. Light"
+    icon = 'envlight'

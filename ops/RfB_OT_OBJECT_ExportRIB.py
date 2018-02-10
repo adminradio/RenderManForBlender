@@ -34,7 +34,7 @@ from bpy.props import CollectionProperty
 from bpy.props import FloatVectorProperty
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. import engine
 from .. export import write_archive_RIB

@@ -37,14 +37,15 @@ import bpy
 import webbrowser
 
 #
-# RenderMan for Blender Imports
+# RenderManForBlender Imports
 #
 from .. import engine
+from .. rfb.lib.file import rfb_examples
 
 
 class RfB_OT_FILE_OpenLastRIB(bpy.types.Operator):
     bl_idname = 'rfb.file_open_last_rib'
-    bl_label = "Open Last RIB Scene file."
+    bl_label = "Open Last RIB"
     bl_description = "Open the last generated Scene.rib file with " \
                      "system default text editor."
 
@@ -57,6 +58,7 @@ class RfB_OT_FILE_OpenLastRIB(bpy.types.Operator):
     # STATUS: -unassigned-
     #
     def invoke(self, context, event=None):
+        rfb_examples()
         rm = context.scene.renderman
         rpass = engine.RPass(context.scene, interactive=False)
         path = rpass.paths['rib_output']
