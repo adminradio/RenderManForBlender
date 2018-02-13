@@ -27,7 +27,7 @@
 # RenderMan for Blender imports
 #
 from . import icons
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 
 
 class RfB_PT_MIXIN_PanelIcon():

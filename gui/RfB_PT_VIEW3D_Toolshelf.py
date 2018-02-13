@@ -40,7 +40,7 @@ from bpy.types import Panel
 #
 from . import icons
 from .. import engine
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 
 from . RfB_MT_RENDER_Presets import RfB_MT_RENDER_Presets  # noqa
 from . RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
@@ -93,7 +93,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         sub.enabled = True if bpy.context.scene.camera else False
         sub.operator(opr, text=txt, icon_value=iid)
         iid = icons.iconid("batch_render")
-        row.operator("render.render", text="", icon_value=iid).animation = True
+        sub.operator("render.render", text="", icon_value=iid).animation = True
 
         prp = "rm_render"
         icn = 'TRIA_DOWN' if scn.rm_render else 'TRIA_RIGHT'
@@ -133,8 +133,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
             sub.active = True if _sro_ else False
             sub.scale_x = 2.0
             prp = "render_selected_objects_only"
-            iid = icons.toggle("selected", rmn.render_selected_objects_only)
-            sub.prop(rmn, prp, icon_only=True, icon_value=iid)
+            sub.prop(rmn, prp, icon_only=True, icon='CURSOR')
             #
             # Spool Action | External | Animation
             # A bit more complicated sublayouts 'cause of complex states
@@ -285,7 +284,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 sb2.enabled = obj.is_visible(scn)
 
                 opr = "rfb.object_delete_camera"
-                sb2.operator(opr, text="", icon='ZOOMOUT')
+                sb2.operator(opr, text="", icon='X')
                 cam = bpy.data.scenes[scn.name].camera
                 sb1.prop(cam, "name", text="")
 
@@ -352,47 +351,49 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         for lamp in [obj for obj in objs if obj.type == "LAMP"]:
             if lamp.data.type == 'HEMI':
                 hemi = True
-                break  # leave early, scene contains at least one area light
+                break  # leave early, scene contains at least one env light
         if hemi:
-            row.menu("rfb_mt_scene_lightshemi", icon_value=iid)
+            sobs = bpy.context.selected_objects
+            try:
+                txt = sobs[0].name if sobs[0].data.type == 'HEMI' else ""
+            except (AttributeError,
+                    IndexError):
+                txt = None
+
+            if txt:
+                row.menu("rfb_mt_scene_lightshemi", text=txt, icon_value=iid)
+            else:
+                row.menu("rfb_mt_scene_lightshemi", icon_value=iid)
         else:
-            txt = "No EnvLight"
-            row.menu("rfb_mt_scene_lightshemi", text=txt, icon_value=iid)
+            txt = "No EnvLight"  # in scene
+            row.menu("rfb_mt_scene_lightshemi", text=txt, icon_value=self.eid)
 
         row.operator("rfb.object_add_light_hemi", text="", icon='ZOOMIN')
 
-        icn = 'TRIA_DOWN' if scn.rm_env else 'TRIA_RIGHT'
-        row.prop(scn, "rm_env", icon_only=True, icon=icn)
+        icn = 'TRIA_DOWN' if scn.ui_ts_envlight else 'TRIA_RIGHT'
+        row.prop(scn, "ui_ts_envlight", icon_only=True, icon=icn)
 
         #
         # UI open?
         #
-        if scn.rm_env:
+        if scn.ui_ts_envlight:
             sub = col.box().box()
-            row = sub.row(align=True)
 
             obj = bpy.context.object
             if obj and obj.type == 'LAMP' and obj.data.type == 'HEMI':
-
-                row.prop(obj, "name", text="", icon_value=iid)
+                row = sub.row(align=True)
+                row.operator("rfb.object_delete_light", text="", icon='X')
+                row.prop(obj, "name", text="")
                 row.prop(obj, "hide", icon_only=True)
-
-                prp = "hide_render"
                 icn = 'RESTRICT_RENDER_OFF'
-                row.prop(obj, prp, icon=icn, icon_only=True)
-
-                opr = "rfb.object_delete_light"
-                icn = 'PANEL_CLOSE'
-                row.operator(opr, text="", icon=icn)
+                row.prop(obj, "hide_render", icon=icn, icon_only=True)
 
                 row = sub.row(align=True)
-                opr = "rotation_euler"
-                txt = "Rotation"
-                row.prop(obj, opr, index=2, text=txt)
+                row.prop(obj, "rotation_euler", index=2, text="Rotation")
             else:
-                row.label("No EnvLight Selected.", icon='INFO')
-                sub.label("")  # keep opened ui same size (no juming)
-
+                sub.label("")
+                sub.label("No EnvLight selected!", icon='INFO')
+        #
         # CREATE AREA LIGHT LAYOUT
         # #####################################################################
         iid = icons.iconid("arealight")
@@ -406,36 +407,47 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
                 area = True
                 break  # leave early, scene contains at least one area light
         if area:
-            row.menu("rfb_mt_scene_lightsarea", icon_value=iid)
+            sobs = bpy.context.selected_objects
+            try:
+                txt = sobs[0].name if sobs[0].data.type == 'AREA' else ""
+            except (AttributeError,
+                    IndexError):
+                txt = None
+
+            if txt:
+                row.menu("rfb_mt_scene_lightsarea", text=txt, icon_value=iid)
+            else:
+                row.menu("rfb_mt_scene_lightsarea", icon_value=iid)
         else:
-            txt = "No AreaLight"
-            row.menu("rfb_mt_scene_lightsarea", text=txt, icon_value=iid)
+            txt = "No AreaLight"  # in scene
+            row.menu("rfb_mt_scene_lightsarea", text=txt, icon_value=self.eid)
 
         opr = "rfb.object_add_light_area"
         row.operator(opr, text="", icon="ZOOMIN")
 
-        icn = 'TRIA_DOWN' if scn.rm_area else 'TRIA_RIGHT'
-        row.prop(scn, "rm_area", icon_only=True, icon=icn)
+        icn = 'TRIA_DOWN' if scn.ui_ts_arealight else 'TRIA_RIGHT'
+        row.prop(scn, "ui_ts_arealight", icon_only=True, icon=icn)
 
         #
         # UI open?
         #
-        if scn.rm_area:
+        if scn.ui_ts_arealight:
             sub = col.box().box()
-            row = sub.row(align=True)
 
             obj = bpy.context.object
             if obj and obj.type == 'LAMP' and obj.data.type == 'AREA':
-                row.prop(obj, "name", text="", icon_value=iid)
+                row = sub.row(align=True)
+                row.operator("rfb.object_delete_light", text="", icon='X')
+
+                # NAME
+                row.prop(obj, "name", text="")
                 row.prop(obj, "hide", icon_only=True)
                 icn = 'RESTRICT_RENDER_OFF'
                 row.prop(obj, "hide_render", icon_only=True, icon=icn)
-                icn = 'PANEL_CLOSE'
-                row.operator("rfb.object_delete_light", text="", icon=icn)
             else:
-                row.label("No AreaLight Selected.", icon='INFO')
-                # sub.separator()  # keep opened ui same size (no juming ui)
-
+                sub.label("")
+                sub.label("No EnvLight selected!", icon='INFO')
+        #
         # CREATE DAYLIGHT LIGHT LAYOUT
         # #####################################################################
         iid = icons.iconid('sunlight')
@@ -447,41 +459,53 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         for lamp in [obj for obj in objs if obj.type == "LAMP"]:
             if lamp.data.type == 'SUN':
                 sun = True
-                break  # leave early, scene contains at least one area light
+                break  # leave early, scene contains at least one day light
 
         if sun:
-            row.menu("rfb_mt_scene_lightsday", icon_value=iid)
+            aob = bpy.context.active_object
+            try:
+                txt = aob.name if aob.data.type == 'SUN' else ""
+            except AttributeError:
+                txt = None
+            if txt:
+                row.menu("rfb_mt_scene_lightsday", text=txt, icon_value=iid)
+            else:
+                row.menu("rfb_mt_scene_lightsday", icon_value=iid)
         else:
-            txt = "No Sun"
-            row.menu("rfb_mt_scene_lightsday", text=txt, icon_value=iid)
+            txt = "No DayLight"  # in scene
+            row.menu("rfb_mt_scene_lightsday", text=txt, icon_value=self.eid)
 
-        opr = "rfb.object_add_light_day"
-        row.operator(opr, text="", icon='ZOOMIN')
+        row.operator("rfb.object_add_light_day", text="", icon='ZOOMIN')
 
-        icn = 'TRIA_DOWN' if scn.rm_daylight else 'TRIA_RIGHT'
-        row.prop(scn, "rm_daylight", icon_only=True, icon=icn)
+        icn = 'TRIA_DOWN' if scn.ui_ts_daylight else 'TRIA_RIGHT'
+        row.prop(scn, "ui_ts_daylight", icon_only=True, icon=icn)
 
-        if scn.rm_daylight:
+        if scn.ui_ts_daylight:
             sub = col.box().box()
-            row = sub.row(align=True)
 
             obj = bpy.context.object
             if obj and obj.type == 'LAMP' and obj.data.type == 'SUN':
+                row = sub.row(align=True)
+                row.operator("rfb.object_delete_light", text="", icon='X')
 
-                row.prop(obj, "name", text="", icon_value=iid)
+                # NAME
+                row.prop(obj, "name", text="")
                 row.prop(obj, "hide", icon_only=True)
-
-                prp = "hide_render"
-                icn = 'RESTRICT_RENDER_OFF'
-                row.prop(obj, prp, icon_only=True, icon=icn)
-
-                opr = "rfb.object_delete_light"
-                icn = 'PANEL_CLOSE'
-                row.operator(opr, text="", icon=icn)
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                lmp = bpy.data.lamps[obj.data.name]
+                lrm = lmp.renderman
+                prp = 'light_primary_visibility'
+                iid = icons.toggle('cvisible', lrm.light_primary_visibility)
+                row.prop(lrm, prp, icon_value=iid, icon_only=True)
             else:
-                row.label("No DayLight selected.", icon='INFO')
-                # sub.separator()  # keep opened ui same size (no juming ui)
-
+                sub.label("")
+                sub.label("No EnvLight selected!", icon='INFO')
+        #
         # SELECTED OBJECTS - SUPPORT - OPEN LAST RIB
         # #####################################################################
         #
@@ -565,6 +589,7 @@ class RfB_PT_VIEW3D_Toolshelf(RfB_PT_MIXIN_PanelIcon, Panel):
         # open last rib, only enabled if not binary
         # (like ASCII and not compressed file format)
         #
+        rmn = context.scene.renderman
         if rmn.rib_format == 'ascii'and rmn.rib_compression == 'none':
             opr = "rfb.file_open_last_rib"
             iid = icons.iconid("open_rib")

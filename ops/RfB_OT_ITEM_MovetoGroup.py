@@ -52,7 +52,7 @@ class RfB_OT_ITEM_MovetoGroup(bpy.types.Operator):
         scene = context.scene
         group_index = self.properties.group_index
         item_type = self.properties.item_type
-        rmn_og = scene.renderman.ogrs
+        rmn_og = scene.renderman.object_groups
         rmn_lg = scene.renderman.light_groups
         ogr = (rmn_og if item_type == 'object' else rmn_lg)
         ogr = ogr[group_index].members

@@ -53,8 +53,8 @@ from .. shd import update_conditional_visops
 from .. rfb.lib import readOSO
 from .. rfb.lib import args_files_in_path
 
-from .. rfb.lib.prfs import pref
-from .. rfb.lib.prfs import prefs
+from .. rfb.prf import pref
+from .. rfb.prf import prefs
 from .. rfb.lib.echo import debug
 from .. rfb.lib.echo import stdmsg
 from .. rfb.lib.ribh import ribify

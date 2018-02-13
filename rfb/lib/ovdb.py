@@ -23,55 +23,35 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
-# <pep8-80 compliant>
-
 #
 # Python Imports
 #
 import os
-import platform
 
 #
 # Blender Imports
 #
 import bpy
-from bpy.props import StringProperty
 
 #
 # RenderManForBlender Imports
 #
 
 
-class RfB_EnvVarSettings(bpy.types.PropertyGroup):
-    if platform.system() == "Windows":
-        temp = os.environ.get('TEMP')
-        out = StringProperty(
-            name="OUT (Output Root)",
-            description="Default RIB export path root",
-            subtype='DIR_PATH',
-            default=os.path.join(temp, 'rfb', '{blend}'))
+# locate_openVDB_cache
+def locate_cache(frameNum):
+    if not bpy.data.is_saved:
+        return None
 
-    else:
-        out = StringProperty(
-            name="OUT (Output Root)",
-            description="Default RIB export path root",
-            subtype='DIR_PATH',
-            default='/tmp/rfb/{blend}')
+    # filename (without extension)
+    fnm = os.path.splitext(os.path.split(bpy.data.filepath)[1])[0]
 
-    shd = StringProperty(
-        name="SHD (Shadow Maps)",
-        description="SHD environment variable",
-        subtype='DIR_PATH',
-        default=os.path.join('$OUT', 'shadowmaps'))
+    # cache directory
+    cdr = os.path.join(bpy.path.abspath("//"), 'blendcache_%s' % fnm)
 
-    ptc = StringProperty(
-        name="PTC (Point Clouds)",
-        description="PTC environment variable",
-        subtype='DIR_PATH',
-        default=os.path.join('$OUT', 'pointclouds'))
+    if not os.path.exists(cdr):
+        return None
 
-    arc = StringProperty(
-        name="ARC (Archives)",
-        description="ARC environment variable",
-        subtype='DIR_PATH',
-        default=os.path.join('$OUT', 'archives'))
+    for f in os.listdir(os.path.join(bpy.path.abspath("//"), cdr)):
+        if '.vdb' in f and "%06d" % frameNum in f:
+            return os.path.join(bpy.path.abspath("//"), cdr, f)

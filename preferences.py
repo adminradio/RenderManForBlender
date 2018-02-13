@@ -206,8 +206,21 @@ class RendermanPreferences(AddonPreferences):
         name="Light rig name",
         description="Name of the parent object where new lights would be"
                     "rigged together.",
-        default="RIG BaseLight"
+        default="RIG-LIGHT-Base"
     )
+
+    add_cams_rigged = BoolProperty(
+        name="Group new cameras",
+        description="Group new cameras into a parent object (empty).",
+        default=False)
+
+    add_cams_rigname = StringProperty(
+        name="Camera rig name",
+        description="Name of the parent object where new cameras would be"
+                    "rigged together.",
+        default="RIG-CAMS-World"
+    )
+
     add_lights_naming = StringProperty(
         name="Naming rules for new lights",
         description="Naming rule for new lights.\nSupports {TYPE}="
@@ -252,6 +265,15 @@ class RendermanPreferences(AddonPreferences):
         description="Draw indicator on View3D when IPR is active.\n"
                     "(Requires restarting IPR if it's currently running).",
         default=True)
+
+    rfb_ipr_border = FloatVectorProperty(
+        name="IPR Indicator",
+        description="Color of IPR indicator (View3D Border). Due to blending"
+                    "mode, this gets darkened.",
+        default=(0.870, 0.325, 0.375, 0.750),
+        size=4,
+        min=0, max=1,
+        subtype='COLOR')
 
     rfb_panel_icon = BoolProperty(
         name="Panel Icons",
@@ -345,14 +367,6 @@ class RendermanPreferences(AddonPreferences):
         min=0, max=1,
         subtype='COLOR')
 
-    rfb_ipr_border = FloatVectorProperty(
-        name="IPR Indicator",
-        description="Color of IPR indicator (View3D Border)",
-        default=(0.870, 0.325, 0.375, 0.750),
-        size=4,
-        min=0, max=1,
-        subtype='COLOR')
-
     rfb_tabname = StringProperty(
         name="Toolshelf tab name",
         description="Name of the RenderMan tab in the toolshelf",
@@ -427,22 +441,33 @@ class RendermanPreferences(AddonPreferences):
         layout.prop(self, 'path_aov_image')
         layout.prop(self, 'assets_path')
         layout.prop(self, 'rfb_tabname')
-        if self.add_lights_pos == 'POSITION':
-            lco, rco = split12(layout)
-            lco.label("Add new lights at:")
-            row = rco.row(align=True)
-            row.prop(self, 'add_lights_pos', text="")
-            row.prop(self, 'add_lights_coord', text="")
-        else:
-            layout.prop(self, 'add_lights_pos')
+
+        lco, rco = split12(layout, align=True)
+        lco.label("Group new cameras:")
+        row = rco.row(align=True)
+        icn = 'CHECKBOX_HLT' if self.add_cams_rigged else 'CHECKBOX_DEHLT'
+        row.prop(self, 'add_cams_rigged', text="", icon=icn)
+        sub = row.row(align=True)
+        sub.active = self.add_cams_rigged
+        sub.prop(self, 'add_cams_rigname', text="")
+
         lco, rco = split12(layout)
-        lco.label("Group new lights (RIG):")
+        lco.label("Group new lights:")
         row = rco.row(align=True)
         icn = 'CHECKBOX_HLT' if self.add_lights_rigged else 'CHECKBOX_DEHLT'
         row.prop(self, 'add_lights_rigged', text="", icon=icn)
         sub = row.row(align=True)
         sub.active = self.add_lights_rigged
         sub.prop(self, 'add_lights_rigname', text="")
+
+        if self.add_lights_pos == 'POSITION':
+            # lco, rco = split12(layout)
+            lco.label("Add new lights at:")
+            row = rco.row(align=True)
+            row.prop(self, 'add_lights_pos', text="")
+            row.prop(self, 'add_lights_coord', text="")
+        else:
+            layout.prop(self, 'add_lights_pos')
         layout.prop(self, 'add_lights_naming')
 
         layout.separator()

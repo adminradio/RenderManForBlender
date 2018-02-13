@@ -492,5 +492,5 @@ node_map = {
     'ShaderNodeMath': ('PxrSeExpr', convert_math_node),
     'ShaderNodeRGB': ('PxrHSL', convert_rgb_node),
     'ShaderNodeValue': ('PxrSeExpr', convert_node_value),
-    #'ShaderNodeRGBCurve': ('copy', copy_cycles_node),
+    # 'ShaderNodeRGBCurve': ('copy', copy_cycles_node),
 }

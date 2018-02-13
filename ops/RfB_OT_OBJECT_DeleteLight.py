@@ -35,18 +35,28 @@ class RfB_OT_OBJECT_DeleteLight(bpy.types.Operator):
     bl_description = ""
     bl_options = {"REGISTER", "UNDO"}
 
+    types = {
+        'AREA': 'ui_ts_arealight',
+        'HEMI': 'ui_ts_envlight',
+        'SUN': 'ui_ts_daylight'
+    }
+
     def execute(self, context):
 
-        type_light = bpy.context.object.data.type
+        _t_ = context.object.data.type
         bpy.ops.object.delete()
 
-        lamps = [
-            obj for obj in bpy.context.scene.objects
-            if obj.type == "LAMP" and obj.data.type == type_light
-        ]
+        lamps = [obj for obj in context.scene.objects
+                 if obj.type == 'LAMP'
+                 and obj.data.type == _t_]
 
-        if len(lamps):
+        if lamps:
             lamps[0].select = True
-            bpy.context.scene.objects.active = lamps[0]
+            context.scene.objects.active = lamps[0]
+        else:
+            #
+            # No light of type _t_, close sublayout 'ui_ts_*'
+            #
+            setattr(context.scene, self.types[_t_], False)
 
         return {"FINISHED"}

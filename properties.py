@@ -1679,6 +1679,57 @@ class RendermanLightSettings(bpy.types.PropertyGroup):
         name="Light Node",
         default=''
     )
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    # def u_light_advanced(self, context):
+    #     _r_ = self.id_data.renderman
+    #     _l_ = _r_.get_light_node()
+
+    #     if _r_.rfb_light_advanced == 'SHADOW':
+    #         _l_.traceLightPaths = False
+    #         _l_.enableShadows = True
+    #     elif _r_.rfb_light_advanced == 'TRACE':
+    #         _l_.enableShadows = False
+    #         _l_.traceLightPaths = True
+
+    # rfb_light_advanced = EnumProperty(
+    #     name="Light Advanced",
+    #     description="Switch between raytraced shadows and light path tracing.",
+    #     items=[
+    #         ('SHADOW', "Raytraced Shadows", ''),
+    #         ('TRACE', 'Trace Light Paths', '')
+    #     ],
+    #     default='SHADOW',
+    #     update=u_light_advanced)
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     # thes are used for light filters
     color_ramp_node = StringProperty(default='')
@@ -2192,7 +2243,7 @@ class RendermanLightSettings(bpy.types.PropertyGroup):
         update=u_light_type,
         items=[
             ('AREA', 'Area', 'Area Light'),
-            ('ENV', 'Environment', 'Environment Light'),
+            ('ENV', 'Env', 'Environment Light'),
             ('SKY', 'Sky', 'Simulated Sky'),
             ('DIST', 'Distant', 'Distant Light'),
             ('SPOT', 'Spot', 'Spot Light'),
@@ -2289,6 +2340,9 @@ class RendermanLightSettings(bpy.types.PropertyGroup):
         update=update_solo,
         description="Turn on only this light",
         default=False)
+
+
+
 
 
 class RendermanWorldSettings(bpy.types.PropertyGroup):
@@ -3079,17 +3133,17 @@ class Tab_CollectionGroup(bpy.types.PropertyGroup):
         description="Show some links about RenderMan and the documentation.",
         default=False)
 
-    bpy.types.Scene.rm_env = BoolProperty(
+    bpy.types.Scene.ui_ts_envlight = BoolProperty(
         name="RfB UI: EnvLight",
         description="Show some settings about the selected Env Light.",
         default=False)
 
-    bpy.types.Scene.rm_area = BoolProperty(
+    bpy.types.Scene.ui_ts_arealight = BoolProperty(
         name="RfB UI: AreaLight",
         description="Show some settings about the selected Area Light.",
         default=False)
 
-    bpy.types.Scene.rm_daylight = BoolProperty(
+    bpy.types.Scene.ui_ts_daylight = BoolProperty(
         name="RfB UI: DayLight",
         description="Show some settings about the selected Day Light.",
         default=False)

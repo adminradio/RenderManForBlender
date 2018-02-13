@@ -37,7 +37,7 @@ import bpy
 #
 # RenderManForBlender Imports
 #
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 
 
 class RfB_OT_MIXIN_AddLight(bpy.types.Operator):
@@ -69,12 +69,11 @@ class RfB_OT_MIXIN_AddLight(bpy.types.Operator):
                 type=typ, location=pref('add_lights_coord')
             )
         lgt = bpy.context.active_object  # remember light
-        rig = None  # fd
-        aex = True  # fd already existing rig (dead mans switch)
         if pref('add_lights_rigged'):
             _n_ = pref('add_lights_rigname')
+            rig = None  # fd
+            aex = True  # fd already existing rig (dead mans switch)
 
-            rig = None
             try:
                 rig = bpy.data.objects[_n_]
             except KeyError:

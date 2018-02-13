@@ -38,8 +38,8 @@ from . properties import RendermanAssetGroup
 
 from .. rfb.lib import guess_rmantree
 
-from .. rfb.lib.prfs import pref
-from .. rfb.lib.prfs import prefs
+from .. rfb.prf import pref
+from .. rfb.prf import prefs
 
 
 #

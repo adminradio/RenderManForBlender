@@ -34,7 +34,7 @@ from bpy.app.handlers import persistent
 #
 # RenderManForBlender Imports
 #
-from .. lib.prfs import pref
+from .. prf import pref
 from .. lib.echo import stdmsg
 
 

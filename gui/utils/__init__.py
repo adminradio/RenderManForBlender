@@ -34,7 +34,7 @@ import bpy
 from .. import icons
 from ... import engine
 
-from ... rfb.lib.prfs import pref
+from ... rfb.prf import pref
 
 
 #
@@ -67,7 +67,9 @@ def splitlr(_l_, align=False):
 
     return __l, __r
 
-
+#
+# split percentage
+#
 def splitpc(_l_, _p_, align=False):
     spl = _l_.row().split(percentage=_p_)
     __l = spl.column(align=align)
@@ -117,7 +119,7 @@ def split41(_l_, align=False):
 
 def prop12(_l_, dta, prp, lbl):
     """
-    Draw a property left labeled with 1/3 distribution.
+    Draw a property left labeled with 1/3 - 2/3 distribution.
 
     If you already have a distributed layout, you can pass in a tuple with
     two layout references (aka left and right); if not simply pass in a parent
@@ -144,15 +146,15 @@ def prop12(_l_, dta, prp, lbl):
 
 def boxh(_l_):
     """Draw a bordered box with horizontal arrangement."""
-    box = _l_.box()
-    return box.row()
+    return _l_.box().row()
 
 
 def boxv(_l_):
     """Draw a bordered box with vertical arrangement."""
-    box = _l_.box()
+    #
     # vertical alignmnet is default
-    return box
+    #
+    return _l_.box()
 
 
 def draw_props(node, prop_names, layout):

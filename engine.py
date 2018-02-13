@@ -54,8 +54,8 @@ from . rfb.lib import set_rmantree
 from . rfb.lib import find_it_path
 from . rfb.lib import get_Selected_Objects
 
-from . rfb.lib.prfs import pref
-from . rfb.lib.prfs import prefs
+from . rfb.prf import pref
+from . rfb.prf import prefs
 from . rfb.lib.path import user_path
 
 from . rfb.lib.echo import debug
@@ -893,9 +893,13 @@ class RPass:
                 # FIXME:  Catch FileNotFoundError 'in_file'
                 # DATE:   2018-02-05
                 # AUTHOR: Timm Wimmers
-                # STATUS: -unassigned-
+                # STATUS: quickfix 2018-02-13, leave open for better solution
                 #
-                in_file = str(Path(in_file).resolve())
+                try:
+                    in_file = str(Path(in_file).resolve())
+                except FileNotFoundError:
+                    return  # do this better
+
                 for udim_file in glob.glob(in_file.replace('_MAPID_', '*')):
                     texture_list.append(
                         (udim_file, get_tex_file_name(udim_file), options))
@@ -907,9 +911,13 @@ class RPass:
             # FIXME:  Catch FileNotFoundError 'in_file'
             # DATE:   2018-02-05
             # AUTHOR: Timm Wimmers
-            # STATUS: -unassigned-
+            # STATUS: quickfix 2018-02-13, leave open for better solution
             #
-            in_file = str(Path(in_file).resolve())
+            try:
+                in_file = str(Path(in_file).resolve())
+            except FileNotFoundError:
+                return  # do this better
+
             out_file_path = os.path.join(
                 self.paths['texture_output'],
                 out_file

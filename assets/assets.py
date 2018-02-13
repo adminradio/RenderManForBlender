@@ -26,7 +26,7 @@
 import os
 import bpy
 import bpy.utils.previews
-# from .. rfb.lib.prfs import pref
+# from .. rfb.prf import pref
 
 asset_previews = bpy.utils.previews.new()
 

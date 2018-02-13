@@ -23,10 +23,21 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
+#
+# Python Imports
+#
+
 #
 # Blender Imports
 #
 import bpy
+
+#
+# RenderMan ForBlender Imports
+#
+from .. rfb.prf import pref
 
 
 class RfB_OT_OBJECT_AddCamera(bpy.types.Operator):
@@ -40,14 +51,39 @@ class RfB_OT_OBJECT_AddCamera(bpy.types.Operator):
         bpy.context.space_data.lock_camera = False
 
         bpy.ops.object.camera_add()
-
         bpy.ops.view3d.object_as_camera()
-
         bpy.ops.view3d.viewnumpad(type="CAMERA")
-
         bpy.ops.view3d.camera_to_view()
 
-        bpy.context.object.data.clip_end = 10000
-        bpy.context.object.data.lens = 65
+        cam = bpy.context.object
+        cam.data.clip_end = 10000
+        cam.data.lens = 65
 
+        if pref('add_cams_rigged'):
+            _n_ = pref('add_cams_rigname')
+            rig = None  # fd
+            aex = True  # fd already existing rig
+
+            try:
+                rig = bpy.data.objects[_n_]
+            except KeyError:
+                # no rig object found. we have to create one
+                aex = False
+
+            if not aex:
+                rig = bpy.data.objects.new(_n_, None)
+                bpy.context.scene.objects.link(rig)
+                #
+                # TODO:   Add pref for size of empty/rig
+                # DATE:   2018-02-09
+                # AUTHOR: Timm Wimmers
+                # STATUS: -unassigned-
+                #
+                rig.empty_draw_size = 3.0
+                rig.empty_draw_type = 'PLAIN_AXES'
+                rig.name = _n_
+            cam.parent = rig
+        bpy.context.scene.objects.active = cam
+        cam.select = True
+        print(cam.name)
         return {"FINISHED"}

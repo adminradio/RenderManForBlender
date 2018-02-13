@@ -58,7 +58,7 @@ class RfB_PT_MIXIN_Collection(RfB_PT_MIXIN_Panel):
         default_name=''
     ):
 
-        left, right = splitlr(layout)
+        left, right = splitlr(layout, align=True)
         left.label(self.bl_label)
 
         op = right.operator(operator, icon="ZOOMOUT", text="")

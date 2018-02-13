@@ -38,7 +38,6 @@ from mathutils import Quaternion
 
 from . import bl_info
 
-# from . rfb.lib import rib
 from . rfb.lib import rib_path
 from . rfb.lib import get_sequence_path
 from . rfb.lib import path_list_convert
@@ -48,7 +47,7 @@ from . rfb.lib import locate_openVDB_cache
 from . rfb.lib.ribh import bbox
 from . rfb.lib.ribh import ribify
 
-from . rfb.lib.prfs import pref
+from . rfb.prf import pref
 from . rfb.lib.echo import debug
 from . rfb.lib.tmpl import hashnum
 from . rfb.lib.path import user_path

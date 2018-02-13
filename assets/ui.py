@@ -32,7 +32,7 @@ from . properties import RendermanAssetGroup
 from . properties import RendermanAsset
 
 from . import assets
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 from .. gui.RfB_PT_MIXIN_PanelIcon import RfB_PT_MIXIN_PanelIcon
 
 

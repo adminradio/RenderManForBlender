@@ -69,9 +69,10 @@ class RfB_MT_MIXIN_Lamps(bpy.types.Menu):
             items.sort(key=lambda x: x.name)
             sobj = bpy.context.selected_objects
             for item in items:
+                # only give current selected lights an icon
                 iid = self.iid if item in sobj else self.eid
                 txt = item.name
                 sop = mnu.operator(self.opr, text=txt, icon_value=iid)
                 sop.light_name = txt
         else:
-            mnu.label("No {} in Scene!".format(self.tmpl), icon_value=self.iid)
+            mnu.label("No {} in Scene!".format(self.tmpl), icon_value=self.eid)

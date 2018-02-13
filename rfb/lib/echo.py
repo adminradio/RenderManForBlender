@@ -36,8 +36,9 @@
 #
 # RenderManForBlender Imports
 #
-from . prfs import pref
 from . time import dtnow
+
+from .. prf import pref
 
 
 def stdmsg(msg):

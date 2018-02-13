@@ -47,7 +47,7 @@ def get_global_worldspace(vec, ob):
     return vec
 
 
-#unused?
+# unused?
 def get_local_worldspace(vec, ob):
     lmatx = ob.matrix_local.to_4x4().inverted()
     vec = vec * lmatx

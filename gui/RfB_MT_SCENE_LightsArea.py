@@ -41,7 +41,7 @@ from . RfB_MT_MIXIN_Lamps import RfB_MT_MIXIN_Lamps
 
 class RfB_MT_SCENE_LightsArea(RfB_MT_MIXIN_Lamps):
     bl_idname = "rfb_mt_scene_lightsarea"
-    bl_label = "Select AreaLight"
+    bl_label = "Select ..."
 
     dtyp = "AREA"
     tmpl = "Area Light"

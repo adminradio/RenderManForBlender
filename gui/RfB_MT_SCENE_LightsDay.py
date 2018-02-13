@@ -41,7 +41,7 @@ from . RfB_MT_MIXIN_Lamps import RfB_MT_MIXIN_Lamps
 
 class RfB_MT_SCENE_LightsDay(RfB_MT_MIXIN_Lamps):
     bl_idname = "rfb_mt_scene_lightsday"
-    bl_label = "Select DayLight"
+    bl_label = "Select ..."
 
     dtyp = "SUN"
     tmpl = "Day Light"

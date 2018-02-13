@@ -50,7 +50,7 @@ from .. export import get_texture_list
 from .. rfb.lib import find_local_queue
 from .. rfb.lib import find_tractor_spool
 
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 from .. rfb.lib.time import dtnow
 from .. rfb.lib.path import user_path
 

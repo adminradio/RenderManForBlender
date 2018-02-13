@@ -43,7 +43,7 @@ from math import radians
 from .. rfb.lib import init_env
 from .. rfb.lib import get_rman_version
 
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 
 
 ##

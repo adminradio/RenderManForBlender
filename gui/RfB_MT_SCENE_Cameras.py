@@ -57,6 +57,7 @@ class RfB_MT_SCENE_Cameras(bpy.types.Menu):
             cams.sort(key=lambda cam: cam.name)
             for cam in cams:
                 name = cam.name
+                # only give active scenecamera an icon!
                 try:
                     active = bpy.data.scenes[context.scene.name].camera.name
                     iid = self.aid if active == name else self.eid

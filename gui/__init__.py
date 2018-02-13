@@ -23,6 +23,8 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+# <pep8-80 compliant>
+
 __all__ = [
     "RfB_HT_IMAGE_SmartControl",
     "RfB_HT_INFO_SmartControl",
@@ -142,7 +144,10 @@ def rfb_panels():
     }
 
     for t in bpy.types.Panel.__subclasses__():
-        if hasattr(t, 'COMPAT_ENGINES') and 'BLENDER_RENDER' in t.COMPAT_ENGINES:
+        if hasattr(t, 'COMPAT_ENGINES') \
+                and 'BLENDER_RENDER'    \
+                in t.COMPAT_ENGINES:
+
             if t.__name__ not in rfb_panels_false:
                 rfb_panels_true.append(t)
 

@@ -39,7 +39,7 @@ import bpy
 #
 # RenderManForBlender Imports
 #
-from . lib.prfs import pref
+from . prf import pref
 from . lib.file import quote
 from . lib.path import expand
 

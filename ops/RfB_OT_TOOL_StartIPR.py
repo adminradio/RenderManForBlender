@@ -39,7 +39,7 @@ import bpy
 #
 from .. import engine
 from .. gui import gfx
-from .. rfb.lib.prfs import pref
+from .. rfb.prf import pref
 
 
 class RfB_OT_TOOL_StartIPR(bpy.types.Operator):

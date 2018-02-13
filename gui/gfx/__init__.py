@@ -34,7 +34,7 @@ from bgl import *
 #
 # RenderManForBlender Imports
 #
-from ... rfb.lib.prfs import pref
+from ... rfb.prf import pref
 
 dpi = 72
 

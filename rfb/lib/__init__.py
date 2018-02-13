@@ -59,13 +59,13 @@ import bpy
 #
 # RenderManForBlender Imports
 #
-from . prfs import pref
-from . math import clamp
-from . echo import debug
-
 from . import rman
 from . import tmpl
 
+from . math import clamp
+from . echo import debug
+
+from .. prf import pref
 #
 # Developer options are candidates for user prefs!
 #

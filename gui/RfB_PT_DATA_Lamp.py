@@ -32,6 +32,7 @@ from bpy.types import Panel
 # RenderManForBlender Imports
 #
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
+from . import icons
 from .. import engine
 
 
@@ -43,36 +44,40 @@ class RfB_PT_DATA_Lamp(RfB_PT_MIXIN_ShaderTypePolling, Panel):
     def draw(self, context):
         layout = self.layout
 
-        lamp = context.lamp
-        ipr_running = engine.ipr is not None
-        if not lamp.renderman.use_renderman_node:
-            layout.prop(lamp, "type", expand=True)
+        __l = context.lamp
+        __r = __l.renderman
+        __t = __r.renderman_type
+
+        ipr = engine.ipr is not None
+        if not __r.use_renderman_node:
+            layout.prop(__l, "type", expand=True)
             layout.operator('rfb.node_add_nodetree').idtype = 'lamp'
             layout.operator('rfb.node_cycles_convertall')
             return
         else:
-            if ipr_running:
-                layout.label(
-                    "Note: Some items cannot be edited while IPR running.")
-            row = layout.row()
-            row.enabled = not ipr_running
-            row.prop(lamp.renderman, "renderman_type", expand=True)
-            if lamp.renderman.renderman_type == 'FILTER':
+            if ipr:
+                txt = "Some items cannot be edited while IPR running."
+                layout.label(txt, icon='ERROR')
+            row = layout.row(align=True)
+            row.enabled = not ipr
+            iid = icons.toggle('light', __r.illuminates_by_default)
+            row.prop(__r, 'illuminates_by_default', text="", icon_value=iid)
+            row.prop(__r, "renderman_type", expand=True)
+
+            if __t == 'FILTER':
                 row = layout.row()
-                row.enabled = not ipr_running
-                row.prop(lamp.renderman, "filter_type", expand=True)
-            if lamp.renderman.renderman_type == "AREA":
-                row = layout.row()
-                row.enabled = not ipr_running
-                row.prop(lamp.renderman, "area_shape", expand=True)
-                row = layout.row()
-                if lamp.renderman.area_shape == "rect":
-                    row.prop(lamp, 'size', text="Size X")
-                    row.prop(lamp, 'size_y')
+                row.enabled = not ipr
+                row.prop(__r, "filter_type", expand=True)
+
+            if __t == "AREA":
+                row = layout.row(align=True)
+                row.enabled = not ipr
+                row.prop(__r, "area_shape", expand=True)
+                row = layout.row(align=True)
+                if __r.area_shape == "rect":
+                    row.prop(__l, 'size', text="Size X")
+                    row.prop(__l, 'size_y')
                 else:
-                    row.prop(lamp, 'size', text="Diameter")
-            # layout.prop(lamp.renderman, "shadingrate")
-        # layout.prop_search(lamp.renderman, "nodetree", bpy.data, "node_groups")
-        row = layout.row()
-        row.enabled = not ipr_running
-        row.prop(lamp.renderman, 'illuminates_by_default')
+                    row.prop(__l, 'size', text="Diameter")
+            # layout.prop(__lrenderman, "shadingrate")
+        # layout.prop_search(__lrenderman, "nodetree", bpy.data, "node_groups")
