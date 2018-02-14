@@ -33,22 +33,19 @@
 #
 import os
 import platform
+
 from pathlib import Path
 
 #
 # Blender Imports
 #
-import bpy
+# import bpy
 
 #
 # RenderManForBlender Imports
 #
+from .. prf import pref
 from . deco import laptime
-
-
-def prefs():
-    ctx = bpy.context.user_preferences
-    return ctx.addons[__package__.split('.')[0]].preferences
 
 
 @laptime
@@ -123,7 +120,7 @@ def select(choice='RMANTREE'):
         except KeyError:
             choice = "NEWEST"
     elif choice == "MANUAL":
-        path = prefs().path_rmantree
+        path = pref('path_rmantree')
     #
     # A specific version or 'NEWEST' was requested.
     #
@@ -181,8 +178,8 @@ def guess():
         #
         # not initialised yet, do so
         #
-        method = prefs().rmantree_method
-        choice = prefs().rmantree_choice
+        method = prefs('rmantree_method')
+        choice = prefs('rmantree_choice')
 
         if method == 'MANUAL':
             init('MANUAL')

@@ -69,8 +69,8 @@ from .. prf import pref
 #
 # Developer options are candidates for user prefs!
 #
-DEBUG = pref('rfb_debug')
 INFOS = pref('rfb_info')
+DEBUG = pref('rfb_debug')
 
 
 def getattr_recursive(ptr, attrstring):
@@ -409,11 +409,11 @@ def get_rman_version(rmantree):
 
 
 def guess_rmantree():
-    rmantree_method = rman.prefs().rmantree_method
-    choice = rman.prefs().rmantree_choice
+    rmantree_method = pref('rmantree_method')
+    choice = pref('rmantree_choice')
 
     if rmantree_method == 'MANUAL':
-        rmantree = rman.prefs().path_rmantree
+        rmantree = pref('path_rmantree')
     elif rmantree_method == 'ENV' or choice == 'NEWEST':
         rmantree = rmantree_from_env()
     else:

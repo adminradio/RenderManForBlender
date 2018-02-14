@@ -946,18 +946,23 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                                     bpy.data, "texts", text="")
                 elif node.codetypeswitch == 'EXT':
                     row.prop(node, "shadercode")
-            elif prop_name == "internalSearch" or prop_name == "shadercode" or prop_name == "expression":
+            elif prop_name == "internalSearch"      \
+                    or prop_name == "shadercode"    \
+                    or prop_name == "expression":
                 pass
             else:
                 prop_meta = node.prop_meta[prop_name]
                 prop = getattr(node, prop_name)
 
-                if 'widget' in prop_meta and prop_meta['widget'] == 'null' or \
-                        'hidden' in prop_meta and prop_meta['hidden']:
+                if 'widget' in prop_meta                    \
+                        and prop_meta['widget'] == 'null'   \
+                        or 'hidden' in prop_meta            \
+                        and prop_meta['hidden']:
                     continue
 
                 # else check if the socket with this name is connected
-                socket = node.inputs[prop_name] if prop_name in node.inputs \
+                socket = node.inputs[prop_name] \
+                    if prop_name in node.inputs \
                     else None
                 layout.context_pointer_set("socket", socket)
 
@@ -1211,12 +1216,24 @@ class Add_Node:
         input_node = socket_node_input(nt, socket)
 
         if new_type == 'REMOVE':
-            nt.nodes.remove(input_node)
+            try:
+                nt.nodes.remove(input_node)
+            except TypeError:
+                #
+                # Got None, jsut catch and do nothing.
+                #
+                pass
             return {'FINISHED'}
 
         if new_type == 'DISCONNECT':
             link = next((l for l in nt.links if l.to_socket == socket), None)
-            nt.links.remove(link)
+            try:
+                nt.links.remove(link)
+            except TypeError:
+                #
+                # got None, just catch and do nothing.
+                #
+                pass
             return {'FINISHED'}
 
         # add a new node to existing socket

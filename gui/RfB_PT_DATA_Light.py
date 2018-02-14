@@ -308,14 +308,5 @@ class RfB_PT_DATA_Light(RfB_PT_MIXIN_ShaderNodePolling, Panel):
         elif __t == 'FILTER':
             lay = layout.column(align=True)
             lay.prop(__n, 'notes', text="")
-
-            layout.separator()
-            layout.separator()
-            layout.separator()
-            layout.separator()
-            layout.separator()
-            layout.box().box().box()
-            layout.separator()
-            layout.separator()
             layout.separator()
             draw_props(__n, __n.prop_names, layout)

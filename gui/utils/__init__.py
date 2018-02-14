@@ -70,6 +70,8 @@ def splitlr(_l_, align=False):
 #
 # split percentage
 #
+
+
 def splitpc(_l_, _p_, align=False):
     spl = _l_.row().split(percentage=_p_)
     __l = spl.column(align=align)
@@ -169,25 +171,45 @@ def draw_props(node, prop_names, layout):
     for prop_name in prop_names:
         prop_meta = node.prop_meta[prop_name]
         prop = getattr(node, prop_name)
-
+        #
+        # skip 'Notes', already drawn on root layout
+        #
+        if prop_name in ['Notes', 'notes']:
+            continue
+        #
+        # -------------------------------------------------------------------
+        # 'pages' are the headers of subpanels
+        # -------------------------------------------------------------------
+        #
         if prop_meta['renderman_type'] == 'page':
+            #
+            # we add a little bit space in FRONT of the sublayout
+            # this is nicer as behind, because of recursion that would add
+            # also space behind sub sub layouts, which looks ugly.
+            #
+            layout.separator()
+
             ui_prop = prop_name + "_ui_open"
             ui_open = getattr(node, ui_prop)
 
             txt = prop_name.split('.')[-1]
             if nst:
-                icn = 'panel_open' if ui_open else 'panel_closed'
-                iid = icons.iconid(icn)
-                lay = layout.box()
-                lay.prop(node, ui_prop, icon_value=iid, text=txt, emboss=False)
+                icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+                lay = layout
+                lay.prop(node, ui_prop, icon=icn, text=txt, emboss=True)
             else:
                 icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
                 lay = layout
                 lay.prop(node, ui_prop, icon=icn, text=txt, emboss=False)
 
             if ui_open:
+                lay = lay.box()
                 draw_props(node, prop, lay)
-
+        #
+        # -------------------------------------------------------------------
+        # this is a property of a page
+        # -------------------------------------------------------------------
+        #
         else:
             if ('widget'
                     in prop_meta
@@ -195,8 +217,7 @@ def draw_props(node, prop_names, layout):
                     or 'hidden' in prop_meta and prop_meta['hidden']
                     or prop_name == 'combineMode'):
                 continue
-            sub = layout.column()
-            lay = sub.row()
+            lay = layout.column(align=True)
             if "Subset" in prop_name and prop_meta['type'] == 'string':
                 #
                 # FIXME:  bpy.data.scenes[0] is the first scene
@@ -223,14 +244,70 @@ def draw_props(node, prop_names, layout):
                     nt = bpy.context.lamp.node_tree
                     ramp_node = nt.nodes[rm.color_ramp_node]
                     layout.template_color_ramp(ramp_node, 'color_ramp')
+                #
+                # properties where we don't want a label
+                #
+                elif prop_name in ['map', 'fillColor', 'tint']:
+                    lay.prop(node, prop_name, text="")
+
+                elif prop_name in ['directional', 'useLightDirection']:
+                    iid = icons.iconid(prop_name)
+                    if prop_name == 'directional':
+                        row = lay.row(align=True)
+                        row.prop(node, prop_name, icon_value=iid, emboss=True)
+                    else:
+                        row.prop(node, prop_name, icon_value=iid, emboss=True)
+
+                elif prop_name in ['density', 'invert']:
+                    #
+                    # tricky swap of rows
+                    #
+                    if prop_name == 'density':
+                        one = lay.column(align=True)
+                        two = lay.column(align=True)
+                        two.prop(node, prop_name)
+                    else:
+                        iid = icons.toggle('invert', getattr(node, prop_name))
+                        try:
+                            one.prop(node, prop_name, icon_value=iid)
+                        except UnboundLocalError:
+                            #
+                            # Yuck! I want this row at first place but, that
+                            # seems not be possible.
+                            #
+                            # Different 'invert' property, there was no
+                            # 'density' before! A bit ugly! Maybe this can be
+                            # done with some reorderung of args-xml while
+                            # parsing it?
+                            #
+                            # TW: 2018-02-14
+                            #
+                            lay.separator()
+                            lay.prop(node, prop_name, icon_value=iid)
+                            lay.separator()
+
+                elif prop_name in ['tileMode', 'invertU', 'invertV']:
+                    iid = icons.toggle('invert', getattr(node, prop_name))
+                    if prop_name == 'tileMode':
+                        row = lay.row(align=True)
+                        lay.prop(node, prop_name, text="")  # yes, not row!
+                    else:
+                        row.prop(node, prop_name, icon_value=iid)
+
+                #
+                # no special handling, draw simply the property
+                #
                 else:
                     lay.prop(node, prop_name)
-                    if nst:
-                        #
-                        # disable compressed layout inside box()
-                        # workaround, lay.column(align=False) doesn't work!
-                        #
-                        sub.separator()
+                #
+                # props which requires some space behind
+                #
+                if prop_name in ['edge', 'rampType', 'tileMode',
+                                 'preBarn', ]:
+                    lay.separator()
+    # -------------------------------------------------------------
+    # end for
+    # -------------------------------------------------------------
 
 
 def rfb_menu_func(self, context):
