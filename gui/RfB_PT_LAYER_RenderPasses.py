@@ -31,7 +31,7 @@ from bpy.types import Panel
 #
 # RenderManForBlender Imports
 #
-# from . import icons
+from . utils import split12
 
 from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
 
@@ -48,53 +48,72 @@ class RfB_PT_LAYER_RenderPasses(RfB_PT_MIXIN_Collection, Panel):
         return rd.engine in {'PRMAN_RENDER'}
 
     def draw_item(self, layout, context, item):
-        scene = context.scene
-        rm = scene.renderman
-        # ll = rm.light_linking
-        # row = layout.row()
-        # row.prop(item, "layers")
-        col = layout.column()
-        col.prop(item, "aov_name")
+        #
+        # AOV Type
+        #
+        box = layout.box()
+        box.prop(item, "aov_name")
         if item.aov_name == "color custom_lpe":
-            col.prop(item, "name")
-            col.prop(item, "custom_lpe_string")
+            box.prop(item, "name")
+            box.prop(item, "custom_lpe_string")
 
-        col = layout.column()
-        icon = 'TRIA_DOWN' if item.show_advanced \
-            else 'TRIA_RIGHT'
+        #
+        # Advanced sub panel
+        #
+        lay = layout.column(align=True)
 
-        row = col.row()
-        row.prop(item, "show_advanced", icon=icon, text="Advanced",
-                 emboss=False)
+        icon = 'TRIA_DOWN' if item.show_advanced else 'TRIA_RIGHT'
+        lay.prop(item, "show_advanced",
+                 text="Advanced", icon=icon, emboss=True)
+
         if item.show_advanced:
-            col.label("Exposure Settings")
-            col.prop(item, "exposure_gain")
-            col.prop(item, "exposure_gamma")
+            box = lay.box()
+            col = box.column(align=True)
 
-            col = layout.column()
-            col.label("Remap Settings")
-            row = col.row(align=True)
+            lco, rco = split12(col, align=True)
+
+            lco.label("Exposure Settings:")
+            lco.label("")
+            rco.prop(item, "exposure_gain")
+            rco.prop(item, "exposure_gamma")
+
+            lco.separator()
+            rco.separator()
+
+            lco.label("Remap Settings:")
+            row = rco.row(align=True)
             row.prop(item, "remap_a", text="A")
             row.prop(item, "remap_b", text="B")
             row.prop(item, "remap_c", text="C")
-            layout.separator()
-            row = col.row()
-            row.label(text="Quantize Settings:")
-            row = col.row(align=True)
+
+            lco.separator()
+            rco.separator()
+
+            lco.label(text="Quantize Settings:")
+            lco.label("")
+            row = rco.row(align=True)
             row.prop(item, "quantize_zero")
             row.prop(item, "quantize_one")
+            row = rco.row(align=True)
             row.prop(item, "quantize_min")
             row.prop(item, "quantize_max")
-            row = col.row()
-            row.prop(item, "aov_pixelfilter")
-            row = col.row()
+
+            lco.separator()
+            rco.separator()
+
+            lco.label("Pixel Filter:")
+            rco.prop(item, "aov_pixelfilter", text="")
+
             if item.aov_pixelfilter != 'default':
+                lco.label("")
+                row = rco.row(align=True)
                 row.prop(item, "aov_pixelfilter_x", text="Size X")
                 row.prop(item, "aov_pixelfilter_y", text="Size Y")
-            layout.separator()
-            row = col.row()
-            row.prop(item, "stats_type")
-            layout.separator()
+
+            lco.separator()
+            rco.separator()
+            lco.label("Statistics:")
+            rco.prop(item, "stats_type", text="")
 
     def draw(self, context):
         layout = self.layout
