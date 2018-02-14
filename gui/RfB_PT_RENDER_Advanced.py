@@ -31,7 +31,7 @@ from bpy.types import Panel
 #
 # RenderManForBlender Imports
 #
-# from . import icons
+from . utils import split12
 
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
@@ -45,60 +45,107 @@ class RfB_PT_RENDER_Advanced(RfB_PT_MIXIN_Panel, Panel):
         scene = context.scene
         rm = scene.renderman
 
-        layout.separator()
+        lay = layout.column()
 
-        col = layout.column()
-        col.prop(rm, "shadingrate")
-        col.prop(rm, "dicing_strategy")
-        row = col.row()
+        lco, rco = split12(lay, align=True)
+
+        lco.label("Micropolygon Length:")
+        rco.prop(rm, "shadingrate", text="")
+
+        lco.separator()
+        rco.separator()
+
+        # _l_ = lco.column(align=True)
+        # _r_ = rco.column(align=True)
+
+        lco.label("Dicing Strategy:")
+        lco.label("World Dist. Length:")
+        lco.label("Instance World Dist. Length:")
+
+        rco.prop(rm, "dicing_strategy", text="")
+        row = rco.row(align=True)
         row.enabled = rm.dicing_strategy == "worlddistance"
-        row.prop(rm, "worlddistancelength")
-        col.prop(rm, "instanceworlddistancelength")
+        row.prop(rm, "worlddistancelength", text="")
+        rco.prop(rm, "instanceworlddistancelength", text="")
 
-        layout.separator()
+        lco.separator()
+        rco.separator()
 
-        col = layout.column()
-        col.prop(rm, "texture_cache_size")
-        col.prop(rm, "geo_cache_size")
-        col.prop(rm, "opacity_cache_size")
+        lco.label("Cache Sizes (MB):")
+        lco.label("")
+        lco.label("")
+        col = rco.column(align=True)
+        col.prop(rm, "texture_cache_size", text="Texture")
+        col.prop(rm, "geo_cache_size", text="Geometry")
+        col.prop(rm, "opacity_cache_size", text="Opacity")
 
-        layout.separator()
-        col = layout.column()
-        row = col.row()
-        row.label("Pixel Filter:")
-        row.prop(rm, "pixelfilter", text="")
-        row = col.row(align=True)
+        lco.separator()
+        rco.separator()
+
+        lco.label("Pixel Filter:")
+        lco.label("")
+        rco.prop(rm, "pixelfilter", text="")
+        row = rco.row(align=True)
         row.prop(rm, "pixelfilter_x", text="Size X")
         row.prop(rm, "pixelfilter_y", text="Size Y")
 
-        layout.separator()
-        col = layout.column()
-        col.prop(rm, "dark_falloff")
+        lco.separator()
+        rco.separator()
 
-        layout.separator()
-        col = layout.column()
-        col.prop(rm, "bucket_shape")
+        lco.label("Dark Falloff:")
+        rco.prop(rm, "dark_falloff", text="")
+
+        lco.separator()
+        rco.separator()
+
+        lco.label("Bucket Order:")
+        rco.prop(rm, "bucket_shape", text="")
         if rm.bucket_shape == 'SPIRAL':
-            row = col.row(align=True)
+            lco.label("")
+            row = rco.row(align=True)
             row.prop(rm, "bucket_spiral_x", text="X")
             row.prop(rm, "bucket_spiral_y", text="Y")
 
-        layout.separator()
-        col = layout.column()
-        row = col.row()
-        row.prop(rm, "use_statistics", text="Output stats")
-        row.operator('rfb.file_view_stats')
-        row = col.row()
-        row.operator('rfb.file_open_last_rib')
-        row.prop(rm, "editor_override")
-        row = layout.row()
-        row.label(text="RIB Format:")
-        row.label(text="RIB Compression")
-        row = layout.row()
-        row.prop(rm, "rib_format", text="")
-        row.prop(rm, "rib_compression", text="")
+        lco.separator()
+        rco.separator()
 
-        layout.separator()
-        layout.prop(rm, "always_generate_textures")
-        layout.prop(rm, "lazy_rib_gen")
-        layout.prop(rm, "threads")
+        lco.label("Texteditor:")
+        rco.prop(rm, "editor_override", text="")
+
+        lco.separator()
+        rco.separator()
+
+        lco.label(text="RIB Format:")
+        rco.prop(rm, "rib_format", text="")
+
+        lco.separator()
+        rco.separator()
+
+        lco.label(text="RIB Compression")
+        rco.prop(rm, "rib_compression", text="")
+
+        lco.separator()
+        rco.separator()
+
+        lco.label("")
+        rco.operator('rfb.file_open_last_rib')
+
+        lco.separator()
+        rco.separator()
+
+        lco.label("Rendering Threads:")
+        rco.prop(rm, "threads", text="")
+
+        lco.separator()
+        rco.separator()
+
+        lco.label("")
+        row = rco.row(align=True)
+        row.prop(rm, "use_statistics", text="", icon='FCURVE')
+        row.operator('rfb.file_view_stats')
+
+        lco.separator()
+        rco.separator()
+
+        rco.prop(rm, "always_generate_textures")
+        rco.prop(rm, "lazy_rib_gen")
