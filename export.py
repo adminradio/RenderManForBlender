@@ -1202,6 +1202,7 @@ def get_texture_list(scene):
         new_textures = get_textures(mat)
         if new_textures:
             textures.extend(new_textures)
+    # FM:0001
     return textures
 
 
@@ -2585,11 +2586,11 @@ def export_dupli_archive(ri, scene, rpass, data_block, data_blocks):
                     ri.ReadArchive(archive_filename)
 
                 else:
-                    archive_filename = relPath \
-                            + archiveFileExtention \
-                            + "!" \
-                            + objectName \
-                            + ".rib"
+                    archive_filename = (relPath
+                                        + archiveFileExtention
+                                        + "!"
+                                        + objectName
+                                        + ".rib")
 
                     ri.ReadArchive(archive_filename)
             else:
@@ -2612,8 +2613,13 @@ def export_dupli_archive(ri, scene, rpass, data_block, data_blocks):
 
 # export an archive with all the materials and read it back in
 def export_materials_archive(ri, rpass, scene):
-    archive_filename = user_path(scene.renderman.path_object_archive_static,
-                                 scene).replace('{object}', 'materials')
+    if scene.renderman.external_animation:
+        _p_ = user_path(scene.renderman.path_object_archive_animated, scene)
+        archive_filename = _p_.replace('{object}', 'materials')
+    else:
+        _p_ = user_path(scene.renderman.path_object_archive_static, scene)
+        archive_filename = _p_.replace('{object}', 'materials')
+
     ri.Begin(archive_filename)
     for mat_name, mat in bpy.data.materials.items():
         ri.ArchiveBegin('material.' + get_mat_name(mat_name))

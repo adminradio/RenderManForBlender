@@ -31,7 +31,7 @@ from bpy.types import Panel
 #
 # RenderManForBlender Imports
 #
-# from . import icons
+from . utils import split12
 
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
@@ -42,31 +42,31 @@ class RfB_PT_RENDER_MotionBlur(RfB_PT_MIXIN_Panel, Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
-        rm = context.scene.renderman
+        rmn = context.scene.renderman
         layout = self.layout
 
-        cl = layout.box()
-        icon = 'CHECKBOX_HLT' if rm.motion_blur else 'CHECKBOX_DEHLT'
-        cl.prop(rm, "motion_blur", icon=icon, emboss=False)
+        lco, rco = split12(layout)
 
-        if rm.motion_blur:
-            sub = cl.row()
-            sub.enabled = rm.motion_blur
-            sub.prop(rm, "motion_segments")
+        lco.prop(rmn, "motion_blur", text="Enable Motion Blur")
+        row = rco.row()
+        row.enabled = rmn.motion_blur
+        row.prop(rmn, "sample_motion_blur")
 
-            row = cl.row()
-            row.enabled = rm.motion_blur
-            row.prop(rm, "sample_motion_blur")
+        sub = layout.column()
+        sub.active = rmn.motion_blur
+        lco, rco = split12(sub)
 
-            row = cl.row()
-            row.enabled = rm.motion_blur
-            row.prop(rm, "shutter_timing")
+        lco.label("Motion Samples:")
+        rco.prop(rmn, "motion_segments", text="")
 
-            row = cl.row()
-            row.enabled = rm.motion_blur
-            row.prop(rm, "shutter_angle")
+        lco.label("Shutter Timing:")
+        rco.prop(rmn, "shutter_timing", text="")
 
-            row = cl.row()
-            row.enabled = rm.motion_blur
-            row.prop(rm, "shutter_efficiency_open")
-            row.prop(rm, "shutter_efficiency_close")
+        lco, rco = split12(sub)
+        lco.label("Shutter Angle:")
+        rco.prop(rmn, "shutter_angle", text="")
+
+        lco.label("Shutter Speed:")
+        row = rco.row(align=True)
+        row.prop(rmn, "shutter_efficiency_open", text="Open")
+        row.prop(rmn, "shutter_efficiency_close", text="Close")

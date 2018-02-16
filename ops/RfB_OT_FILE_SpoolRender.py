@@ -52,6 +52,8 @@ from .. rfb.lib import find_tractor_spool
 
 from .. rfb.prf import pref
 from .. rfb.lib.time import dtnow
+from .. rfb.lib.echo import stdmsg
+from .. rfb.lib.deco import laptime
 from .. rfb.lib.path import user_path
 
 
@@ -146,13 +148,16 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
                 rpass.update_frame_num(frame)
                 if do_rib:
                     frm = scene.frame_current
-                    txt = ("RfB: RENDER - RIB for frame {:3d}".format(frm))
-                    self.report({'INFO'}, txt)
+                    txt = ("Generating RIB for frame: {:03d}".format(frm))
+                    stdmsg(txt)
                     self.gen_rib_frame(rpass, do_objects)
                 rib_names.append(rpass.paths['rib_output'])
                 if rm.convert_textures:
-                    frame_tex_cmds[frame] = [cmd for cmd in get_texture_list(
-                        rpass.scene) if cmd not in job_tex_cmds]
+                    frame_tex_cmds[frame] = [
+                        cmd for cmd
+                        in get_texture_list(rpass.scene)
+                        if cmd not in job_tex_cmds
+                    ]
                 if rm.external_denoise:
                     denoise_files.append(rpass.get_denoise_names())
                     if rm.spool_denoise_aov:
@@ -163,7 +168,7 @@ class RfB_OT_FILE_SpoolRender(bpy.types.Operator):
             if do_rib:
                 frm = scene.frame_current
                 txt = "{}  - RIBGEN for frame {:3d}".format(dtnow(), frm)
-                self.report({'INFO'}, txt)
+                stdmsg(txt)
                 self.gen_rib_frame(rpass, do_objects)
             rib_names.append(rpass.paths['rib_output'])
             if rm.convert_textures:

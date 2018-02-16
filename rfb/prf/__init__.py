@@ -38,8 +38,14 @@ import bpy
 
 
 def prefs():
-    addon = bpy.context.user_preferences.addons[__package__.split(".")[0]]
-    return addon.preferences
+    try:
+        addon = bpy.context.user_preferences.addons[__package__.split(".")[0]]
+        return addon.preferences
+    except KeyError:
+        #
+        # Addon was recently disabled during runtime.
+        #
+        return None
 
 
 def pref(ident):

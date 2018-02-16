@@ -139,13 +139,10 @@ class RfB_PT_RENDER_Advanced(RfB_PT_MIXIN_Panel, Panel):
         lco.separator()
         rco.separator()
 
-        lco.label("")
-        row = rco.row(align=True)
-        row.prop(rm, "use_statistics", text="", icon='FCURVE')
-        row.operator('rfb.file_view_stats')
+        # lco.label("")
+        # row = rco.row(align=True)
+        lco.prop(rm, "use_statistics")
+        rco.operator('rfb.file_view_stats')
 
-        lco.separator()
-        rco.separator()
-
-        rco.prop(rm, "always_generate_textures")
-        rco.prop(rm, "lazy_rib_gen")
+        lay.prop(rm, "always_generate_textures")
+        lay.prop(rm, "lazy_rib_gen")

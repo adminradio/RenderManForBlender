@@ -61,8 +61,8 @@ class RfB_OT_OBJECT_AddCamera(bpy.types.Operator):
 
         if pref('add_cams_rigged'):
             _n_ = pref('add_cams_rigname')
-            rig = None  # fd
-            aex = True  # fd already existing rig
+            rig = None
+            aex = True  # already existing rig
 
             try:
                 rig = bpy.data.objects[_n_]
@@ -85,5 +85,4 @@ class RfB_OT_OBJECT_AddCamera(bpy.types.Operator):
             cam.parent = rig
         bpy.context.scene.objects.active = cam
         cam.select = True
-        print(cam.name)
         return {"FINISHED"}

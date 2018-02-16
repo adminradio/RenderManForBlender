@@ -2166,16 +2166,34 @@ def replace_frame_num(prop):
     prop = prop.replace('$f4', str(frame_num).zfill(4))
     prop = prop.replace('$F4', str(frame_num).zfill(4))
     prop = prop.replace('$f3', str(frame_num).zfill(3))
-    prop = prop.replace('$f3', str(frame_num).zfill(3))
+    prop = prop.replace('$F3', str(frame_num).zfill(3))
     return prop
 
 
 # return the output file name if this texture is to be txmade.
 def get_tex_file_name(prop):
     prop = replace_frame_num(prop)
-    prop = prop.replace('\\', '\/')
-    if prop != '' and prop.rsplit('.', 1) != 'tex':
-        return os.path.basename(prop).rsplit('.', 1)[0] + '.tex'
+    prop = bpy.path.basename(prop)
+    part = prop.rpartition('.')
+    prop = part[0]
+    if prop != '' and part[2].lower() != 'tex':
+        _p_ = bpy.context.scene.renderman.path_texture_output
+        #
+        # just in case there is a leading path separator
+        #
+        _s_ = "" if _p_.endswith("/") or _p_.endswith("\\") else "/"
+        _f_ = "{}{}{}{}".format(_p_, _s_, prop, ".tex")
+        #
+        # TODO:   Refactor a lot of path handling to 'lib.path', so that
+        #         i.e. user_path() becomes 'lib.path.expand()' - this is
+        #         so much more readable und followable, even for new
+        #         or less skilled developers.
+        #
+        # DATE:   2018-02-16
+        # AUTHOR: Timm Wimmers
+        # STATUS: -unassigned-
+        #
+        return user_path(_f_)
     else:
         return prop
 

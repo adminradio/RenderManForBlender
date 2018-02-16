@@ -26,6 +26,7 @@
 #
 # Blender Imports
 #
+import bpy
 from bpy.types import Panel
 
 #
@@ -34,6 +35,7 @@ from bpy.types import Panel
 from . import icons
 from .. import engine
 
+from . utils import split12
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
 
@@ -48,10 +50,31 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         rd = context.scene.render
         rm = context.scene.renderman
 
+        _sro_ = []  # selected renderable objects
+        if context.selected_objects:
+            for obj in bpy.context.selected_objects:
+                if obj.type not in ['CAMERA', 'LAMP', 'SPEAKER']:
+                    _sro_.append(obj)
+
         #
-        # Render Control (row)
+        # Render Control
         #
-        row = layout.row(align=True)
+        lco, rco = split12(layout)
+
+        row = lco.row(align=True)
+        sub = row.row(align=True)
+        sub.scale_x = 2.0
+        sub.active = True if _sro_ else False
+        prp = "render_selected_objects_only"
+        sub.prop(rm, prp, icon_only=True, icon='CURSOR')
+
+        sub = row.row(align=True)
+        sub.scale_x = 2.0
+        iid = icons.toggle("dnoise", rm.do_denoise)
+        sub.prop(rm, "do_denoise", text="", icon_value=iid)
+
+        row = rco.row(align=True)
+
         # disable if no camera in scene
         row.enabled = True if context.scene.camera else False
 
@@ -67,7 +90,7 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         # Batch Render
         #
         opr = "render.render"
-        txt = "Animation"
+        txt = "Anim."
         iid = icons.iconid("batch_render")
         row.operator(opr, text=txt, icon_value=iid).animation = True
 
@@ -87,19 +110,12 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
             iid = icons.iconid("start_ipr")
             row.operator(opr, text=txt, icon_value=iid)
 
-        layout.separator()
+        lco, rco = split12(layout)
 
-        split = layout.split(percentage=0.33)
-
-        split.label(text="Display:")
-        row = split.row(align=True)
+        lco.label(text="Display:")
+        row = rco.row(align=True)
         row.prop(rd, "display_mode", text="")
         row.prop(rd, "use_lock_interface", icon_only=True)
-        col = layout.column()
-        row = col.row()
-        row.prop(rm, "render_into", text="Render To")
 
-        layout.separator()
-        col = layout.column()
-        col.prop(context.scene.renderman, "render_selected_objects_only")
-        col.prop(rm, "do_denoise")
+        lco.label("Render To:")
+        rco.prop(rm, "render_into", text="")
