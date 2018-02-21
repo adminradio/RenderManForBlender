@@ -47,7 +47,7 @@ class RfB_PT_RENDER_MotionBlur(RfB_PT_MIXIN_Panel, Panel):
 
         lco, rco = split12(layout)
 
-        lco.prop(rmn, "motion_blur", text="Enable Motion Blur")
+        lco.prop(rmn, "motion_blur", text="Enable")
         row = rco.row()
         row.enabled = rmn.motion_blur
         row.prop(rmn, "sample_motion_blur")

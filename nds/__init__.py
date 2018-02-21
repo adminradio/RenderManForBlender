@@ -1220,7 +1220,7 @@ class Add_Node:
                 nt.nodes.remove(input_node)
             except TypeError:
                 #
-                # Got None, jsut catch and do nothing.
+                # Got None, just catch and do nothing.
                 #
                 pass
             return {'FINISHED'}

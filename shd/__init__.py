@@ -30,6 +30,8 @@ from collections import OrderedDict
 
 from bpy.props import *
 
+from .. rfb.lib.echo import stdmsg
+
 
 def sp_optionmenu_to_string(options):
     return [(opt.attrib['value'], opt.attrib['name'],
@@ -217,7 +219,7 @@ def update_conditional_visops(node):
                 if hasattr(node, 'inputs') and param_name in node.inputs:
                     node.inputs[param_name].hide = hidden
             except:
-                print("RfB: Error in conditional visop")
+                stdmsg("Error in conditional visop")
 
 
 def update_func_with_inputs(self, context):

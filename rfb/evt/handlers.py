@@ -78,8 +78,6 @@ def event_handler(evt):
             scene_pre.append(function)
         if evt == "SCENE_POST":
             scene_post.append(function)
-        if evt == "FRAME_PRE":
-            frame_pre.append(function)
         if evt == "FRAME_POST":
             frame_post.append(function)
         if evt == "RENDER_PRE":
@@ -147,12 +145,6 @@ def h_scene_post(scene):
         rfb_modified = False
         for h in rfb_post:
             h(scene)
-
-
-@persistent
-def h_frame_pre(scene):
-    for h in frame_pre:
-        h(scene)
 
 
 @persistent
@@ -315,8 +307,6 @@ def enable(h):
                 stdmsg("EventHandler 'FRAME' already registered.")
             return
         else:
-            if h_frame_pre not in bpy.app.handlers.frame_change_pre:
-                bpy.app.handlers.frame_change_pre.append(h_frame_pre)
             if h_frame_post not in bpy.app.handlers.frame_change_post:
                 bpy.app.handlers.frame_change_post.append(h_frame_post)
         frame_enabled = True

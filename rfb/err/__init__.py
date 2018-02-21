@@ -25,13 +25,14 @@
 
 # <pep8-80 compliant>
 
+# not needed anymore naively implemented 'registry' is gone
+# class KeyNotFoundError(Exception):
+#     pass
 
-class KeyNotFoundError(Exception):
-    pass
 
-
-class KeyOverrideError(Exception):
-    pass
+# not needed anymore naively implemented 'registry' is gone
+# class KeyOverrideError(Exception):
+#     pass
 
 
 class ValidInstallError(Exception):

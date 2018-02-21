@@ -46,7 +46,7 @@ class RfB_PT_MATERIAL_ShaderSurface(RfB_PT_MIXIN_ShaderTypePolling, Panel):
     def draw(self, context):
         mat = context.material
         layout = self.layout
-        if context.material.renderman and context.material.node_tree:
+        if mat.renderman and mat.node_tree:
             nt = context.material.node_tree
 
             if is_renderman_nodetree(mat):
@@ -55,21 +55,22 @@ class RfB_PT_MATERIAL_ShaderSurface(RfB_PT_MIXIN_ShaderTypePolling, Panel):
                 # draw_nodes_properties_ui(
                 #    self.layout, context, nt, input_name=self.shader_type)
             else:
-                if not panel_node_draw(layout, context, mat, 'ShaderNodeOutputMaterial', 'Surface'):
+                if not panel_node_draw(layout, context, mat,
+                                       'ShaderNodeOutputMaterial',
+                                       'Surface'):
                     layout.prop(mat, "diffuse_color")
             layout.separator()
 
         else:
             # if no nodetree we use pxrdisney
-            mat = context.material
-            rm = mat.renderman
+            # mat = context.material
+            # rm = mat.renderman
 
             row = layout.row()
             row.prop(mat, "diffuse_color")
 
             layout.separator()
         if mat and not is_renderman_nodetree(mat):
-            layout.operator(
-                'rfb.node_add_nodetree').idtype = "material"
+            layout.operator('rfb.node_add_nodetree').idtype = "material"
             layout.operator('rfb.node_cycles_convertall')
         # self._draw_shader_menu_params(layout, context, rm)

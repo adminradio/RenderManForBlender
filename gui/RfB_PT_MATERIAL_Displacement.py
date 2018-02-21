@@ -31,7 +31,8 @@ from bpy.types import Panel
 #
 # RenderManForBlender Imports
 #
-from . import icons
+from . utils import split12
+from .. nds import is_renderman_nodetree
 from .. nds import draw_nodes_properties_ui
 from . RfB_PT_MIXIN_ShaderTypePolling import RfB_PT_MIXIN_ShaderTypePolling
 
@@ -42,12 +43,15 @@ class RfB_PT_MATERIAL_Displacement(RfB_PT_MIXIN_ShaderTypePolling, Panel):
     shader_type = 'Displacement'
 
     def draw(self, context):
-        if context.material.node_tree:
-            nt = context.material.node_tree
+        mat = context.material
+
+        if mat.renderman and mat.node_tree:
+            nt = mat.node_tree
             draw_nodes_properties_ui(
                 self.layout, context, nt, input_name=self.shader_type)
-            # BBM addition begin
-        row = self.layout.row()
-        row.prop(context.material.renderman, "displacementbound")
-        # BBM addition end
+            if is_renderman_nodetree(mat):
+                lco, rco = split12(self.layout)
+                lco.label("")
+                rco.prop(mat.renderman, "displacementbound", text="Bound")
+
         # self._draw_shader_menu_params(layout, context, rm)
