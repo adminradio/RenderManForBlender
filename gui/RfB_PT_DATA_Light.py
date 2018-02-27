@@ -80,8 +80,8 @@ class RfB_PT_DATA_Light(RfB_PT_MIXIN_ShaderNodePolling, Panel):
         if hasattr(__n, 'Basic_ui_open') and __t != 'SKY':
             icn = 'TRIA_DOWN' if __n.Basic_ui_open else 'TRIA_RIGHT'
             row.prop(__n, 'Basic_ui_open', text="", icon=icn)
-            row.prop(__n, 'intensity')
-            row.prop(__n, 'exposure')
+            row.prop(__n, 'intensity', text="Int.")
+            row.prop(__n, 'exposure', text="Exp.")
             row.prop(__n, 'lightColor', text="")
 
             if __n.Basic_ui_open:

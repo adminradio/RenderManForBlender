@@ -32,6 +32,7 @@ from bpy.types import Panel
 # RenderManForBlender Imports
 #
 from . utils import split12
+from . utils import split33
 
 from . RfB_PT_MIXIN_Collection import RfB_PT_MIXIN_Collection
 
@@ -116,59 +117,37 @@ class RfB_PT_LAYER_RenderPasses(RfB_PT_MIXIN_Collection, Panel):
             rco.prop(item, "stats_type", text="")
 
     def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        rm = scene.renderman
-        rm_rl = None
-        active_layer = scene.render.layers.active
-        for l in rm.render_layers:
-            if l.render_layer == active_layer.name:
-                rm_rl = l
+        lay = self.layout
+        rmn = context.scene.renderman
+        rml = None
+        for l in rmn.render_layers:
+            if l.render_layer == context.scene.render.layers.active.name:
+                rml = l
                 break
-        if rm_rl is None:
-            layout.operator('rfb.rpass_add_renderman')
-            split = layout.split()
-            col = split.column()
-            rl = active_layer
-            col.prop(rl, "use_pass_combined")
-            col.prop(rl, "use_pass_z")
-            col.prop(rl, "use_pass_normal")
-            col.prop(rl, "use_pass_vector")
-            col.prop(rl, "use_pass_uv")
-            col.prop(rl, "use_pass_object_index")
-            # col.prop(rl, "use_pass_shadow")
-            # col.prop(rl, "use_pass_reflection")
+        if rml is None:
+            lay.operator('rfb.rpass_add_renderman')
+            lco, mco, rco = split33(lay)
 
-            col = split.column()
-            col.label(text="Diffuse:")
-            row = col.row(align=True)
-            row.prop(rl, "use_pass_diffuse_direct", text="Direct", toggle=True)
-            row.prop(rl, "use_pass_diffuse_indirect",
-                     text="Indirect", toggle=True)
-            row.prop(rl, "use_pass_diffuse_color", text="Albedo", toggle=True)
-            col.label(text="Specular:")
-            row = col.row(align=True)
-            row.prop(rl, "use_pass_glossy_direct", text="Direct", toggle=True)
-            row.prop(rl, "use_pass_glossy_indirect",
-                     text="Indirect", toggle=True)
+            _l_ = context.scene.render.layers.active
+            lco.prop(_l_, "use_pass_diffuse_direct")
+            lco.prop(_l_, "use_pass_diffuse_indirect")
+            lco.prop(_l_, "use_pass_diffuse_color")
+            lco.prop(_l_, "use_pass_glossy_direct")
+            lco.prop(_l_, "use_pass_glossy_indirect")
 
-            col.prop(rl, "use_pass_subsurface_indirect", text="Subsurface")
-            col.prop(rl, "use_pass_refraction", text="Refraction")
-            col.prop(rl, "use_pass_emit", text="Emission")
+            mco.prop(_l_, "use_pass_combined")
+            mco.prop(_l_, "use_pass_z", text="Depth (Z)")
+            mco.prop(_l_, "use_pass_normal")
+            mco.prop(_l_, "use_pass_vector")
+            mco.prop(_l_, "use_pass_uv")
 
-            # layout.separator()
-            # row = layout.row()
-            # row.label('Holdouts')
-            # rm = scene.renderman.holdout_settings
-            # layout.prop(rm, 'do_collector_shadow')
-            # layout.prop(rm, 'do_collector_reflection')
-            # layout.prop(rm, 'do_collector_refraction')
-            # layout.prop(rm, 'do_collector_indirectdiffuse')
-            # layout.prop(rm, 'do_collector_subsurface')
-
-            col.prop(rl, "use_pass_ambient_occlusion")
+            rco.prop(_l_, "use_pass_object_index")
+            rco.prop(_l_, "use_pass_subsurface_indirect")
+            rco.prop(_l_, "use_pass_refraction")
+            rco.prop(_l_, "use_pass_emit", text="Emission")
+            rco.prop(_l_, "use_pass_ambient_occlusion")
         else:
-            layout.context_pointer_set("pass_list", rm_rl)
-            self._draw_collection(context, layout, rm_rl, "",
+            lay.context_pointer_set("pass_list", rml)
+            self._draw_collection(context, lay, rml, "",
                                   "rfb.collection_toggle_path", "pass_list",
                                   "custom_aovs", "custom_aov_index")

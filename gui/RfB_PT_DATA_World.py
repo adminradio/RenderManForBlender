@@ -219,8 +219,8 @@ class RfB_PT_DATA_World(
                     lco, rco = split12(sub, align=True)
                     lco.label("Specular Amount:")
                     lco.label("Diffuse Amount:")
-                    rco.prop(__n, 'specular', slider=True)
-                    rco.prop(__n, 'diffuse', slider=True)
+                    rco.prop(__n, 'specular', text="", slider=True)
+                    rco.prop(__n, 'diffuse', text="", slider=True)
 
                     sub.separator()
 

@@ -62,6 +62,8 @@ from .. rfb.lib.path import user_path
 
 
 from . import types
+
+from .. import gui
 from .. gui import icons
 
 from . utils.PropertyLookup import PropertyLookup
@@ -114,8 +116,10 @@ class RendermanSocket:
             layout.prop(
                 self, 'default_value', text=self.pretty_n(node), slider=True)
         else:
-            layout.prop(node, self.name,
-                        text=self.pretty_n(node), slider=True)
+            lco, rco = gui.utils.split11(layout)
+            lbl = self.pretty_n(node)
+            lco.label(lbl)
+            rco.prop(node, self.name, text="", slider=True)
 
 
 class RendermanSocketInterface:
@@ -447,27 +451,31 @@ class RendermanShadingNode(bpy.types.ShaderNode):
 
                 if prop_name not in self.inputs:
                     if prop_meta['renderman_type'] == 'page':
+                        #
+                        # This is a page, containing sub properties
+                        #
 
-                        # boxed row layout for single prop with label
+                        # Special handling: single prop with label
                         if PropertyLookup.is_single(prop_id):
                             # draw label
-                            row_label = prop_name.split('.')[-1] + ':'
-                            cl = layout.box()
-                            row = cl.row()
-                            row.label(row_label)
+                            lbl = prop_name.split('.')[-1] + ':'
+                            # cl = layout.box()
+                            row = layout.row()
+                            row.label(lbl)
                             prop = getattr(self, prop_name)
                             self.draw_nonconnectable_props(
                                 context, row, prop)
 
-                        # boxed layout for single props with or without label
+                        # Special handling: single props with or without label
                         elif (PropertyLookup.is_labeled(prop_id) or
                               PropertyLookup.is_unlabeled(prop_id)):
-                            cl = layout.box()
-                            row = cl.row()
+                            # cl = layout.box()
+                            row = layout.row()
                             prop = getattr(self, prop_name)
                             self.draw_nonconnectable_props(
                                 context, row, prop)
 
+                        #
                         # box layout for nested multiple props
                         else:
                             ui_prop = prop_name + "_ui_open"
@@ -491,6 +499,9 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                                            bpy.data.scenes[0].renderman,
                                            "object_groups")
                     else:
+                        #
+                        # non paged sub property
+                        #
                         layout.prop(self, prop_name, slider=True)
 
     def copy(self, node):
@@ -1039,10 +1050,17 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                                 "object_groups"
                             )
                         else:
+                            #
+                            # UI in Panels?
+                            #
                             if prop_meta['renderman_type'] != 'struct':
                                 row.prop(node, prop_name, slider=True)
                             else:
                                 row.label(prop_meta['label'])
+
+                        #
+                        # it's a connactable input socket
+                        #
                         if prop_name in node.inputs:
                             if ('type' in prop_meta
                                     and prop_meta['type'] == 'vstruct')\

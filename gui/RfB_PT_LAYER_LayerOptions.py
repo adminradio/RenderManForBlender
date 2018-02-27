@@ -26,12 +26,13 @@
 #
 # Blender Imports
 #
+# import bpy
 from bpy.types import Panel
 
 #
 # RenderManForBlender Imports
 #
-# from . import icons
+from . utils import split12
 
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
@@ -41,41 +42,52 @@ class RfB_PT_LAYER_LayerOptions(RfB_PT_MIXIN_Panel, Panel):
     bl_context = "render_layer"
 
     def draw(self, context):
-        layout = self.layout
+        lay = self.layout
+        scn = context.scene
+        rnd = context.scene.render
+        rmn = context.scene.renderman
 
-        scene = context.scene
-        rd = scene.render
-        rl = rd.layers.active
+        lco, rco = split12(lay)
+        lco.label("Scene:")
+        rco.prop(scn, "layers", text="")
 
-        split = layout.split()
-
-        col = split.column()
-        col.prop(scene, "layers", text="Scene")
-
-        rm = scene.renderman
-        rm_rl = None
-        active_layer = scene.render.layers.active
-        for l in rm.render_layers:
-            if l.render_layer == active_layer.name:
-                rm_rl = l
+        _l_ = None
+        for l in rmn.render_layers:
+            if l.render_layer == rnd.layers.active.name:
+                _l_ = l
                 break
-        if rm_rl is None:
+        if _l_ is None:
             return
-            # layout.operator('renderman.add_pass_list')
+            # lay.operator('renderman.add_pass_list')
         else:
-            split = layout.split()
-            col = split.column()
+            lco, rco = split12(lay)
+            #
+            # TODO:   Implement Multicamera Export
+            # DATE:   2018-02-27
+            # AUTHOR: Timm Wimmers
+            # STATUS: -unassigned-
+            #
             # cutting this for now until we can export multiple cameras
-            # col.prop_search(rm_rl, 'camera', bpy.data, 'cameras')
-            col.prop_search(rm_rl, 'light_group',
-                            scene.renderman, 'light_groups', icon='DOT')
-            col.prop_search(rm_rl, 'object_group',
-                            scene.renderman, 'object_groups', icon='DOT')
+            # lco.label("Cameras:")
+            # rco.prop_search(_l_, 'camera', bpy.data, 'cameras', text="")
+            #
+            lco.label("Light Group:")
+            lco.label("Object Group:")
+            rco.prop_search(_l_, 'light_group',
+                            rmn, 'light_groups', icon='DOT', text="")
+            rco.prop_search(_l_, 'object_group',
+                            rmn, 'object_groups', icon='DOT', text="")
+            rco.prop(_l_, "denoise_aov")
 
-            col.prop(rm_rl, "denoise_aov")
-            col.prop(rm_rl, 'export_multilayer')
-            if rm_rl.export_multilayer:
-                col.prop(rm_rl, 'use_deep')
-                col.prop(rm_rl, "exr_format_options")
-                col.prop(rm_rl, "exr_compression")
-                col.prop(rm_rl, "exr_storage")
+            sub = lay.column(align=True)
+            icn = 'CHECKBOX_HLT' if _l_.export_multilayer else 'CHECKBOX_DEHLT'
+            prp = 'export_multilayer'
+            txt = "Enable Multilayer (EXR)"
+            sub.prop(_l_, prp, icon=icn, emboss=True, text=txt)
+
+            if _l_.export_multilayer:
+                box = sub.box()
+                box.prop(_l_, 'use_deep')
+                box.prop(_l_, "exr_format_options")
+                box.prop(_l_, "exr_compression")
+                box.prop(_l_, "exr_storage")

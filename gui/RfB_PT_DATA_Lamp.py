@@ -56,7 +56,7 @@ class RfB_PT_DATA_Lamp(RfB_PT_MIXIN_ShaderTypePolling, Panel):
             return
         else:
             if ipr:
-                txt = "Some items cannot be edited while IPR running."
+                txt = "Some properties cannot be edited while IPR is running."
                 layout.label(txt, icon='ERROR')
             row = layout.row(align=True)
             row.enabled = not ipr

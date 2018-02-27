@@ -39,6 +39,13 @@ import bpy
 from . import path
 
 
+#
+# TODO:   there is bpy.path.clean_name() for this, we should use this
+#         instead.
+# DATE:   2018-02-21
+# AUTHOR: Timm Wimmers
+# STATUS: -unassigned-
+#
 def fixname(name):
     for chr in " !@#$%^&*(){}:\";'[]<>,.\\/?":
         name = name.replace(chr, '_')

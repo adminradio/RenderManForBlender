@@ -40,7 +40,7 @@ class RfB_PT_OBJECT_Geometry(RfB_PT_MIXIN_Collection, Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "object"
-    bl_label = "RenderMan Geometry"
+    bl_label = "Geometry"
 
     @classmethod
     def poll(cls, context):

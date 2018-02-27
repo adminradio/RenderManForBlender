@@ -119,6 +119,12 @@ def split41(_l_, align=False):
     return splitpc(_l_, 4 / 5, align=align)
 
 
+def split33(_l_, align=False):
+    lco, _r_ = split12(_l_, align=align)
+    mco, rco = split11(_r_, align=align)
+    return lco, mco, rco
+
+
 def prop12(_l_, dta, prp, lbl):
     """
     Draw a property left labeled with 1/3 - 2/3 distribution.
