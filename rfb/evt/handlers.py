@@ -235,8 +235,6 @@ def disable(h):
                 stdmsg("EventHandler 'FRAME' already unregistered.")
             return
         else:
-            if h_frame_pre in bpy.app.handlers.frame_change_pre:
-                bpy.app.handlers.frame_change_pre.remove(h_frame_pre)
             if h_frame_post in bpy.app.handlers.frame_change_post:
                 bpy.app.handlers.frame_change_post.remove(h_frame_post)
         frame_enabled = False
