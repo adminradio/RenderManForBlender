@@ -33,8 +33,9 @@ import bpy
 #
 # RenderMan for Blender imports
 #
-from . import icons
 from .. import engine
+from . icons import iconid
+from . icons import toggle
 
 
 class RfB_HT_INFO_SmartControl(bpy.types.Header):
@@ -45,38 +46,34 @@ class RfB_HT_INFO_SmartControl(bpy.types.Header):
         if context.scene.render.engine != "PRMAN_RENDER":
             return
 
-        rm = context.scene.renderman
+        rmn = context.scene.renderman
 
         layout = self.layout
         layout.enabled = True if bpy.context.scene.camera else False
 
         row = layout.row(align=True)
         row.scale_x = 1.25
-        iid = icons.iconid("render")
+        iid = iconid("render")
         row.operator("render.render", text="", icon_value=iid)
 
-        iid = icons.iconid("batch_render")
-        row.operator("render.render", text="", icon_value=iid).animation = True
+        iid = iconid("batch_render")
+        opr = "render.render"
+        row.operator(opr, text="", icon_value=iid).animation = True
 
-        iid = (
-            icons.iconid("stop_ipr")
-            if engine.ipr
-            else icons.iconid("start_ipr")
-        )
-        row.operator('rfb.tool_ipr', text="", icon_value=iid)
+        iid = iconid("stop_ipr") if engine.ipr else iconid("start_ipr")
+        opr = "rfb.tool_ipr"
+        row.operator(opr, text="", icon_value=iid)
 
         row = layout.row(align=True)
-
         prp = "enable_external_rendering"
-        iid = icons.toggle('spool', rm.enable_external_rendering)
-        row.prop(rm, prp, icon_only=True, icon_value=iid)
-
-        row = layout.row(align=True)
-        row.scale_x = 1.25
-        rm = context.scene.renderman
-        if rm.enable_external_rendering:
-            iid = icons.iconid("render_spool")
-            row.operator("rfb.file_spool_render", text="", icon_value=iid)
+        iid = toggle('spool', rmn.enable_external_rendering)
+        row.prop(rmn, prp, icon_only=True, icon_value=iid)
+        if rmn.enable_external_rendering:
             prp = "external_animation"
-            iid = icons.toggle("animation", rm.external_animation)
-            row.prop(rm, prp, icon_only=True, icon_value=iid)
+            iid = toggle("animation", rmn.external_animation)
+            row.prop(rmn, prp, icon_only=True, icon_value=iid)
+            row = layout.row(align=True)
+            row.scale_x = 1.25
+            iid = iconid("render_spool")
+            opr = "rfb.file_spool_render"
+            row.operator(opr, text="", icon_value=iid)

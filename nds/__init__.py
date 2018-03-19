@@ -478,7 +478,7 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         #
                         # box layout for nested multiple props
                         else:
-                            ui_prop = prop_name + "_ui_open"
+                            ui_prop = prop_name + "_uio"
                             ui_open = getattr(self, ui_prop)
                             icn = 'panel_open' if ui_open else 'panel_closed'
                             iid = icons.iconid(icn)
@@ -1008,7 +1008,7 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                 else:
                     row = layout.row(align=True)
                     if prop_meta['renderman_type'] == 'page':
-                        ui_prop = prop_name + "_ui_open"
+                        ui_prop = prop_name + "_uio"
                         ui_open = getattr(node, ui_prop)
 
                         cl = row.box()

@@ -32,6 +32,7 @@ from bpy.types import Panel
 # RenderManForBlender Imports
 #
 from . import icons
+from . utils import split12
 
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
@@ -42,131 +43,126 @@ class RfB_PT_RENDER_Spooling(RfB_PT_MIXIN_Panel, Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        rm = scene.renderman
+        lay = self.layout.column(align=True)
+        scn = context.scene
+        rmn = context.scene.renderman
 
-        icon = 'CHECKBOX_HLT' if rm.enable_external_rendering else 'CHECKBOX_DEHLT'
-
-        cl = layout.box()
-        cll = cl.row()
-        cll.prop(rm,
-                 "enable_external_rendering",
-                 icon=icon, emboss=False
-                 )
-        if not rm.enable_external_rendering:
+        icn = 'CHECKBOX_HLT' if rmn.enable_external_rendering else 'CHECKBOX_DEHLT'
+        prp = "enable_external_rendering"
+        lay.prop(rmn, prp, icon=icn)
+        if not rmn.enable_external_rendering:
             return
 
-        cll = cl.row()
+        box = lay.box()
+        cll = box.row()
+
+        lco, rco = split12(box)
+
+        row = lco.row(align=True)
+        row.prop(rmn, "external_animation")
+
+        opr = "rfb.file_spool_render"
+        txt = "Spool Animation" if rmn.external_animation else "Spool Frame"
         iid = icons.iconid("render_spool")
-        cll.operator("rfb.file_spool_render",
-                     text="Export",
-                     icon_value=iid
-                     )
-        cll = cl.column()
-        cll.prop(rm, "display_driver", text='Render To')
+        rco.operator(opr, text=txt, icon_value=iid)
+        rco.prop(rmn, "display_driver", text="")
 
-        split = cl.split(percentage=0.5)
-        split.prop(rm, "external_animation")
+        sub_row = rco.row(align=True)
+        sub_row.enabled = rmn.external_animation
+        sub_row.prop(scn, "frame_start", text="Start")
+        sub_row.prop(scn, "frame_end", text="End")
 
-        sub_row = split.row(align=True)
-        sub_row.enabled = rm.external_animation
-        sub_row.prop(scene, "frame_start", text="Start")
-        sub_row.prop(scene, "frame_end", text="End")
-
-        split = cl.split(percentage=0.5)
-        split.enabled = rm.generate_alf
-        split.prop(rm, 'external_denoise')
+        split = box.split(percentage=0.5)
+        split.enabled = rmn.generate_alf
+        split.prop(rmn, 'external_denoise')
 
         sub_row = split.row()
-        sub_row.enabled = rm.external_denoise and rm.external_animation
-        sub_row.prop(rm, 'crossframe_denoise')
+        sub_row.enabled = rmn.external_denoise and rmn.external_animation
+        sub_row.prop(rmn, 'crossframe_denoise')
 
-        cll = cl.box()
+        cll = box.box()
         cll = cll.column()
 
-        icn = 'panel_open' if rm.export_options else 'panel_closed'
+        icn = 'panel_open' if rmn.export_options else 'panel_closed'
         iid = icons.iconid(icn)
-        cll.prop(rm,
-                 "export_options",
-                 text="Export Options",
-                 icon_value=iid,
-                 emboss=False
+        prp = "export_options"
+        txt = "Export Options"
+        cll.prop(rmn, prp, text=txt, icon_value=iid, emboss=False
                  )
-        if rm.export_options:
-            cll.prop(rm, "generate_rib")
+        if rmn.export_options:
+            cll.prop(rmn, "generate_rib")
 
             row = cll.row()
-            row.enabled = rm.generate_rib
-            row.prop(rm, "generate_object_rib")
+            row.enabled = rmn.generate_rib
+            row.prop(rmn, "generate_object_rib")
 
-            cll.prop(rm, "generate_alf")
+            cll.prop(rmn, "generate_alf")
 
             split = cll.split(percentage=0.33)
-            split.enabled = rm.generate_alf and rm.generate_render
-            split.prop(rm, "do_render")
+            split.enabled = rmn.generate_alf and rmn.generate_render
+            split.prop(rmn, "do_render")
 
             sub_row = split.row()
-            sub_row.enabled = rm.do_render and rm.generate_alf and rm.generate_render
-            sub_row.prop(rm, "queuing_system")
+            sub_row.enabled = rmn.do_render and rmn.generate_alf and rmn.generate_render
+            sub_row.prop(rmn, "queuing_system")
 
-        if rm.generate_alf:
-            icn = 'panel_open' if rm.alf_options else 'panel_closed'
+        if rmn.generate_alf:
+            icn = 'panel_open' if rmn.alf_options else 'panel_closed'
             iid = icons.iconid(icn)
-            cll = cl.box()
+            cll = box.box()
             cll = cll.column()
-            cll.prop(rm,
+            cll.prop(rmn,
                      "alf_options",
                      text="ALF Options",
                      icon_value=iid,
                      emboss=False
                      )
-            if rm.alf_options:
-                cll.prop(rm, 'custom_alfname')
-                cll.prop(rm, "convert_textures")
-                cll.prop(rm, "generate_render")
+            if rmn.alf_options:
+                cll.prop(rmn, 'custom_alfname')
+                cll.prop(rmn, "convert_textures")
+                cll.prop(rmn, "generate_render")
 
                 row = cll.row()
-                row.enabled = rm.generate_render
-                row.prop(rm, 'custom_cmd')
+                row.enabled = rmn.generate_render
+                row.prop(rmn, 'custom_cmd')
 
                 split = cll.split(percentage=0.33)
-                split.enabled = rm.generate_render
-                split.prop(rm, "override_threads")
+                split.enabled = rmn.generate_render
+                split.prop(rmn, "override_threads")
 
                 sub_row = split.row()
-                sub_row.enabled = rm.override_threads
-                sub_row.prop(rm, "external_threads")
+                sub_row.enabled = rmn.override_threads
+                sub_row.prop(rmn, "external_threads")
 
                 row = cll.row()
-                row.enabled = rm.external_denoise
-                row.prop(rm, 'denoise_cmd')
+                row.enabled = rmn.external_denoise
+                row.prop(rmn, 'denoise_cmd')
                 row = cll.row()
-                row.enabled = rm.external_denoise
-                row.prop(rm, 'spool_denoise_aov')
+                row.enabled = rmn.external_denoise
+                row.prop(rmn, 'spool_denoise_aov')
                 row = cll.row()
-                row.enabled = rm.external_denoise and not rm.spool_denoise_aov
-                row.prop(rm, "denoise_gpu")
+                row.enabled = rmn.external_denoise and not rmn.spool_denoise_aov
+                row.prop(rmn, "denoise_gpu")
 
                 # checkpointing
                 cll = cll.column()
-                cll.enabled = rm.generate_render
+                cll.enabled = rmn.generate_render
 
                 row = cll.row()
-                row.prop(rm, 'recover')
+                row.prop(rmn, 'recover')
 
                 row = cll.row()
-                row.prop(rm, 'enable_checkpoint')
+                row.prop(rmn, 'enable_checkpoint')
 
                 row = cll.row()
-                row.enabled = rm.enable_checkpoint
-                row.prop(rm, 'asfinal')
+                row.enabled = rmn.enable_checkpoint
+                row.prop(rmn, 'asfinal')
 
                 row = cll.row()
-                row.enabled = rm.enable_checkpoint
-                row.prop(rm, 'checkpoint_type')
+                row.enabled = rmn.enable_checkpoint
+                row.prop(rmn, 'checkpoint_type')
 
                 row = cll.row(align=True)
-                row.enabled = rm.enable_checkpoint
-                row.prop(rm, 'checkpoint_interval')
-                row.prop(rm, 'render_limit')
+                row.enabled = rmn.enable_checkpoint
+                row.prop(rmn, 'checkpoint_interval')
+                row.prop(rmn, 'render_limit')

@@ -100,9 +100,9 @@ def register():
 
     # # #### WIPs ####
     #
-    # from . gui import RfB_HT_IMAGE_SmartControl  # noqa
-    # from . gui import RfB_HT_NODE_SmartControl  # noqa
-    # from . gui import RfB_HT_VIEW3D_SmartControl  # noqa
+    # from . gui import _RfB_HT_IMAGE_SmartControl  # noqa
+    # from . gui import _RfB_HT_NODE_SmartControl  # noqa
+    # from . gui import _RfB_HT_VIEW3D_SmartControl  # noqa
     #
     # # #### END WIPs ####
     #
@@ -152,12 +152,6 @@ def register():
     from . gui import RfB_PT_SCENE_ObjectGroups  # noqa
     from . gui import RfB_PT_SCENE_RIBInjection  # noqa
     from . gui import RfB_PT_SCENE_SampleFilters  # noqa
-    #
-    # World panel RIB injection not needed anymore,
-    # had found a place im the 'World' Panel
-    #
-    # from . gui import RfB_PT_WORLD_RIBInjection  # noqa
-    #
     from . gui import RfB_PT_VIEW3D_Toolshelf  # noqa
 
     from . ops import RfB_OT_COLL_TogglePath  # noqa

@@ -77,14 +77,14 @@ class RfB_PT_DATA_Light(RfB_PT_MIXIN_ShaderNodePolling, Panel):
         #
         lay = layout.column(align=True)
         row = lay.row(align=True)
-        if hasattr(__n, 'Basic_ui_open') and __t != 'SKY':
-            icn = 'TRIA_DOWN' if __n.Basic_ui_open else 'TRIA_RIGHT'
-            row.prop(__n, 'Basic_ui_open', text="", icon=icn)
+        if hasattr(__n, 'Basic_uio') and __t != 'SKY':
+            icn = 'TRIA_DOWN' if __n.Basic_uio else 'TRIA_RIGHT'
+            row.prop(__n, 'Basic_uio', text="", icon=icn)
             row.prop(__n, 'intensity', text="Int.")
             row.prop(__n, 'exposure', text="Exp.")
             row.prop(__n, 'lightColor', text="")
 
-            if __n.Basic_ui_open:
+            if __n.Basic_uio:
                 lay = lay.box()
                 lco, rco = split12(lay.row(), align=True)
                 lco.label("Temperature:")
@@ -204,15 +204,15 @@ class RfB_PT_DATA_Light(RfB_PT_MIXIN_ShaderNodePolling, Panel):
         elif __t == 'SKY':
             #
             # we use refine as lamps with __t = 'SKY' do not yet have an
-            # attribut basic_ui_open (refine is otherwise unused after
+            # attribut basic_uio (refine is otherwise unused after
             # refactoring)
             #
-            icn = 'TRIA_DOWN' if __n.Refine_ui_open else 'TRIA_RIGHT'
-            row.prop(__n, 'Refine_ui_open', text="", icon=icn)
+            icn = 'TRIA_DOWN' if __n.Refine_uio else 'TRIA_RIGHT'
+            row.prop(__n, 'Refine_uio', text="", icon=icn)
             row.prop(__n, 'intensity')
             row.prop(__n, 'exposure')
             row.prop(__n, 'sunTint', text="")
-            if __n.Refine_ui_open:
+            if __n.Refine_uio:
                 lay = lay.box()
                 lco, rco = split12(lay.row())
                 lco.label('Sun Size:')

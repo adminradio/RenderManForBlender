@@ -79,15 +79,9 @@ class RfB_PT_LAYER_LayerOptions(RfB_PT_MIXIN_Panel, Panel):
                             rmn, 'object_groups', icon='DOT', text="")
             rco.prop(_l_, "denoise_aov")
 
-            sub = lay.column(align=True)
-            icn = 'CHECKBOX_HLT' if _l_.export_multilayer else 'CHECKBOX_DEHLT'
-            prp = 'export_multilayer'
-            txt = "Enable Multilayer (EXR)"
-            sub.prop(_l_, prp, icon=icn, emboss=True, text=txt)
-
+            rco.prop(_l_, 'export_multilayer')
             if _l_.export_multilayer:
-                box = sub.box()
-                box.prop(_l_, 'use_deep')
-                box.prop(_l_, "exr_format_options")
-                box.prop(_l_, "exr_compression")
-                box.prop(_l_, "exr_storage")
+                rco.prop(_l_, 'use_deep')
+                lay.prop(_l_, "exr_format_options", text="Bit Depth")
+                lay.prop(_l_, "exr_compression", text="Compression")
+                lay.prop(_l_, "exr_storage", text="Storage Mode")

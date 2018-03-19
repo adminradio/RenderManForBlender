@@ -195,7 +195,7 @@ def draw_props(node, prop_names, layout):
             #
             layout.separator()
 
-            ui_prop = prop_name + "_ui_open"
+            ui_prop = prop_name + "_uio"
             ui_open = getattr(node, ui_prop)
 
             txt = prop_name.split('.')[-1]
