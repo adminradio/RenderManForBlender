@@ -90,7 +90,7 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         # Batch Render
         #
         opr = "render.render"
-        txt = "Anim."
+        txt = "Ani"
         iid = icons.iconid("batch_render")
         row.operator(opr, text=txt, icon_value=iid).animation = True
 
@@ -100,13 +100,13 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         if engine.ipr:
             # Stop IPR
             opr = "rfb.tool_ipr"
-            txt = "Stop IPR"
+            txt = "IPR"
             iid = icons.iconid("stop_ipr")
             row.operator(opr, text=txt, icon_value=iid)
         else:
             # Start IPR
             opr = "rfb.tool_ipr"
-            txt = "Start IPR"
+            txt = "IPR"
             iid = icons.iconid("start_ipr")
             row.operator(opr, text=txt, icon_value=iid)
 
