@@ -498,10 +498,15 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         layout.prop_search(self, prop_name,
                                            bpy.data.scenes[0].renderman,
                                            "object_groups")
+                    elif "lightGroup" in prop_name:
+                        layout.prop_search(self, prop_name,
+                                           bpy.data.scenes[0].renderman,
+                                           "light_groups")
                     else:
                         #
                         # non paged sub property
                         #
+                        # print(prop_name)
                         layout.prop(self, prop_name, slider=True)
 
     def copy(self, node):
