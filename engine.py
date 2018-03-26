@@ -914,7 +914,7 @@ class RPass:
             # STATUS: quickfix 2018-02-13, leave open for better solution
             #
             try:
-                in_file = str(Path(in_file).resolve())
+                in_file = str(Path(bpy.path.abspath(in_file)).resolve())
             except FileNotFoundError:
                 return  # do this better
 
