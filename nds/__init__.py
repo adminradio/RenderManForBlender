@@ -480,18 +480,20 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         else:
                             ui_prop = prop_name + "_uio"
                             ui_open = getattr(self, ui_prop)
-                            icn = 'panel_open' if ui_open else 'panel_closed'
-                            iid = icons.iconid(icn)
-                            sub = layout.box()
-                            sub = sub.column()
+                            # icn = 'panel_open' if ui_open else 'panel_closed'
+                            # iid = icons.iconid(icn)
+                            # sub = layout.box()
+                            icn = "TRIA_DOWN" if ui_open else "TRIA_RIGHT"
+                            sub = layout.column(align=True)
                             sub.prop(self, ui_prop,
-                                     icon_value=iid,
+                                     icon=icn,
                                      text=prop_name.split('.')[-1],
-                                     emboss=False)
+                                     emboss=True)
                             if ui_open:
+                                box = sub.box()
                                 prop = getattr(self, prop_name)
                                 self.draw_nonconnectable_props(
-                                    context, sub, prop)
+                                    context, box, prop)
                     elif ("Subset" in prop_name
                             and prop_meta['type'] == 'string'):
 
@@ -507,7 +509,11 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         # non paged sub property
                         #
                         # print(prop_name)
-                        layout.prop(self, prop_name, slider=True)
+                        if prop_name.endswith("Color"):
+                            __l = layout.row()
+                        else:
+                            __l = layout
+                        __l.prop(self, prop_name, slider=True)
 
     def copy(self, node):
         pass

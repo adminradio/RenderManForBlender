@@ -23,6 +23,7 @@
 #
 # ##### END MIT LICENSE BLOCK #####
 
+
 class PropertyLookup():
 
     _single = [
@@ -57,7 +58,8 @@ class PropertyLookup():
         # Singles as before but their labels should not be drawn as of
         # cosmetical or unlogical reasons.
         #
-        "PxrVolumeBxdfNodeMultiScatter Optimization"]
+        "PxrVolumeBxdfNodeMultiScatter Optimization",
+        "PxrTexturePatternNodeAdvanced Texture Settings"]
 
     _labeled = [
         #
