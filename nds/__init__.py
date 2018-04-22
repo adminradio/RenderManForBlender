@@ -64,7 +64,6 @@ from .. rfb.lib.path import user_path
 from . import types
 
 from .. import gui
-from .. gui import icons
 
 from . utils.PropertyLookup import PropertyLookup
 
@@ -116,7 +115,7 @@ class RendermanSocket:
             layout.prop(
                 self, 'default_value', text=self.pretty_n(node), slider=True)
         else:
-            lco, rco = gui.utils.split11(layout)
+            lco, rco = gui.utils.split12(layout)
             lbl = self.pretty_n(node)
             lco.label(lbl)
             rco.prop(node, self.name, text="", slider=True)
@@ -513,7 +512,10 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                             __l = layout.row()
                         else:
                             __l = layout
-                        __l.prop(self, prop_name, slider=True)
+                        if prop_name.endswith("filename"):
+                            __l.prop(self, prop_name, text="")
+                        else:
+                            __l.prop(self, prop_name, slider=True)
 
     def copy(self, node):
         pass
@@ -912,6 +914,9 @@ def draw_nodes_properties_ui(
     split = layout.split(0.35)
     split.label(socket.name + ':')
 
+    # __l, __r = split12()
+    # __l.label(socket.name)
+
     if socket.is_linked:
         # for lights draw the shading rate ui.
 
@@ -988,72 +993,83 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                     else None
                 layout.context_pointer_set("socket", socket)
 
+                lay = layout.column(align=True)
+                row = lay.row(align=True)
                 if socket and socket.is_linked:
                     input_node = socket_node_input(nt, socket)
-                    icon = 'TRIA_DOWN' if socket.ui_open else 'TRIA_RIGHT'
+                    icn = 'TRIA_DOWN' if socket.ui_open else 'TRIA_RIGHT'
 
-                    split = layout.split(NODE_LAYOUT_SPLIT)
-                    row = split.row()
-                    indented_label(row, None, level)
-                    row.prop(socket, "ui_open", icon=icon, text='',
-                             icon_only=True, emboss=False)
-                    label = prop_meta.get('label', prop_name)
-                    row.label(label + ':')
+                    # split = layout.split(NODE_LAYOUT_SPLIT)
+                    # row = split.row()
+                    # indented_label(row, None, level)
+                    txt = prop_meta.get('label', prop_name)
+                    row.prop(socket, "ui_open", icon=icn, text=txt)
+
+                    icn = "LAYER_USED"
                     if ('type' in prop_meta and prop_meta['type'] == 'vstruct') or prop_name == 'inputMaterial':
-                        split.operator_menu_enum("node.add_layer", "node_type",
-                                                 text=input_node.bl_label, icon="LAYER_USED")
+                        row.operator_menu_enum("node.add_layer",
+                                               "node_type",
+                                               text=input_node.bl_label,
+                                               icon=icn)
+
                     elif prop_meta['renderman_type'] == 'struct':
-                        split.operator_menu_enum("node.add_manifold", "node_type",
-                                                 text=input_node.bl_label, icon="LAYER_USED")
+                        row.operator_menu_enum("node.add_manifold",
+                                               "node_type",
+                                               text=input_node.bl_label,
+                                               icon=icn)
+
                     elif prop_meta['renderman_type'] == 'normal':
-                        split.operator_menu_enum("node.add_bump", "node_type",
-                                                 text=input_node.bl_label, icon="LAYER_USED")
+                        row.operator_menu_enum("node.add_bump",
+                                               "node_type",
+                                               text=input_node.bl_label,
+                                               icon=icn)
                     else:
-                        split.operator_menu_enum("node.add_pattern", "node_type",
-                                                 text=input_node.bl_label, icon="LAYER_USED")
+                        row.operator_menu_enum("node.add_pattern",
+                                               "node_type",
+                                               text=input_node.bl_label,
+                                               icon=icn)
 
                     if socket.ui_open:
-                        draw_node_properties_recursive(layout, context, nt,
-                                                       input_node, level=level + 1)
+                        box = lay.box()
+                        draw_node_properties_recursive(
+                            box, context, nt, input_node, level=level + 1
+                        )
 
                 else:
-                    row = layout.row(align=True)
                     if prop_meta['renderman_type'] == 'page':
                         ui_prop = prop_name + "_uio"
                         ui_open = getattr(node, ui_prop)
 
-                        cl = row.box()
-                        row = cl.row()
-
-                        icn = 'propconfig_open' if ui_open else 'propconfig'
-                        iid = icons.iconid(icn)
-                        row.prop(node, ui_prop,
-                                 icon_value=iid, text='',
-                                 icon_only=True, emboss=False)
+                        icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+                        row.prop(node, ui_prop, icon=icn, text=prop_name.split('.')[-1])
 
                         sub_prop_names = list(prop)
-                        if node.bl_idname \
-                                in {"PxrSurfaceBxdfNode",
-                                    "PxrLayerPatternNode"
-                                    }:
+                        if node.bl_idname in {"PxrSurfaceBxdfNode",
+                                              "PxrLayerPatternNode"}:
                             for pn in sub_prop_names:
                                 if pn.startswith('enable'):
-                                    row.prop(node, pn, text='')
+                                    icn = 'CHECKBOX_HLT' if getattr(node, pn) else 'CHECKBOX_DEHLT'
+                                    row.prop(node, pn, text='', icon=icn)
                                     sub_prop_names.remove(pn)
                                     break
 
-                        row.label(prop_name.split('.')[-1] + ':')
-
                         if ui_open:
-                            draw_props(sub_prop_names, cl, level + 1)
+                            box = lay.box()
+                            draw_props(sub_prop_names, box, level + 1)
 
                     else:
-                        # indented_label(row, None, level)
-                        # indented_label(row, socket.name+':')
                         # don't draw prop for struct type
                         if "Subset" \
                                 in prop_name \
                                 and prop_meta['type'] == 'string':
+                            #
+                            # FIXME:  bpy.data.scenes[0] is static/absolut
+                            #         does not work with multiple scenes
+                            #
+                            # DATE:   2018-04-11
+                            # AUTHOR: Timm Wimmers
+                            # STATUS: -unassigned-
+                            #
                             row.prop_search(
                                 node,
                                 prop_name,
@@ -1070,7 +1086,7 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                                 row.label(prop_meta['label'])
 
                         #
-                        # it's a connactable input socket
+                        # it's a connactable input socket, but not connected
                         #
                         if prop_name in node.inputs:
                             if ('type' in prop_meta

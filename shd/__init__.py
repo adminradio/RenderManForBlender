@@ -101,7 +101,6 @@ def generate_page(sp, node, parent_name, first_level=False):
 
             # if name == sp.attrib['name']:
             #    name = name + '_prop'
-
     return prop_names, prop_meta
 
 

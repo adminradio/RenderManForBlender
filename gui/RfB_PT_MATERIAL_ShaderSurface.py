@@ -47,7 +47,7 @@ class RfB_PT_MATERIAL_ShaderSurface(RfB_PT_MIXIN_ShaderTypePolling, Panel):
         mat = context.material
         layout = self.layout
         if mat.renderman and mat.node_tree:
-            nt = context.material.node_tree
+            # nt = context.material.node_tree
 
             if is_renderman_nodetree(mat):
                 panel_node_draw(layout, context, mat,

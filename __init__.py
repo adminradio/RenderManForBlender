@@ -140,12 +140,10 @@ def register():
     from . gui import RfB_PT_PARTICLE_PrimVars  # noqa
     from . gui import RfB_PT_PARTICLE_Render  # noqa
     from . gui import RfB_PT_RENDER_Advanced  # noqa
-    from . gui import RfB_PT_RENDER_Baking  # noqa
     from . gui import RfB_PT_RENDER_MotionBlur  # noqa
     from . gui import RfB_PT_RENDER_PreviewSampling  # noqa
     from . gui import RfB_PT_RENDER_Render  # noqa
     from . gui import RfB_PT_RENDER_Sampling  # noqa
-    from . gui import RfB_PT_RENDER_Spooling  # noqa
     from . gui import RfB_PT_SCENE_DisplayFilters  # noqa
     from . gui import RfB_PT_SCENE_LightLinking  # noqa
     from . gui import RfB_PT_SCENE_LigthGroups  # noqa

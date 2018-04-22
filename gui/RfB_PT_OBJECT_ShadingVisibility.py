@@ -77,13 +77,12 @@ class RfB_PT_OBJECT_ShadingVisibility(RfB_PT_MIXIN_Collection, Panel):
         col.separator()
 
         icon = 'CHECKBOX_HLT' if rm.shading_override else 'CHECKBOX_DEHLT'
-
-        cl = col.box()
-        row = cl.row()
-        row.prop(rm, 'shading_override', icon=icon, emboss=False)
+        col = col.column(align=True)
+        col.prop(rm, 'shading_override', icon=icon)
 
         if rm.shading_override:
-            colgroup = cl.column()
+            box = col.box()
+            colgroup = box.column()
             colgroup.enabled = rm.shading_override
             row = colgroup.row()
             row.prop(rm, "watertight")

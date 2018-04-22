@@ -26,25 +26,13 @@
 #
 # Blender Imports
 #
-from bpy.types import Panel
-
-#
-# RenderManForBlender Imports
-#
-from . import icons
-
-from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
+import bpy
 
 
-class RfB_PT_RENDER_Baking(RfB_PT_MIXIN_Panel, Panel):
-    bl_label = "Baking"
-    bl_options = {'DEFAULT_CLOSED'}
+class RfB_OT_ALL_Nothing(bpy.types.Operator):
+    bl_idname = "rfb.nothing"
+    bl_label = "Do nothing."
+    bl_description = ""
 
-    def draw(self, context):
-        layout = self.layout.column()
-        iid = icons.iconid("batch_render")
-        layout.operator(
-            "rfb.bake_pattern_nodes",
-            text="Bake Pattern Nodes to Textures.",
-            icon_value=iid
-        )
+    def invoke(self, context, event):
+        return {'FINISHED'}

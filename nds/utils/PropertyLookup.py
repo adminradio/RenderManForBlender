@@ -51,15 +51,15 @@ class PropertyLookup():
         "PxrLayerMixerPatternNodeLayer 4",
         "PxrDispVectorLayerPatternNodeBase Layer",
         "PxrRemapPatternNodeInput Range",
-        "PxrRemapPatternNodeOutput Range"]
+        "PxrRemapPatternNodeOutput Range",
+    ]
 
     _unlabeled = [
         #
         # Singles as before but their labels should not be drawn as of
         # cosmetical or unlogical reasons.
         #
-        "PxrVolumeBxdfNodeMultiScatter Optimization",
-        "PxrTexturePatternNodeAdvanced Texture Settings"]
+        "PxrVolumeBxdfNodeMultiScatter Optimization"]
 
     _labeled = [
         #
@@ -91,7 +91,9 @@ class PropertyLookup():
         "PxrColorCorrectPatternNodeInput Range",
         "PxrColorCorrectPatternNodeOutput Range",
         "PxrColorCorrectPatternNodeColor Correct",
-        "PxrRemapPatternNodeRemap"]
+        "PxrRemapPatternNodeRemap",
+        "PxrBumpPatternNodeTexture.Advanced Texture Settings"
+    ]
 
     _cycles_node_map = {
         'ShaderNodeAttribute': 'node_attribute',
