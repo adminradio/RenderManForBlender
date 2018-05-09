@@ -105,11 +105,6 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         iid = iconid("stop_ipr" if engine.ipr else "start_ipr")
         row.operator(opr, text=txt, icon_value=iid)
 
-        lco.separator()
-
-        opr = "rfb.bake_pattern_nodes"
-        rco.operator(opr, icon='TEXTURE')
-
         lco, rco = split12(lay)
 
         lco.label(text="Display:")
@@ -120,128 +115,129 @@ class RfB_PT_RENDER_Render(RfB_PT_MIXIN_Panel, Panel):
         lco.label("Render To:")
         rco.prop(rmn, "render_into", text="")
 
-        lay = lay.column(align=True)
+        col = lay.column(align=True)
         icn = 'CHECKBOX_HLT' if rmn.enable_external_rendering else 'CHECKBOX_DEHLT'
         prp = "enable_external_rendering"
-        lay.prop(rmn, prp, icon=icn)
-        if not rmn.enable_external_rendering:
-            return
+        col.prop(rmn, prp, icon=icn)
+        if rmn.enable_external_rendering:
+            box = col.box()
+            lco, rco = split12(box)
 
-        box = lay.box()
-        lco, rco = split12(box)
+            row = lco.row(align=True)
+            # row.scale_x = 2.0
 
-        row = lco.row(align=True)
-        # row.scale_x = 2.0
+            prp = "external_animation"
+            iid = toggle("animation", rmn.external_animation)
+            row.prop(rmn, prp, text="", icon_value=iid)
 
-        prp = "external_animation"
-        iid = toggle("animation", rmn.external_animation)
-        row.prop(rmn, prp, text="", icon_value=iid)
+            prp = "external_denoise"
+            iid = toggle("dnoise", rmn.external_denoise)
+            row.prop(rmn, prp, text="", icon_value=iid)
 
-        prp = "external_denoise"
-        iid = toggle("dnoise", rmn.external_denoise)
-        row.prop(rmn, prp, text="", icon_value=iid)
+            sub = row.row(align=True)
+            # sub.scale_x = 2.0
+            sub.enabled = rmn.external_animation and rmn.external_denoise
 
-        sub = row.row(align=True)
-        # sub.scale_x = 2.0
-        sub.enabled = rmn.external_animation and rmn.external_denoise
+            prp = "crossframe_denoise"
+            iid = toggle("crossdn", rmn.crossframe_denoise)
+            sub.prop(rmn, prp, text="", icon_value=iid)
 
-        prp = "crossframe_denoise"
-        iid = toggle("crossdn", rmn.crossframe_denoise)
-        sub.prop(rmn, prp, text="", icon_value=iid)
+            opr = "rfb.file_spool_render"
+            txt = "Spool Animation" if rmn.external_animation else "Spool Frame"
+            iid = iconid("render_spool")
+            rco.operator(opr, text=txt, icon_value=iid)
+            rco.prop(rmn, "display_driver", text="")
 
-        opr = "rfb.file_spool_render"
-        txt = "Spool Animation" if rmn.external_animation else "Spool Frame"
-        iid = iconid("render_spool")
-        rco.operator(opr, text=txt, icon_value=iid)
-        rco.prop(rmn, "display_driver", text="")
+            sub_row = rco.row(align=True)
+            sub_row.enabled = rmn.external_animation
+            sub_row.prop(scn, "frame_start", text="Start")
+            sub_row.prop(scn, "frame_end", text="End")
 
-        sub_row = rco.row(align=True)
-        sub_row.enabled = rmn.external_animation
-        sub_row.prop(scn, "frame_start", text="Start")
-        sub_row.prop(scn, "frame_end", text="End")
-
-        #cll = box.box()
-        cll = box.column(align=True)
-
-        icn = 'TRIA_DOWN' if rmn.export_options else 'TRIA_RIGHT'
-        prp = "export_options"
-        txt = "Export Options"
-        cll.prop(rmn, prp, text=txt, icon=icn)
-        if rmn.export_options:
-            cll = cll.box()
-
-            lco, rco = split11(cll)
-
-            lco.prop(rmn, "generate_rib")
-
-            row = rco.row()
-            row.enabled = rmn.generate_rib
-            row.prop(rmn, "generate_object_rib")
-
-            lco.prop(rmn, "generate_alf")
-
-            split = cll.split()
-            split.enabled = rmn.generate_alf and rmn.generate_render
-            split.prop(rmn, "do_render")
-
-            sub_row = split.row()
-            sub_row.enabled = rmn.do_render and rmn.generate_alf and rmn.generate_render
-            sub_row.prop(rmn, "queuing_system")
-
-        if rmn.generate_alf:
             cll = box.column(align=True)
 
             icn = 'TRIA_DOWN' if rmn.export_options else 'TRIA_RIGHT'
-            prp = "alf_options"
-            txt = "ALF Options"
+            prp = "export_options"
+            txt = "Export Options"
             cll.prop(rmn, prp, text=txt, icon=icn)
-            if rmn.alf_options:
+            if rmn.export_options:
                 cll = cll.box()
-                cll.prop(rmn, 'custom_alfname')
-                cll.prop(rmn, "convert_textures")
-                cll.prop(rmn, "generate_render")
 
-                row = cll.row()
-                row.enabled = rmn.generate_render
-                row.prop(rmn, 'custom_cmd')
+                lco, rco = split11(cll)
 
-                split = cll.split(percentage=0.33)
-                split.enabled = rmn.generate_render
-                split.prop(rmn, "override_threads")
+                lco.prop(rmn, "generate_rib")
+
+                row = rco.row()
+                row.enabled = rmn.generate_rib
+                row.prop(rmn, "generate_object_rib")
+
+                lco.prop(rmn, "generate_alf")
+
+                split = cll.split()
+                split.enabled = rmn.generate_alf and rmn.generate_render
+                split.prop(rmn, "do_render")
 
                 sub_row = split.row()
-                sub_row.enabled = rmn.override_threads
-                sub_row.prop(rmn, "external_threads")
+                sub_row.enabled = rmn.do_render and rmn.generate_alf and rmn.generate_render
+                sub_row.prop(rmn, "queuing_system")
 
-                row = cll.row()
-                row.enabled = rmn.external_denoise
-                row.prop(rmn, 'denoise_cmd')
-                row = cll.row()
-                row.enabled = rmn.external_denoise
-                row.prop(rmn, 'spool_denoise_aov')
-                row = cll.row()
-                row.enabled = rmn.external_denoise and not rmn.spool_denoise_aov
-                row.prop(rmn, "denoise_gpu")
+            if rmn.generate_alf:
+                cll = box.column(align=True)
 
-                # checkpointing
-                cll = cll.column()
-                cll.enabled = rmn.generate_render
+                icn = 'TRIA_DOWN' if rmn.export_options else 'TRIA_RIGHT'
+                prp = "alf_options"
+                txt = "ALF Options"
+                cll.prop(rmn, prp, text=txt, icon=icn)
+                if rmn.alf_options:
+                    cll = cll.box()
+                    cll.prop(rmn, 'custom_alfname')
+                    cll.prop(rmn, "convert_textures")
+                    cll.prop(rmn, "generate_render")
 
-                row = cll.row()
-                row.prop(rmn, 'recover')
+                    row = cll.row()
+                    row.enabled = rmn.generate_render
+                    row.prop(rmn, 'custom_cmd')
 
-                row = cll.row()
-                row.prop(rmn, 'enable_checkpoint')
+                    split = cll.split(percentage=0.33)
+                    split.enabled = rmn.generate_render
+                    split.prop(rmn, "override_threads")
 
-                row = cll.row()
-                row.enabled = rmn.enable_checkpoint
-                row.prop(rmn, 'asfinal')
+                    sub_row = split.row()
+                    sub_row.enabled = rmn.override_threads
+                    sub_row.prop(rmn, "external_threads")
 
-                row = cll.row()
-                row.enabled = rmn.enable_checkpoint
-                row.prop(rmn, 'checkpoint_type')
+                    row = cll.row()
+                    row.enabled = rmn.external_denoise
+                    row.prop(rmn, 'denoise_cmd')
+                    row = cll.row()
+                    row.enabled = rmn.external_denoise
+                    row.prop(rmn, 'spool_denoise_aov')
+                    row = cll.row()
+                    row.enabled = rmn.external_denoise and not rmn.spool_denoise_aov
+                    row.prop(rmn, "denoise_gpu")
 
-                row = cll.row(align=True)
-                row.enabled = rmn.enable_checkpoint
-                row.prop(rmn, 'checkpoint_interval')
-                row.prop(rmn, 'render_limit')
+                    # checkpointing
+                    cll = cll.column()
+                    cll.enabled = rmn.generate_render
+
+                    row = cll.row()
+                    row.prop(rmn, 'recover')
+
+                    row = cll.row()
+                    row.prop(rmn, 'enable_checkpoint')
+
+                    row = cll.row()
+                    row.enabled = rmn.enable_checkpoint
+                    row.prop(rmn, 'asfinal')
+
+                    row = cll.row()
+                    row.enabled = rmn.enable_checkpoint
+                    row.prop(rmn, 'checkpoint_type')
+
+                    row = cll.row(align=True)
+                    row.enabled = rmn.enable_checkpoint
+                    row.prop(rmn, 'checkpoint_interval')
+                    row.prop(rmn, 'render_limit')
+
+        row = lay.row()
+        row.scale_y = 1.25
+        row.operator("rfb.bake_pattern_nodes", icon='TEXTURE')

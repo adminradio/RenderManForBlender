@@ -738,6 +738,7 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         min=0.0,
         max=1.0,
         default=0.01,
+        precision=4,
         description="If a pixel changes by less than this amount when "
                     "updated, it will not receive further samples in "
                     "adaptive mode.  Lower values lead to increased render "
@@ -1050,7 +1051,7 @@ class RendermanSceneSettings(bpy.types.PropertyGroup):
         description="If a pixel changes by less than this amount when "
                     "updated, it will not receive further samples in "
                     "adaptive mode.",
-        min=0, max=1, default=.05)
+        min=0, max=1, default=.05, precision=3)
 
     preview_bucket_order = EnumProperty(
         name="Preview Bucket Order",

@@ -98,14 +98,6 @@ def register():
     from . import nds
     from . import properties
 
-    # # #### WIPs ####
-    #
-    # from . gui import _RfB_HT_IMAGE_SmartControl  # noqa
-    # from . gui import _RfB_HT_NODE_SmartControl  # noqa
-    # from . gui import _RfB_HT_VIEW3D_SmartControl  # noqa
-    #
-    # # #### END WIPs ####
-    #
     from . gui import RfB_HT_INFO_SmartControl  # noqa
     from . gui import RfB_MT_RENDER_Presets  # noqa
     from . gui import RfB_MT_SCENE_Cameras  # noqa

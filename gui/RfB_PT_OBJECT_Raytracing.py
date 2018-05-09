@@ -58,7 +58,7 @@ class RfB_PT_OBJECT_Raytracing(RfB_PT_MIXIN_Collection, Panel):
         ob = context.object
         rm = ob.renderman
 
-        col = layout.column()
+        col = layout.column(align=True)
         row = col.row(align=True)
         row.prop(
             rm, "raytrace_intersectpriority", text="Intersection Priority")
@@ -67,14 +67,12 @@ class RfB_PT_OBJECT_Raytracing(RfB_PT_MIXIN_Collection, Panel):
         col.separator()
 
         icon = 'CHECKBOX_HLT' if rm.raytrace_override else 'CHECKBOX_DEHLT'
-        cl = col.box()
-        cl.prop(rm,
-                "raytrace_override",
-                text="Override Default Ray Tracing",
-                icon=icon, emboss=False)
+        prp = "raytrace_override"
+        txt = "Override Default Ray Tracing"
+        col.prop(rm, prp, text=txt, icon=icon)
 
         if rm.raytrace_override:
-            col = cl.column()
+            col = col.box().column()
             col.active = rm.raytrace_override
             row = col.row()
             row.prop(rm, "raytrace_pixel_variance")

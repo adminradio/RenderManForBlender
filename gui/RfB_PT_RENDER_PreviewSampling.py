@@ -45,7 +45,7 @@ class RfB_PT_RENDER_PreviewSampling(RfB_PT_MIXIN_Panel, Panel):
         __r = __s.renderman
 
         lco, rco = split12(layout)
-        lco.label("Preview Pixel Variance:")
+        lco.label("Pixel Variance:")
         rco.prop(__r, "preview_pixel_variance", text="")
 
         lco.label("Samples:")

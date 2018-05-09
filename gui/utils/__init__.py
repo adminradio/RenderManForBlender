@@ -67,10 +67,6 @@ def splitlr(_l_, align=False):
 
     return __l, __r
 
-#
-# split percentage
-#
-
 
 def splitpc(_l_, _p_, align=False):
     spl = _l_.row().split(percentage=_p_)
@@ -172,7 +168,7 @@ def draw_props(node, prop_names, layout):
     # little bit, because boxing adds a bit of padding by itself
     #
     align = True if nst else False
-    layout = layout.column(align=align)
+    layout = layout.column()
 
     for prop_name in prop_names:
         prop_meta = node.prop_meta[prop_name]
@@ -188,25 +184,15 @@ def draw_props(node, prop_names, layout):
         # -------------------------------------------------------------------
         #
         if prop_meta['renderman_type'] == 'page':
-            #
-            # we add a little bit space in FRONT of the sublayout
-            # this is nicer as behind, because of recursion that would add
-            # also space behind sub sub layouts, which looks ugly.
-            #
-            layout.separator()
 
             ui_prop = prop_name + "_uio"
             ui_open = getattr(node, ui_prop)
 
+            lay = layout.column(align=True)
+
             txt = prop_name.split('.')[-1]
-            if nst:
-                icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
-                lay = layout
-                lay.prop(node, ui_prop, icon=icn, text=txt, emboss=True)
-            else:
-                icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
-                lay = layout
-                lay.prop(node, ui_prop, icon=icn, text=txt, emboss=False)
+            icn = 'TRIA_DOWN' if ui_open else 'TRIA_RIGHT'
+            lay.prop(node, ui_prop, icon=icn, text=txt, emboss=True)
 
             if ui_open:
                 lay = lay.box()
@@ -232,8 +218,8 @@ def draw_props(node, prop_names, layout):
                 # AUTHOR: Timm Wimmers
                 # STATUS: -unassigned-
                 #
-                rm = bpy.data.scenes[0].renderman
-                lay.prop_search(node, prop_name, rm, "object_groups")
+                rmn = bpy.data.scenes[0].renderman
+                lay.prop_search(node, prop_name, rmn, "object_groups")
             else:
                 if ('widget'
                         in prop_meta
@@ -296,7 +282,7 @@ def draw_props(node, prop_names, layout):
                     iid = icons.toggle('invert', getattr(node, prop_name))
                     if prop_name == 'tileMode':
                         row = lay.row(align=True)
-                        lay.prop(node, prop_name, text="")  # yes, not row!
+                        lay.prop(node, prop_name, text="")
                     else:
                         row.prop(node, prop_name, icon_value=iid)
 
@@ -319,10 +305,9 @@ def draw_props(node, prop_names, layout):
 def rfb_menu_func(self, context):
     if context.scene.render.engine != "PRMAN_RENDER":
         return
+
     self.layout.separator()
-    if engine.ipr:
-        self.layout.operator('rfb.tool_ipr',
-                             text="RenderMan Stop Interactive Rendering")
-    else:
-        self.layout.operator('rfb.tool_ipr',
-                             text="RenderMan Start Interactive Rendering")
+
+    opr = 'rfb.tool_ipr'
+    txt = "Stop" if engine.ipr else "Start"
+    self.layout.operator(opr, text="{} Interactive Rendering".format(txt))

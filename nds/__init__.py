@@ -114,6 +114,10 @@ class RendermanSocket:
                 or node.bl_idname == "PxrOSLPatternNode":
             layout.prop(
                 self, 'default_value', text=self.pretty_n(node), slider=True)
+        elif "traceSet" in self.name:
+            layout.prop_search(node, self.name,
+                               bpy.data.scenes[0].renderman,
+                               "object_groups")            
         else:
             lco, rco = gui.utils.split12(layout)
             lbl = self.pretty_n(node)
@@ -503,6 +507,11 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                         layout.prop_search(self, prop_name,
                                            bpy.data.scenes[0].renderman,
                                            "light_groups")
+                    elif "traceSet" in prop_name:
+                        layout.prop_search(self, prop_name,
+                                           bpy.data.scenes[0].renderman,
+                                           "object_groups")
+                    
                     else:
                         #
                         # non paged sub property

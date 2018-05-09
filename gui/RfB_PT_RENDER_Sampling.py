@@ -33,6 +33,7 @@ from bpy.types import Panel
 # RenderManForBlender Imports
 #
 from . icons import toggle
+from . utils import split12
 from . utils import draw_props
 from . RfB_PT_MIXIN_Panel import RfB_PT_MIXIN_Panel
 
@@ -46,32 +47,27 @@ class RfB_PT_RENDER_Sampling(RfB_PT_MIXIN_Panel, Panel):
         scn = context.scene
         rmn = scn.renderman
 
-        row = lay.row(align=True)
+        lco, rco = split12(lay)
 
-        icn = toggle("selected", rmn.incremental)
-        row.prop(rmn, 'incremental', text="", icon_value=icn)
-
-        row.separator()
-
+        lco.prop(rmn, 'incremental', text="Incremental")
+        row = rco.row(align=True)
         row.menu("rfb_mt_render_presets", text=bpy.types.rfb_mt_render_presets.bl_label)
-
         opr = "rfb.render_add_preset"
         row.operator(opr, text="", icon='ZOOMIN')
         row.operator(opr, text="", icon='ZOOMOUT').remove_active = True
 
-        col = lay.column()
-        col.prop(rmn, "pixel_variance")
+        lco.label("Pixel Vatiance:")
+        rco.prop(rmn, "pixel_variance", text="")
 
-        row = col.row(align=True)
-        row.prop(rmn, "min_samples", text="Samples Min.")
-        row.prop(rmn, "max_samples", text="Samples Max.")
+        lco.label("Samples:")
+        row = rco.row(align=True)
+        row.prop(rmn, "min_samples", text="Min.")
+        row.prop(rmn, "max_samples", text="Max.")
 
-        row = col.row(align=True)
-        row.prop(rmn, "max_specular_depth", text="Specular Depth")
-        row.prop(rmn, "max_diffuse_depth", text="Diffuse Depth")
-
-        # row = lay.row(align=True)
-        # row.prop(rmn, 'incremental')
+        lco.label("Depth:")
+        row = rco.row(align=True)
+        row.prop(rmn, "max_specular_depth", text="Specular")
+        row.prop(rmn, "max_diffuse_depth", text="Diffuse")
 
         col = lay.column(align=True)
 
@@ -80,11 +76,10 @@ class RfB_PT_RENDER_Sampling(RfB_PT_MIXIN_Panel, Panel):
         txt = "Integrator Settings"
         col.prop(rmn, prp, icon=icn, text=txt, emboss=True)
 
-        # draw properties in scope of
-        # current lay (cl)
         if rmn.show_integrator_settings:
             # find args for integrators here!
             props = getattr(rmn, "%s_settings" % rmn.integrator)
-            lay = col.box().column(align=False)
-            lay.prop(rmn, "integrator", text="")
-            draw_props(props, props.prop_names, lay)
+
+            sub = col.box()
+            sub.prop(rmn, "integrator", text="")
+            draw_props(props, props.prop_names, sub)
