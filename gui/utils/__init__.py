@@ -162,12 +162,6 @@ def boxv(_l_):
 
 
 def draw_props(node, prop_names, layout):
-    nst = pref('rfb_nesting')
-    #
-    # if the user enables boxed nesting, we can compress space vertically a
-    # little bit, because boxing adds a bit of padding by itself
-    #
-    align = True if nst else False
     layout = layout.column()
 
     for prop_name in prop_names:
@@ -211,14 +205,7 @@ def draw_props(node, prop_names, layout):
                 continue
             lay = layout.column(align=True)
             if "Subset" in prop_name and prop_meta['type'] == 'string':
-                #
-                # FIXME:  bpy.data.scenes[0] is the first scene
-                #         in file, this should be 'active scene'!
-                # DATE:   2018-02-06
-                # AUTHOR: Timm Wimmers
-                # STATUS: -unassigned-
-                #
-                rmn = bpy.data.scenes[0].renderman
+                rmn = bpy.context.scene.renderman
                 lay.prop_search(node, prop_name, rmn, "object_groups")
             else:
                 if ('widget'

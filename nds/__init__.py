@@ -116,8 +116,8 @@ class RendermanSocket:
                 self, 'default_value', text=self.pretty_n(node), slider=True)
         elif "traceSet" in self.name:
             layout.prop_search(node, self.name,
-                               bpy.data.scenes[0].renderman,
-                               "object_groups")            
+                               context.scene.renderman,
+                               "object_groups")
         else:
             lco, rco = gui.utils.split12(layout)
             lbl = self.pretty_n(node)
@@ -501,17 +501,17 @@ class RendermanShadingNode(bpy.types.ShaderNode):
                             and prop_meta['type'] == 'string'):
 
                         layout.prop_search(self, prop_name,
-                                           bpy.data.scenes[0].renderman,
+                                           context.scene.renderman,
                                            "object_groups")
                     elif "lightGroup" in prop_name:
                         layout.prop_search(self, prop_name,
-                                           bpy.data.scenes[0].renderman,
+                                           context.scene.renderman,
                                            "light_groups")
                     elif "traceSet" in prop_name:
                         layout.prop_search(self, prop_name,
-                                           bpy.data.scenes[0].renderman,
+                                           context.scene.renderman,
                                            "object_groups")
-                    
+
                     else:
                         #
                         # non paged sub property
@@ -1071,18 +1071,10 @@ def draw_node_properties_recursive(layout, context, nt, node, level=0):
                         if "Subset" \
                                 in prop_name \
                                 and prop_meta['type'] == 'string':
-                            #
-                            # FIXME:  bpy.data.scenes[0] is static/absolut
-                            #         does not work with multiple scenes
-                            #
-                            # DATE:   2018-04-11
-                            # AUTHOR: Timm Wimmers
-                            # STATUS: -unassigned-
-                            #
                             row.prop_search(
                                 node,
                                 prop_name,
-                                bpy.data.scenes[0].renderman,
+                                bpy.context.scene.renderman,
                                 "object_groups"
                             )
                         else:
