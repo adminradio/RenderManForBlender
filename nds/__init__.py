@@ -340,6 +340,13 @@ class RendermanShadingNode(bpy.types.ShaderNode):
     def update_mat(self, mat):
         if self.renderman_node_type == 'bxdf' \
                 and self.outputs['Bxdf'].is_linked:
+            #
+            # FIXME:  Issue #539 on upstream master
+            #         https://github.com/prman-pixar/RenderManForBlender/issues/539
+            # DATE:   2018-05-11
+            # AUTHOR: Timm Wimmers
+            # STATUS: -unassigned-
+            #
             mat.specular_color = [1, 1, 1]
             mat.diffuse_color = [1, 1, 1]
             mat.use_transparency = False
@@ -2030,10 +2037,10 @@ def translate_cycles_node(ri, node, mat_name):
     if node.bl_idname == 'ShaderNodeGroup':
         translate_node_group(ri, node, mat_name)
         return
-
-    if not PropertyLookup.do_map_cycles(node.bl_idname):
-        stdmsg('No translation for node of type %s named %s' %
-               (node.bl_idname, node.name))
+    elif node.bl_idname == 'NodeReroute':
+        return
+    elif not PropertyLookup.do_map_cycles(node.bl_idname):
+        stdmsg('No translation for node of type %s named %s' % (node.bl_idname, node.name))
         return
 
     mapping = PropertyLookup.map_cycles[node.bl_idname]

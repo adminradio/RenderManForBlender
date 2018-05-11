@@ -280,10 +280,10 @@ class RendermanPreferences(AddonPreferences):
         description="Draw a nice icon on RenderMan Panels (recommended).",
         default=True)
 
-    rfb_nesting = BoolProperty(
-        name="Box nested properties",
-        description="Draw a box around nested property sections.",
-        default=True)
+    # rfb_nesting = BoolProperty(
+    #     name="Box nested properties",
+    #     description="Draw a box around nested property sections.",
+    #     default=True)
 
     rfb_info = BoolProperty(
         name="RfB infos to console",
@@ -477,7 +477,7 @@ class RendermanPreferences(AddonPreferences):
         row.prop(self, 'rfb_ipr_indicator')
         row.prop(self, 'rfb_ipr_border', text="")
         box.prop(self, 'rfb_panel_icon')
-        box.prop(self, 'rfb_nesting')
+        # box.prop(self, 'rfb_nesting')
         box.separator()
         box.prop(self, 'rfb_info')
         box.prop(self, 'rfb_debug')

@@ -56,7 +56,6 @@ class RfB_PT_MATERIAL_Preview(RfB_PT_MIXIN_Panel, Panel):
             row = layout.row()
             row.template_preview(context.material, show_buttons=False)
 
-            layout.separator()
             split = layout.split()
 
             col = split.column(align=True)
