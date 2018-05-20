@@ -461,6 +461,8 @@ class RendermanPreferences(AddonPreferences):
         sub.prop(self, 'add_lights_rigname', text="")
 
         if self.add_lights_pos == 'POSITION':
+            lco.separator()
+            rco.separator()
             # lco, rco = split12(layout)
             lco.label("Add new lights at:")
             row = rco.row(align=True)

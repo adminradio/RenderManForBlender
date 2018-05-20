@@ -345,13 +345,13 @@ class RendermanShadingNode(bpy.types.ShaderNode):
             #         https://github.com/prman-pixar/RenderManForBlender/issues/539
             # DATE:   2018-05-11
             # AUTHOR: Timm Wimmers
-            # STATUS: -unassigned-
+            # STATUS: maybe fixed 2018-05-12 (not shure about side effects, TW)
             #
-            mat.specular_color = [1, 1, 1]
-            mat.diffuse_color = [1, 1, 1]
-            mat.use_transparency = False
-            mat.specular_intensity = 0
-            mat.diffuse_intensity = 1
+            # mat.specular_color = [1, 1, 1]
+            # mat.diffuse_color = [1, 1, 1]
+            # mat.use_transparency = False
+            # mat.specular_intensity = 0
+            # mat.diffuse_intensity = 1
 
             if hasattr(self, "baseColor"):
                 mat.diffuse_color = self.baseColor
@@ -2055,8 +2055,7 @@ def translate_cycles_node(ri, node, mat_name):
                 link.from_node, mat_name, link.from_socket, input)
 
         else:
-            param_val = ribify(input.default_value,
-                            type_hint=get_socket_type(node, input))
+            param_val = ribify(input.default_value, type_hint=get_socket_type(node, input))
             # skip if this is a vector set to 0 0 0
             if input.type == 'VECTOR' and param_val == [0.0, 0.0, 0.0]:
                 continue
